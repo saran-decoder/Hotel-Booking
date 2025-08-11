@@ -1,0 +1,243 @@
+body {
+    font-family: "Inter", sans-serif;
+    background-color: #f9fafb;
+}
+
+.sidebar {
+    min-height: 100vh;
+    background-color: #fff;
+    padding: 30px 0;
+    border-right: 1px solid #e5e7eb;
+    position: fixed;
+    width: 270px;
+    z-index: 1000;
+}
+
+.sidebar a {
+    color: #4b5563;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 25px;
+    display: block;
+    text-decoration: none;
+    text-decoration: none;
+    display: inline-flex;
+    /* padding: 13.127px 113.20px 13.736px 25px; */
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.sidebar a.active {
+    background-color: #eef2ff;
+    border-right: 4px solid #2563eb;
+    color: #2563EB;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 25.432px;
+    display: inline-flex;
+    padding: 13.99px 116.20px 13.873px 25px;
+    margin-top: 0;
+}
+
+.dashboard-header {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.dashboard-subtext {
+    font-size: 18px;
+    font-weight: 400;
+    color: #6b7280;
+}
+
+.card-title {
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.card-value {
+    color: black;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.card-change {
+    font-size: 14px;
+    font-weight: 500;
+    color: #16a34a;
+}
+
+.alert-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.alert-yellow {
+    background-color: #fde68a;
+    font-size: 14px;
+    font-weight: 400;
+    color: black;
+    padding: 10px 20px;
+    margin: 0 25px 15px;
+}
+
+.alert-red {
+    background-color: #ef4444;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    padding: 10px 20px;
+    margin: 0 25px 30px;
+}
+
+.nav-top {
+    padding: 15px 25px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.search-input {
+    font-size: 16px;
+    font-weight: 400;
+    color: #cccccc;
+    display: flex;
+    width: 372.284px;
+    height: 44.505px;
+    padding: 9.537px 18.014px 9.537px 50px;
+    align-items: center;
+    gap: 26px;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.profile-role {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.chart-placeholder {
+    width: 100%;
+    height: 250px;
+}
+
+.booking-status-label {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.booking-status-blue {
+    color: #3b82f6;
+}
+.booking-status-yellow {
+    color: #fbbf24;
+}
+.booking-status-red {
+    color: #ef4444;
+}
+
+.main-content {
+    margin-left: 270px;
+    width: calc(100% - 270px);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #000;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 0;
+        overflow: hidden;
+        transition: width 0.3s ease;
+    }
+
+    .sidebar.show {
+        width: 250px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .nav-top {
+        padding: 15px;
+    }
+
+    .search-input {
+        width: 150px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .card-value {
+        font-size: 16px;
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    .dashboard-header {
+        font-size: 20px;
+    }
+
+    .dashboard-subtext {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .search-input {
+        width: 120px !important;
+        font-size: 14px;
+    }
+
+    .profile-name {
+        font-size: 12px;
+    }
+
+    .profile-role {
+        font-size: 10px;
+    }
+}
+
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin-right: 15px;
+}
+
+.fa-xmark {
+    display: none;
+    font-size: 20px;
+    padding-right: 15px;
+}
+
+@media (max-width: 991.98px) {
+    .menu-toggle {
+        display: block;
+    }
+    .fa-xmark {
+        display: block;
+    }
+    .dropdown-toggle::after {
+        display: none;
+    }
+}
