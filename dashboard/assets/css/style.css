@@ -1,3 +1,4 @@
+/* Commen CSS */
 body {
     font-family: "Inter", sans-serif;
     background-color: #f9fafb;
@@ -22,8 +23,8 @@ body {
     text-decoration: none;
     text-decoration: none;
     display: inline-flex;
-    /* padding: 13.127px 113.20px 13.736px 25px; */
     align-items: flex-start;
+    width: inherit;
     gap: 16px;
     margin-top: 16px;
 }
@@ -38,10 +39,23 @@ body {
     font-weight: 500;
     line-height: 25.432px;
     display: inline-flex;
-    padding: 13.99px 116.20px 13.873px 25px;
-    margin-top: 0;
+    width: inherit;
 }
 
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin-right: 15px;
+}
+
+.fa-xmark {
+    display: none;
+    font-size: 20px;
+    padding-right: 15px;
+}
+
+/* Dashboard Page CSS */
 .dashboard-header {
     font-size: 22px;
     font-weight: 700;
@@ -159,6 +173,198 @@ body {
     border-color: #000;
 }
 
+/* Booking Page CSS */
+.bookings-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+.bookings-subtitle {
+    font-size: 16px;
+    color: #6B7280;
+}
+
+.badge-confirmed {
+    background-color: #D1FAE5;
+    color: var(--confirmed-color);
+}
+
+.badge-pending {
+    background-color: #FEF3C7;
+    color: var(--pending-color);
+}
+
+.badge-cancelled {
+    background-color: #FEE2E2;
+    color: var(--cancelled-color);
+}
+
+.badge-primary {
+    background-color: #E2F7FE;
+    color: var(--cancelled-color);
+}
+
+.table th {
+    font-weight: 600;
+    color: #6B7280;
+    background-color: #F9FAFB;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+    padding: 12px 16px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: max-content;
+    /* min-width: 800px; */
+}
+
+/* Admin Setting CSS */
+.settings-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.settings-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3B82F6;
+    border: 3px solid #e5e7eb;
+}
+.form-label {
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 8px;
+    display: block;
+}
+.btn-primary {
+    background-color: #3b82f6;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table th, .table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+.table th {
+    font-weight: 600;
+    color: #4b5563;
+    background-color: #f9fafb;
+}
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.status-active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+.status-inactive {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+.action-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+.edit-btn {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: none;
+}
+.disable-btn {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: none;
+}
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #3b82f6;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+.is-invalid {
+    border-color: #ef4444;
+}
+.invalid-feedback {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+/* Custom Responsive */
 @media (max-width: 991.98px) {
     .sidebar {
         width: 0;
@@ -215,19 +421,6 @@ body {
     .profile-role {
         font-size: 10px;
     }
-}
-
-.menu-toggle {
-    display: none;
-    cursor: pointer;
-    font-size: 20px;
-    margin-right: 15px;
-}
-
-.fa-xmark {
-    display: none;
-    font-size: 20px;
-    padding-right: 15px;
 }
 
 @media (max-width: 991.98px) {

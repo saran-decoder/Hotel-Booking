@@ -227,44 +227,37 @@
             </div>
         </div>
 
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- jQuery -->
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <?php include "temp/footer.php" ?>
 
-        <!-- Charts Script (dummy data) -->
         <script>
-            const ctx = document.getElementById("revenueChart");
+            const ctx = document.getElementById('revenueChart');
             new Chart(ctx, {
-                type: "line",
+                type: 'line',
                 data: {
-                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                    datasets: [
-                        {
-                            label: "Revenue",
-                            data: [3000, 2500, 4600, 2100, 1800, 2500, 3100, 3500, 4000, 4200, 4600, 5800],
-                            borderColor: "#3B82F6",
-                            backgroundColor: "rgba(59, 130, 246, 0.3)",
-                            fill: true,
-                            tension: 0.4,
-                        },
-                    ],
-                },
+                    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [3000, 2500, 4600, 2100, 1800, 2500, 3100, 3500, 4000, 4200, 4600, 5800],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                }
             });
 
-            const pieCtx = document.getElementById("bookingPieChart");
+            const pieCtx = document.getElementById('bookingPieChart');
             new Chart(pieCtx, {
-                type: "pie",
+                type: 'pie',
                 data: {
-                    labels: ["Confirmed", "Pending", "Cancelled"],
-                    datasets: [
-                        {
-                            data: [60, 25, 15],
-                            backgroundColor: ["#3B82F6", "#FBBF24", "#EF4444"],
-                        },
-                    ],
-                },
+                    labels: ['Confirmed', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        data: [60, 25, 15],
+                        backgroundColor: ['#3B82F6', '#FBBF24', '#EF4444']
+                    }]
+                }
             });
         </script>
+        
     </body>
 </html>
