@@ -69,7 +69,7 @@
                                             <td>
                                                 <div class="d-flex align-item-center">
                                                     <a href="#" class="text-success text-decoration-none">Edit</a>
-                                                    <a href="#" class="ms-3 text-decoration-none">View</a>
+                                                    <a href="hotel.php" class="ms-3 text-decoration-none">View</a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -88,7 +88,7 @@
                                             <td>
                                                 <div class="d-flex align-item-center">
                                                     <a href="#" class="text-success text-decoration-none">Edit</a>
-                                                    <a href="#" class="p-0 m-0 ms-3 text-decoration-none">View</a>
+                                                    <a href="hotel.php" class="p-0 m-0 ms-3 text-decoration-none">View</a>
                                                 </div>
                                             </td>
                                         </tr>
