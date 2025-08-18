@@ -25,12 +25,12 @@
                                 <h4 class="bookings-title">Hotels & Rooms</h4>
                                 <p class="bookings-subtitle">Manage your properties and room inventory</p>
                             </div>
-                            <button class="btn btn-primary d-flex align-items-center justify-content-between">
+                            <a href="add-hotel.php" class="btn btn-primary d-flex align-items-center justify-content-between">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 18 18" fill="none">
                                 <path d="M4.52368 9.23145H14.4316" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M9.47754 4.27734V14.1853" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg> Add New Hotel
-                            </button>
+                            </a>
                         </div>
 
                         <div class="bg-white p-4 rounded-4">

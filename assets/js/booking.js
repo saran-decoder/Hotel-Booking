@@ -433,7 +433,7 @@ $(document).ready(function() {
                                 ${amenitiesHTML}
                             </div>
                         </div>
-                        <div class="col-md-3 text-end">
+                        <div class="col-md-3 text-end d-flex flex-column justify-content-between align-items-end">
                             <div class="mb-3">
                                 <span class="room-price">₹${room.price}</span>
                                 <span class="text-muted">/night</span>

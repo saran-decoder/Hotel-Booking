@@ -7,88 +7,6 @@
 
         <?php include "temp/head.php" ?>
 
-        <style>
-            .room-card {
-                border: 1px solid #dee2e6;
-                border-radius: 8px;
-                padding: 20px;
-                margin-bottom: 20px;
-                transition: all 0.3s ease;
-            }
-
-            .room-card:hover {
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            }
-
-            .room-card.selected {
-                border: 2px solid #0d6efd;
-                background-color: #f8f9fa;
-            }
-
-            .amenity-icon {
-                width: 24px;
-                height: 24px;
-                margin-right: 8px;
-                color: #0d6efd;
-            }
-
-            .review-card {
-                /* background-color: #fff; */
-                border-radius: 8px;
-                padding: 15px;
-                margin-bottom: 15px;
-            }
-
-            .review-author {
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
-
-            .review-date {
-                color: #6c757d;
-                font-size: 0.9rem;
-            }
-
-            .room-type {
-                font-size: 1.2rem;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
-
-            .room-price {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: #0d6efd;
-            }
-
-            /* Add this to your existing styles */
-            .carousel {
-                margin-bottom: 30px;
-                border-radius: 8px;
-                overflow: hidden;
-            }
-
-            .carousel-item img {
-                object-fit: cover;
-                height: 100%;
-                width: 100%;
-            }
-
-            .carousel-control-prev,
-            .carousel-control-next {
-                width: 5%;
-            }
-
-            .control-prev-icon,
-            .control-next-icon {
-                background-color: rgba(255, 255, 255, 0.80);
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                padding: 8px;
-            }
-        </style>
-
     </head>
     <body>
         <div class="container-fluid">
@@ -139,7 +57,13 @@
                             </script>
                             <div class="col-md-12">
                                 <div class="card p-4 mb-4">
-                                    <h2 class="mb-3" id="hotelNameDisplay">Grand Plaza Hotel</h2>
+                                    <div class="d-flex justify-content-between align-item-center">
+                                        <h2 class="mb-3" id="hotelNameDisplay">Grand Plaza Hotel</h2>
+                                        <a type="button"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" fill="none">
+                                            <path d="M17.8847 4.03305L19.6758 2.24192C20.6651 1.2527 22.2689 1.25269 23.2581 2.24191C24.2473 3.23113 24.2473 4.83497 23.2581 5.82419L21.467 7.61533M17.8847 4.03305L11.197 10.7208C9.86132 12.0564 9.19348 12.7243 8.73872 13.5381C8.28397 14.3519 7.82643 16.2736 7.38892 18.1111C9.22647 17.6736 11.1481 17.2161 11.9619 16.7613C12.7758 16.3065 13.4436 15.6387 14.7793 14.303L21.467 7.61533M17.8847 4.03305L21.467 7.61533" stroke="#007BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M24 13C24 18.4212 24 21.1317 22.3159 22.8159C20.6317 24.5 17.9212 24.5 12.5 24.5C7.07885 24.5 4.36827 24.5 2.68414 22.8159C1 21.1317 1 18.4212 1 13C1 7.57885 1 4.86827 2.68414 3.18414C4.36827 1.5 7.07885 1.5 12.5 1.5" stroke="#007BFF" stroke-width="2" stroke-linecap="round"/>
+                                        </svg></a>
+                                    </div>
                                     <p class="text-muted"><i class="fas fa-star text-warning"></i> <strong>4.8</strong> (324 reviews) • <i class="fas fa-map-marker-alt"></i> <span id="hotelLocationDisplay">Downtown, New York</span></p>
                                     
                                     <p id="hotelDescriptionDisplay">Experience luxury and comfort in the heart of New York City. Our hotel offers spacious rooms with stunning views, exceptional service, and world-class amenities. Just steps away from major attractions, shopping, and dining.</p>
@@ -247,11 +171,10 @@
                                                     <span class="room-price">₹199</span>
                                                     <span class="text-muted">/night</span>
                                                 </div>
-                                                <button class="btn btn-outline-primary select-room-btn" data-room="deluxe">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
-                                                    </svg>
-                                                </button>
+                                                <a type="button"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" fill="none">
+                                                    <path d="M17.8847 4.03305L19.6758 2.24192C20.6651 1.2527 22.2689 1.25269 23.2581 2.24191C24.2473 3.23113 24.2473 4.83497 23.2581 5.82419L21.467 7.61533M17.8847 4.03305L11.197 10.7208C9.86132 12.0564 9.19348 12.7243 8.73872 13.5381C8.28397 14.3519 7.82643 16.2736 7.38892 18.1111C9.22647 17.6736 11.1481 17.2161 11.9619 16.7613C12.7758 16.3065 13.4436 15.6387 14.7793 14.303L21.467 7.61533M17.8847 4.03305L21.467 7.61533" stroke="#007BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M24 13C24 18.4212 24 21.1317 22.3159 22.8159C20.6317 24.5 17.9212 24.5 12.5 24.5C7.07885 24.5 4.36827 24.5 2.68414 22.8159C1 21.1317 1 18.4212 1 13C1 7.57885 1 4.86827 2.68414 3.18414C4.36827 1.5 7.07885 1.5 12.5 1.5" stroke="#007BFF" stroke-width="2" stroke-linecap="round"/>
+                                                </svg></a>
                                             </div>
                                         </div>
                                     </div>
@@ -263,10 +186,15 @@
                                     <!-- Reviews will be populated by JavaScript -->
                                     <div class="review-card card">
                                         <div class="d-flex justify-content-between">
-                                            <div class="review-author">John D.</div>
-                                            <div class="text-warning">★★★★☆</div>
+                                            <div class="review-author d-flex align-item-center">John D. • <div class="ms-1 review-date">10 Days ago</div></div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="23" viewBox="0 0 21 23" fill="none">
+                                                <path d="M18.3125 4.72852L17.667 15.1713C17.502 17.8394 17.4195 19.1734 16.7508 20.1325C16.4201 20.6067 15.9944 21.0069 15.5007 21.3077C14.5022 21.916 13.1656 21.916 10.4924 21.916C7.81575 21.916 6.4774 21.916 5.47818 21.3066C4.98417 21.0053 4.55833 20.6044 4.2278 20.1294C3.55924 19.1687 3.4786 17.8328 3.3173 15.161L2.6875 4.72852" stroke="#F44343" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M1.125 4.72982H19.875M14.7247 4.72982L14.0136 3.26287C13.5412 2.28842 13.305 1.80119 12.8976 1.49732C12.8072 1.42992 12.7116 1.36997 12.6115 1.31805C12.1603 1.08398 11.6189 1.08398 10.536 1.08398C9.42586 1.08398 8.87081 1.08398 8.41217 1.32786C8.31052 1.38191 8.21352 1.44429 8.12218 1.51437C7.71004 1.83055 7.47982 2.3356 7.01938 3.34571L6.38846 4.72982" stroke="#F44343" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M7.89587 16.1875L7.89587 9.9375" stroke="#F44343" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M13.1041 16.1875L13.1041 9.9375" stroke="#F44343" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
                                         </div>
-                                        <div class="review-date">2025-05-15</div>
+                                        <div class="text-warning">★★★★☆</div>
                                         <p class="mt-2">Excellent hotel with great service. The room was spacious and clean, and the location was perfect for exploring the city.</p>
                                     </div>
                                 </div>
