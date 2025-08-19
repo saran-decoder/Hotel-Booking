@@ -32,15 +32,20 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <form action="#!">
+                                    <form class="needs-validation" id="loginForm" novalidate>
                                         <div class="row gy-3 gy-md-4 overflow-hidden">
                                             <div class="col-12">
                                                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                                <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required />
+                                                <input type="email" class="form-control" name="email" id="email" />
+                                                <div class="invalid-feedback">Please enter your username.</div>
                                             </div>
                                             <div class="col-12">
                                                 <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                                <input type="password" class="form-control" name="password" id="password" placeholder="••••••••" required />
+                                                <div class="input-group" id="show_hide_password">
+                                                    <input type="password" name="password" class="form-control" id="password" />
+                                                    <a href="javascript:;" class="input-group-text bg-transparent"><i class="fa fa-eye"></i></a>
+                                                </div>
+                                                <div class="invalid-feedback">Password must be at least 6 characters.</div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="mb-2 text-end">
@@ -56,7 +61,7 @@
                                     </form>
                                     <div class="row">
                                         <div class="col-12">
-                                            <p class="m-0 text-secondary text-center mt-5"><a href="#!" class="link-primary text-decoration-none">Back to Website</a></p>
+                                            <p class="m-0 text-secondary text-center mt-5"><a href="../" class="link-primary text-decoration-none">Back to Website</a></p>
                                         </div>
                                     </div>
                                 </div>
@@ -68,5 +73,87 @@
         </div>
 
         <?php include "temp/footer.php" ?>
+
+        <script>
+            $(document).ready(function () {
+                // Toggle show/hide password
+                $("#show_hide_password a").on('click', function (event) {
+                    event.preventDefault();
+                    const passwordField = $('#show_hide_password input');
+                    const icon = $('#show_hide_password i');
+
+                    if (passwordField.attr("type") === "text") {
+                        passwordField.attr('type', 'password');
+                        icon.addClass("fa-eye-slash").removeClass("fa-eye");
+                    } else {
+                        passwordField.attr('type', 'text');
+                        icon.removeClass("fa-eye-slash").addClass("fa-eye");
+                    }
+                });
+
+                // Form validation and submission
+                $("#loginForm").on("submit", function (e) {
+                    e.preventDefault();
+
+                    const email = $("#email").val().trim();
+                    const password = $("#password").val().trim();
+
+                    let isValid = true;
+
+                    // Email validation
+                    if (email === "" || !/^\S+@\S+\.\S+$/.test(email)) {
+                        $("#email").addClass("is-invalid");
+                        isValid = false;
+                    } else {
+                        $("#email").removeClass("is-invalid");
+                    }
+                    
+                    // Password validation
+                    if (password.length < 6) {
+                        $("#password").addClass("is-invalid");
+                        $("#show_hide_password").addClass("is-invalid");
+                        isValid = false;
+                    } else {
+                        $("#password").removeClass("is-invalid");
+                        $("#show_hide_password").removeClass("is-invalid");
+                    }
+
+                    if (!isValid) return;
+
+                    // AJAX Login
+                    $.ajax({
+                        url: "../api/auth/admin",
+                        type: "POST",
+                        data: { email, password },
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.success) {
+                                window.location.href = "welcome";
+                            } else {
+                                showError("Invalid login. Please check email/password.");
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.close();
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                showError(response.message || "Please try again later.");
+                            } catch (e) {
+                                showError("An unexpected error occurred. Please try again later.");
+                            }
+                        }
+                    });
+                });
+
+                function showError(message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: message,
+                        timer: 3000
+                    });
+                }
+            });
+        </script>
     </body>
 </html>

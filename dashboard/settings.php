@@ -45,7 +45,7 @@
                                 <div>
                                     <div class="form-label text-dark m-0 ms-4">Admin User</div>
                                     <div class="form-label text-sm text-gray-500 m-0 ms-4">admin@hotelmanager.com</div>
-                                    <button class="btn text-primary ms-2" style="height: fit-content;">Change profile picture</button>
+                                    <!-- <button class="btn text-primary ms-2" style="height: fit-content;">Change profile picture</button> -->
                                 </div>
                             </div>
                             
@@ -209,19 +209,6 @@
                                     </div>
                                     <label class="toggle-switch">
                                         <input type="checkbox" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="form-label">Browser Notifications</div>
-                                        <div class="text-sm text-gray-500">Receive notifications in your browser</div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox">
                                         <span class="slider"></span>
                                     </label>
                                 </div>

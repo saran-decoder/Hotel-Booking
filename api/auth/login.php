@@ -1,0 +1,25 @@
+<?php
+
+${basename(__FILE__, '.php')} = function () {
+    if ($this->paramsExists(['user', 'password'])) {
+        $user = $this->_request['user'];
+        $password = $this->_request['password'];
+        $token = UserSession::authenticate($user, $password);
+        if($token) {
+            $this->response($this->json([
+                'message'=>'Authenticated',
+                'token' => $token
+            ]), 200);
+        } else {
+            $this->response($this->json([
+                'message'=>'Unauthorized',
+                'token' => $token
+            ]), 401);
+        }
+
+    } else {
+        $this->response($this->json([
+            'message'=>"bad request"
+        ]), 400);
+    }
+};

@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /hotel-booking/
+
+    # Allow direct access to assets
+    RewriteCond %{REQUEST_URI} ^/hotel-booking/assets/ [NC]
+    RewriteRule ^ - [L]
+
+    # Redirect root to /public/ (only if not already in /public/)
+    RewriteCond %{REQUEST_URI} !^/hotel-booking/public/ [NC]
+    RewriteRule ^$ public/ [L]
+
+    # Remove .php extension
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^(.+?)/?$ $1.php [L]
+
+    # Block sensitive folders
+    RewriteCond %{REQUEST_METHOD} ^(GET|POST)$
+    RewriteRule ^(libs|api|vendor|env)/ /hotel-booking/not-allowed [R=302,L]
+</IfModule>

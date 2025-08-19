@@ -4,19 +4,6 @@
             <i class="fas fa-bars"></i>
         </div>
         <div style="display: contents;">
-            <div class="d-none d-sm-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style="left: 40px; bottom: 28px; position: absolute;">
-                    <path d="M17.3906 17.4052L13.9414 13.9561" stroke="#9CA3AF" stroke-width="2.11929" stroke-linecap="round" stroke-linejoin="round" />
-                    <path
-                        d="M9.44333 15.8159C12.9547 15.8159 15.8012 12.9693 15.8012 9.45798C15.8012 5.94662 12.9547 3.1001 9.44333 3.1001C5.93197 3.1001 3.08545 5.94662 3.08545 9.45798C3.08545 12.9693 5.93197 15.8159 9.44333 15.8159Z"
-                        stroke="#9CA3AF"
-                        stroke-width="2.11929"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    />
-                </svg>
-                <input type="text" class="form-control search-input" placeholder="Search..." />
-            </div>
             <div class="d-block d-sm-none">
                 <h5 class="px-3 mb-0" style="color: #2563eb; font-size: 18px; font-weight: 600;">TNBooking.in</h5>
             </div>

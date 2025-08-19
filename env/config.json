@@ -1,0 +1,8 @@
+{
+	"db_server": "localhost",
+	"db_username": "root",
+	"db_password": "",
+	"db_name": "tnbooking",
+	"base_path": "/hotel-booking/",
+	"dashboard_base_path": "/hotel-booking/dashboard/"
+}
