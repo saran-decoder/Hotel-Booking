@@ -68,7 +68,7 @@
                                             <td><span class="badge badge-confirmed px-3 py-1 rounded-pill">Active</span></td>
                                             <td>
                                                 <div class="d-flex align-item-center">
-                                                    <a href="#" class="text-success text-decoration-none">Edit</a>
+                                                    <a href="edit-hotel.php" class="text-success text-decoration-none">Edit</a>
                                                     <a href="hotel.php" class="ms-3 text-decoration-none">View</a>
                                                 </div>
                                             </td>
@@ -87,7 +87,7 @@
                                             <td><span class="badge badge-cancelled px-3 py-1 rounded-pill">Maintenance</span></td>
                                             <td>
                                                 <div class="d-flex align-item-center">
-                                                    <a href="#" class="text-success text-decoration-none">Edit</a>
+                                                    <a href="edit-hotel.php" class="text-success text-decoration-none">Edit</a>
                                                     <a href="hotel.php" class="p-0 m-0 ms-3 text-decoration-none">View</a>
                                                 </div>
                                             </td>

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>TN.Booking.in - Find Your Perfect Stay</title>
+        <title>TNBooking.in - Find Your Perfect Stay in Tamil Nadu</title>
         
         <?php include "temp/head.php" ?>
 
@@ -17,7 +17,7 @@
         <section class="hero">
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-lg-8 p-4">
+                    <div class="col-lg-12 p-4">
                         <div class="hero-content text-center">
                             <h1 class="mb-4 fw-bold">Find Your Perfect Stay</h1>
                             <p class="lead mb-5">Search deals on hotels, homes, and much more...</p>
@@ -43,7 +43,7 @@
                                                     stroke-width="1.5"
                                                 />
                                             </svg>
-                                            <input type="text" class="form-control" placeholder="Destination" />
+                                            <input type="text" class="form-control" placeholder="City or District" />
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -120,7 +120,7 @@
                                                 <path d="M13 5C13 7.20914 11.2091 9 9 9C6.79086 9 5 7.20914 5 5C5 2.79086 6.79086 1 9 1C11.2091 1 13 2.79086 13 5Z" stroke="black" stroke-opacity="0.5" stroke-width="1.5" />
                                             </svg>
                                             <div class="dropdown-container position-relative">
-                                                <div class="dropdown-button form-select" id="dropdownBtn">Select Guests</div>
+                                                <div class="dropdown-button form-select d-flex align-items-center" id="dropdownBtn">Select Guests</div>
 
                                                 <div class="dropdown-panel shadow" id="dropdownPanel">
                                                     <div class="dropdown-row d-flex justify-content-between align-items-center mb-2">
@@ -167,7 +167,7 @@
             </div>
         </section>
 
-        <!-- Popular Destinations -->
+        <!-- Popular Destinations in Tamil Nadu -->
         <section class="py-5 my-5">
             <div class="container">
                 <h2 class="text-center section-title">Popular Destinations</h2>
@@ -176,11 +176,11 @@
                     <!-- Carousel Container -->
                     <div class="destinations-scroller">
                         <div class="destinations-track">
-                            <!-- Card 1 -->
+                            <!-- Card 1 - Chennai -->
                             <div class="destination-card">
-                                <img src="assets/images/9.png" class="card-img-top" alt="Chennai T-Nagar" />
+                                <img src="assets/images/chennai.jpg" class="card-img-top" alt="Chennai" />
                                 <div class="card-body p-4 pt-3">
-                                    <h5 class="card-title fw-bold mb-2">Chennai T-Nagar</h5>
+                                    <h5 class="card-title fw-bold mb-2">Chennai</h5>
                                     <p class="d-flex align-items-center m-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 28 28" fill="none">
                                             <g clip-path="url(#clip0_208_4668)">
@@ -205,16 +205,16 @@
                                                 </clipPath>
                                             </defs>
                                         </svg>
-                                        512 properties
+                                        1,250 properties
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Card 2 -->
+                            <!-- Card 2 - Madurai -->
                             <div class="destination-card">
-                                <img src="assets/images/11.png" class="card-img-top" alt="Chennai T-Nagar" />
+                                <img src="assets/images/madurai.jpg" class="card-img-top" alt="Madurai" />
                                 <div class="card-body p-4 pt-3">
-                                    <h5 class="card-title fw-bold mb-2">Chennai T-Nagar</h5>
+                                    <h5 class="card-title fw-bold mb-2">Madurai</h5>
                                     <p class="d-flex align-items-center m-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 28 28" fill="none">
                                             <g clip-path="url(#clip0_208_4668)">
@@ -239,16 +239,16 @@
                                                 </clipPath>
                                             </defs>
                                         </svg>
-                                        425 properties
+                                        780 properties
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Card 3 -->
+                            <!-- Card 3 - Coimbatore -->
                             <div class="destination-card">
-                                <img src="assets/images/12.png" class="card-img-top" alt="Chennai T-Nagar" />
+                                <img src="assets/images/coimbatore.jpg" class="card-img-top" alt="Coimbatore" />
                                 <div class="card-body p-4 pt-3">
-                                    <h5 class="card-title fw-bold mb-2">Chennai T-Nagar</h5>
+                                    <h5 class="card-title fw-bold mb-2">Coimbatore</h5>
                                     <p class="d-flex align-items-center m-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 28 28" fill="none">
                                             <g clip-path="url(#clip0_208_4668)">
@@ -273,16 +273,16 @@
                                                 </clipPath>
                                             </defs>
                                         </svg>
-                                        375 properties
+                                        920 properties
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Card 4 -->
+                            <!-- Card 4 - Ooty -->
                             <div class="destination-card">
-                                <img src="assets/images/13.jpg" class="card-img-top" alt="Dubai" />
+                                <img src="assets/images/ooty.jpg" class="card-img-top" alt="Ooty" />
                                 <div class="card-body p-4 pt-3">
-                                    <h5 class="card-title fw-bold mb-2">Dubai</h5>
+                                    <h5 class="card-title fw-bold mb-2">Ooty</h5>
                                     <p class="d-flex align-items-center m-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 28 28" fill="none">
                                             <g clip-path="url(#clip0_208_4668)">
@@ -307,16 +307,16 @@
                                                 </clipPath>
                                             </defs>
                                         </svg>
-                                        280 properties
+                                        650 properties
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Card 5 -->
+                            <!-- Card 5 - Kodaikanal -->
                             <div class="destination-card">
-                                <img src="assets/images/15.jpg" class="card-img-top" alt="Sydney" />
+                                <img src="assets/images/kodaikanal.jpg" class="card-img-top" alt="Kodaikanal" />
                                 <div class="card-body p-4 pt-3">
-                                    <h5 class="card-title fw-bold mb-2">Sydney</h5>
+                                    <h5 class="card-title fw-bold mb-2">Kodaikanal</h5>
                                     <p class="d-flex align-items-center m-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 28 28" fill="none">
                                             <g clip-path="url(#clip0_208_4668)">
@@ -341,16 +341,16 @@
                                                 </clipPath>
                                             </defs>
                                         </svg>
-                                        310 properties
+                                        520 properties
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Card 6 -->
+                            <!-- Card 6 - Rameswaram -->
                             <div class="destination-card">
-                                <img src="assets/images/14.jpg" class="card-img-top" alt="Rome" />
+                                <img src="assets/images/rameswaram.jpg" class="card-img-top" alt="Rameswaram" />
                                 <div class="card-body p-4 pt-3">
-                                    <h5 class="card-title fw-bold mb-2">Rome</h5>
+                                    <h5 class="card-title fw-bold mb-2">Rameswaram</h5>
                                     <p class="d-flex align-items-center m-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 28 28" fill="none">
                                             <g clip-path="url(#clip0_208_4668)">
@@ -375,7 +375,7 @@
                                                 </clipPath>
                                             </defs>
                                         </svg>
-                                        365 properties
+                                        380 properties
                                     </p>
                                 </div>
                             </div>
@@ -395,26 +395,26 @@
             </div>
         </section>
 
-        <!-- Special Offers -->
+        <!-- Special Offers for Tamil Nadu -->
         <section class="special-offers">
             <div class="container">
-                <h2 class="text-center section-title text-white">Special Offers</h2>
+                <h2 class="text-center section-title text-white">Tamil Nadu Specials</h2>
 
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="p-4 bg-white rounded-4 shadow-sm text-center">
-                            <p class="text-danger fw-bold">LIMITED TIME</p>
-                            <h5 class="text-dark">Weekend Getaway Sale</h5>
-                            <p class="text-muted">Get up to 30% off on weekend stays at selected hotels.</p>
-                            <a href="#" class="btn btn-primary">View Deals</a>
+                            <p class="text-danger fw-bold">TAMIL NADU TOURISM</p>
+                            <h5 class="text-dark">Heritage Stay Packages</h5>
+                            <p class="text-muted">Experience Tamil Nadu's rich heritage with 25% off on heritage hotels and palaces.</p>
+                            <a href="#" class="btn btn-primary">Explore Heritage</a>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="p-4 bg-white rounded-4 shadow-sm text-center">
-                            <p class="text-success fw-bold">MEMBERS ONLY</p>
-                            <h5 class="text-dark">Loyalty Program</h5>
-                            <p class="text-muted">Join our loyalty program and get exclusive discounts and perks.</p>
-                            <a href="#" class="btn btn-primary">Learn More</a>
+                            <p class="text-success fw-bold">LOCAL SPECIAL</p>
+                            <h5 class="text-dark">Monsoon Getaways</h5>
+                            <p class="text-muted">Enjoy the monsoon in Tamil Nadu's hill stations with special discounts.</p>
+                            <a href="#" class="btn btn-primary">Hill Station Deals</a>
                         </div>
                     </div>
                 </div>
@@ -424,7 +424,7 @@
         <!-- Why Choose Us -->
         <section class="py-5 my-5">
             <div class="container">
-                <h2 class="text-center section-title">Why Choose TN.Booking.in</h2>
+                <h2 class="text-center section-title">Why Choose TNBooking.in</h2>
 
                 <div class="row g-4 mt-4">
                     <div class="col-md-4">
@@ -432,8 +432,8 @@
                             <div class="feature-icon">
                                 <i class="bi bi-lightning-charge"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Fast Booking</h4>
-                            <p class="text-muted">Our streamlined booking process gets you confirmed in minutes, with instant confirmation on most properties.</p>
+                            <h4 class="fw-bold mb-3">Tamil Nadu Experts</h4>
+                            <p class="text-muted">Our team has in-depth knowledge of Tamil Nadu's hospitality landscape to recommend the best stays for you.</p>
                         </div>
                     </div>
 
@@ -442,8 +442,8 @@
                             <div class="feature-icon">
                                 <i class="bi bi-shield-lock"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Secure Payments</h4>
-                            <p class="text-muted">Your transactions are protected with bank-level encryption and secure payment gateways for complete peace of mind.</p>
+                            <h4 class="fw-bold mb-3">Local Support</h4>
+                            <p class="text-muted">24/7 customer support in Tamil and English to assist you throughout your stay in Tamil Nadu.</p>
                         </div>
                     </div>
 
@@ -460,8 +460,8 @@
                                     />
                                 </svg>
                             </div>
-                            <h4 class="fw-bold mb-3">Best Price Guarantee</h4>
-                            <p class="text-muted">Found a better price elsewhere? We'll match it and give you an additional 10% discount on your booking.</p>
+                            <h4 class="fw-bold mb-3">Exclusive TN Deals</h4>
+                            <p class="text-muted">Special discounts and packages available only for Tamil Nadu properties through our platform.</p>
                         </div>
                     </div>
                 </div>

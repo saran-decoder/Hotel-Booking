@@ -25,12 +25,12 @@
                                 <h4 class="bookings-title">Promotions</h4>
                                 <p class="bookings-subtitle">Manage discounts, offers and special deals</p>
                             </div>
-                            <button class="btn btn-primary d-flex align-items-center justify-content-between">
+                            <a href="add-promotion.php" type="button" class="btn btn-primary d-flex align-items-center justify-content-between">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 18 18" fill="none">
                                 <path d="M4.52368 9.23145H14.4316" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M9.47754 4.27734V14.1853" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg> New Promotion
-                            </button>
+                            </a>
                         </div>
 
                         <div class="bg-white p-4 rounded-4">
@@ -65,7 +65,7 @@
                                             <td><span class="badge badge-confirmed px-3 py-1 rounded-pill">Active</span></td>
                                             <td>
                                                 <div class="d-flex align-item-center">
-                                                    <a href="#" class="text-decoration-none">Edit</a>
+                                                    <a href="edit-promotion.php" class="text-decoration-none">Edit</a>
                                                     <a href="#" class="m-0 ms-3 text-danger text-decoration-none">Delete</a>
                                                 </div>
                                             </td>
@@ -80,7 +80,7 @@
                                             <td><span class="badge badge-cancelled px-3 py-1 rounded-pill">Expired</span></td>
                                             <td>
                                                 <div class="d-flex align-item-center">
-                                                    <a href="#" class="text-decoration-none">Edit</a>
+                                                    <a href="edit-promotion.php" class="text-decoration-none">Edit</a>
                                                     <a href="#" class="m-0 ms-3 text-danger text-decoration-none">Delete</a>
                                                 </div>
                                             </td>

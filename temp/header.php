@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
     <div class="container">
         <a class="navbar-brand text-primary" href="index.php">
-            TN.Booking.in
+            TNBooking.in
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -18,9 +18,10 @@
                     <a class="nav-link" href="#">Support</a>
                 </li>
             </ul>
+            <!-- Modal Trigger Buttons -->
             <div class="d-flex align-items-center">
-                <a href="#" class="btn btn-outline-primary me-2">Login</a>
-                <a href="#" class="btn btn-primary px-4">Register</a>
+                <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
+                <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#authModal" onclick="showTab('register')">Register</button>
             </div>
         </div>
     </div>

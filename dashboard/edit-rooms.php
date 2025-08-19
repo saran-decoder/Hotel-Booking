@@ -24,28 +24,25 @@
                     <div class="card m-5 p-4">
                         <h4>Add New Hotel</h4>
                         <form id="hotelForm">
-                            <!-- Hotel Details -->
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <label class="form-label">Hotel Name</label>
-                                    <input type="text" class="form-control" placeholder="Enter hotel name" required />
+                                    
+                            <div class="row">
+                                <!-- Room Type -->
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Room Type</label>
+                                    <select class="form-select" required>
+                                        <option value="" disabled selected>Standard, Deluxe, Suite, etc.</option>
+                                        <option value="standard">Standard</option>
+                                        <option value="deluxe">Deluxe</option>
+                                        <option value="suite">Suite</option>
+                                        <option value="family">Family</option>
+                                        <option value="executive">Executive</option>
+                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Location Name</label>
-                                    <input type="text" class="form-control" placeholder="Downtown, New York" />
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Guests Allowed</label>
+                                    <input type="text" class="form-control" placeholder="e.g., 2" />
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Map Coordinates</label>
-                                    <input type="text" class="form-control" placeholder="e.g., 12.34, 56.78" />
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Full Address</label>
-                                <input type="text" class="form-control" placeholder="Enter complete address" />
                             </div>
 
                             <!-- Slideshow Images -->
@@ -67,10 +64,16 @@
                                 </div>
                             </div>
 
-                            <!-- Description -->
+                            <!-- Room Description -->
                             <div class="mb-3">
-                                <label class="form-label">Hotel Description</label>
-                                <textarea class="form-control" rows="4" placeholder="Describe the hotel, its location, and unique features"></textarea>
+                                <label class="form-label">Room Description</label>
+                                <textarea class="form-control" rows="4" placeholder="Describe the room features and amenities"></textarea>
+                            </div>
+                            
+                            <!-- Price per Night -->
+                            <div class="mb-3 col-6">
+                                <label class="form-label">Price per Night (₹)</label>
+                                <input type="number" class="form-control" placeholder="0.00" step="0.01" min="0">
                             </div>
 
                             <!-- Amenities -->
@@ -173,10 +176,25 @@
                                 </div>
                             </div>
 
+                            <!-- Stay Information -->
+                            <div class="mb-3">
+                                <label class="form-label">Default Guests</label>
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <label class="form-label">Adults</label>
+                                        <input type="number" class="form-control" value="2" min="0">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Children</label>
+                                        <input type="number" class="form-control" value="0" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Buttons -->
                             <div class="d-flex justify-content-end">
                                 <a href="hotels-rooms.php" type="button" class="btn btn-outline-secondary me-2 align-content-center">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Next</button>
+                                <button type="submit" class="btn btn-primary">Add Room</button>
                             </div>
                         </form>
                     </div>
