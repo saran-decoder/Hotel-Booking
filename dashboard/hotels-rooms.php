@@ -1,3 +1,22 @@
+<?php
+    include "../libs/load.php";
+
+    if (!Session::get('email_verified') == 'verified') {
+        header("Location: 2fa");
+        exit;
+    }
+
+    if (
+        !Session::get('session_token') || 
+		Session::get('session_type') != 'admin' && 
+		!Session::get('username') || 
+		Session::get('email_verified') != 'verified'
+    ) {
+		header("Location: logout?logout");
+		exit;
+	}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -25,7 +44,7 @@
                                 <h4 class="bookings-title">Hotels & Rooms</h4>
                                 <p class="bookings-subtitle">Manage your properties and room inventory</p>
                             </div>
-                            <a href="add-hotel.php" class="btn btn-primary d-flex align-items-center justify-content-between">
+                            <a href="add-hotel" class="btn btn-primary d-flex align-items-center justify-content-between">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 18 18" fill="none">
                                 <path d="M4.52368 9.23145H14.4316" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M9.47754 4.27734V14.1853" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"/>
@@ -68,8 +87,8 @@
                                             <td><span class="badge badge-confirmed px-3 py-1 rounded-pill">Active</span></td>
                                             <td>
                                                 <div class="d-flex align-item-center">
-                                                    <a href="edit-hotel.php" class="text-success text-decoration-none">Edit</a>
-                                                    <a href="hotel.php" class="ms-3 text-decoration-none">View</a>
+                                                    <a href="edit-hotel" class="text-success text-decoration-none">Edit</a>
+                                                    <a href="hotel" class="ms-3 text-decoration-none">View</a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -87,8 +106,8 @@
                                             <td><span class="badge badge-cancelled px-3 py-1 rounded-pill">Maintenance</span></td>
                                             <td>
                                                 <div class="d-flex align-item-center">
-                                                    <a href="edit-hotel.php" class="text-success text-decoration-none">Edit</a>
-                                                    <a href="hotel.php" class="p-0 m-0 ms-3 text-decoration-none">View</a>
+                                                    <a href="edit-hotel" class="text-success text-decoration-none">Edit</a>
+                                                    <a href="hotel" class="p-0 m-0 ms-3 text-decoration-none">View</a>
                                                 </div>
                                             </td>
                                         </tr>

@@ -1,3 +1,22 @@
+<?php
+    include "../libs/load.php";
+
+    if (!Session::get('email_verified') == 'verified') {
+        header("Location: 2fa");
+        exit;
+    }
+
+    if (
+        !Session::get('session_token') || 
+		Session::get('session_type') != 'admin' && 
+		!Session::get('username') || 
+		Session::get('email_verified') != 'verified'
+    ) {
+		header("Location: logout?logout");
+		exit;
+	}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -59,7 +78,7 @@
                                 <div class="card p-4 mb-4">
                                     <div class="d-flex justify-content-between align-item-center">
                                         <h2 class="mb-3" id="hotelNameDisplay">Grand Plaza Hotel</h2>
-                                        <a href="edit-hotel.php" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" fill="none">
+                                        <a href="edit-hotel" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" fill="none">
                                             <path d="M17.8847 4.03305L19.6758 2.24192C20.6651 1.2527 22.2689 1.25269 23.2581 2.24191C24.2473 3.23113 24.2473 4.83497 23.2581 5.82419L21.467 7.61533M17.8847 4.03305L11.197 10.7208C9.86132 12.0564 9.19348 12.7243 8.73872 13.5381C8.28397 14.3519 7.82643 16.2736 7.38892 18.1111C9.22647 17.6736 11.1481 17.2161 11.9619 16.7613C12.7758 16.3065 13.4436 15.6387 14.7793 14.303L21.467 7.61533M17.8847 4.03305L21.467 7.61533" stroke="#007BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M24 13C24 18.4212 24 21.1317 22.3159 22.8159C20.6317 24.5 17.9212 24.5 12.5 24.5C7.07885 24.5 4.36827 24.5 2.68414 22.8159C1 21.1317 1 18.4212 1 13C1 7.57885 1 4.86827 2.68414 3.18414C4.36827 1.5 7.07885 1.5 12.5 1.5" stroke="#007BFF" stroke-width="2" stroke-linecap="round"/>
                                         </svg></a>
@@ -124,7 +143,7 @@
 
                                 <div class="d-flex align-items-center justify-content-between mb-4">
                                     <h3 class="m-0">Rooms</h3>
-                                    <a href="add-rooms.php" class="btn btn-primary d-flex align-items-center justify-content-between">
+                                    <a href="add-rooms" class="btn btn-primary d-flex align-items-center justify-content-between">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 18 18" fill="none">
                                         <path d="M4.52368 9.23145H14.4316" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"></path>
                                         <path d="M9.47754 4.27734V14.1853" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -179,7 +198,7 @@
                                                     <span class="room-price">₹199</span>
                                                     <span class="text-muted">/night</span>
                                                 </div>
-                                                <a href="edit-rooms.php" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" fill="none">
+                                                <a href="edit-rooms" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" fill="none">
                                                     <path d="M17.8847 4.03305L19.6758 2.24192C20.6651 1.2527 22.2689 1.25269 23.2581 2.24191C24.2473 3.23113 24.2473 4.83497 23.2581 5.82419L21.467 7.61533M17.8847 4.03305L11.197 10.7208C9.86132 12.0564 9.19348 12.7243 8.73872 13.5381C8.28397 14.3519 7.82643 16.2736 7.38892 18.1111C9.22647 17.6736 11.1481 17.2161 11.9619 16.7613C12.7758 16.3065 13.4436 15.6387 14.7793 14.303L21.467 7.61533M17.8847 4.03305L21.467 7.61533" stroke="#007BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                     <path d="M24 13C24 18.4212 24 21.1317 22.3159 22.8159C20.6317 24.5 17.9212 24.5 12.5 24.5C7.07885 24.5 4.36827 24.5 2.68414 22.8159C1 21.1317 1 18.4212 1 13C1 7.57885 1 4.86827 2.68414 3.18414C4.36827 1.5 7.07885 1.5 12.5 1.5" stroke="#007BFF" stroke-width="2" stroke-linecap="round"/>
                                                 </svg></a>

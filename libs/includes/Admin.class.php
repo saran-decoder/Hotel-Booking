@@ -51,4 +51,59 @@ class Admin
             throw new Exception("Admin user does not exist");
         }
     }
+
+    public static function addHotel($name, $location, $coordinates, $address, $description, $amenities, $images)
+    {
+        $conn = Database::getConnection();
+        
+        try {
+            // Convert amenities & images to JSON strings
+            $imagesJson = json_encode($images, JSON_UNESCAPED_SLASHES);
+            $amenitiesJson = json_encode($amenities, JSON_UNESCAPED_SLASHES);
+
+            // Insert hotel with all data in one table
+            $stmt = $conn->prepare("INSERT INTO hotels 
+                (name, location_name, coordinates, address, description, amenities, images) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+            $stmt->bind_param("sssssss", $name, $location, $coordinates, $address, $description, $amenitiesJson, $imagesJson);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to insert hotel: " . $stmt->error);
+            }
+
+            $hotelId = $stmt->insert_id;
+            $stmt->close();
+
+            return $hotelId;
+
+        } catch (Exception $e) {
+            error_log("Hotel addition failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    public static function updateHotel($id, $name, $location, $coordinates, $address, $description, $amenities, $images)
+    {
+        $conn = Database::getConnection();
+        
+        try {
+            // Convert arrays to JSON strings for storage
+            $imagesJson = json_encode($images, JSON_UNESCAPED_SLASHES);
+            $amenitiesJson = json_encode($amenities, JSON_UNESCAPED_SLASHES);
+            
+            // Update hotel
+            $stmt = $conn->prepare("UPDATE hotels SET name = ?, location_name = ?, coordinates = ?, address = ?, description = ?, amenities = ?, images = ? WHERE id = ?");
+            $stmt->bind_param("sssssssi", $name, $location, $coordinates, $address, $description, $amenitiesJson, $imagesJson, $id);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to update hotel: " . $stmt->error);
+            }
+            
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("Hotel update failed: " . $e->getMessage());
+            return false;
+        }
+    }
 }

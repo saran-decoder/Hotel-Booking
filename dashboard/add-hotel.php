@@ -1,3 +1,22 @@
+<?php
+    include "../libs/load.php";
+
+    if (!Session::get('email_verified') == 'verified') {
+        header("Location: 2fa");
+        exit;
+    }
+
+    if (
+        !Session::get('session_token') || 
+		Session::get('session_type') != 'admin' && 
+		!Session::get('username') || 
+		Session::get('email_verified') != 'verified'
+    ) {
+		header("Location: logout?logout");
+		exit;
+	}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -6,7 +25,80 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <?php include "temp/head.php" ?>
-
+        <style>
+            .is-invalid {
+                border-color: #dc3545 !important;
+            }
+            .invalid-feedback {
+                display: none;
+                width: 100%;
+                margin-top: 0.25rem;
+                font-size: 0.875em;
+                color: #dc3545;
+            }
+            .was-validated .form-control:invalid ~ .invalid-feedback,
+            .form-control.is-invalid ~ .invalid-feedback {
+                display: block;
+            }
+            .preview-item {
+                position: relative;
+                display: inline-block;
+                margin: 5px;
+                width: 100px;
+                height: 100px;
+            }
+            .preview-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .remove-btn {
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: #dc3545;
+                color: white;
+                border: none;
+                font-size: 16px;
+                line-height: 1;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .dropzone {
+                border: 2px dashed #dee2e6;
+                border-radius: 5px;
+                padding: 20px;
+                text-align: center;
+                cursor: pointer;
+                position: relative;
+                transition: all 0.3s;
+            }
+            .dropzone.dragover {
+                border-color: #007bff;
+                background-color: rgba(0, 123, 255, 0.05);
+            }
+            .dropzone-text {
+                color: #6c757d;
+            }
+            #fileInput {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                cursor: pointer;
+            }
+            .form-check {
+                margin-right: 1.5rem;
+            }
+        </style>
     </head>
     <body>
         <div class="container-fluid">
@@ -21,34 +113,38 @@
                     
                     <div class="card m-5 p-4">
                         <h4>Add New Hotel</h4>
-                        <form id="hotelForm">
+                        <form id="hotelForm" novalidate>
                             <!-- Hotel Details -->
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <label class="form-label">Hotel Name</label>
+                                    <label class="form-label">Hotel Name <span class="text-danger">*</span></label>
                                     <input type="text" id="hotelName" name="hotelName" class="form-control" placeholder="Enter hotel name" required />
+                                    <div class="invalid-feedback">Please provide a hotel name.</div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Location Name</label>
-                                    <input type="text" id="locationName" name="locationName" class="form-control" placeholder="Downtown, New York" />
+                                    <label class="form-label">Location Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="locationName" name="locationName" class="form-control" placeholder="Downtown, New York" required />
+                                    <div class="invalid-feedback">Please provide a location name.</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Map Coordinates</label>
-                                    <input type="text" id="mapCoordinates" name="mapCoordinates" class="form-control" placeholder="e.g., 12.34, 56.78" />
+                                    <label class="form-label">Hotel Map Link <span class="text-danger">*</span></label>
+                                    <input type="url" id="mapCoordinates" name="mapCoordinates" class="form-control" placeholder="e.g., https://maps.app.goo.gl/example" required/>
+                                    <div class="invalid-feedback">Please provide a valid map URL.</div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Full Address</label>
-                                <input type="text" id="fullAddress" name="fullAddress" class="form-control" placeholder="Enter complete address" />
+                                <label class="form-label">Full Address <span class="text-danger">*</span></label>
+                                <input type="text" id="fullAddress" name="fullAddress" class="form-control" placeholder="Enter complete address" required />
+                                <div class="invalid-feedback">Please provide a full address.</div>
                             </div>
 
                             <!-- Slideshow Images -->
                             <div class="mb-3">
-                                <label class="form-label">Slideshow Images</label>
+                                <label class="form-label">Slideshow Images <span class="text-danger">*</span></label>
                                 <div class="dropzone-container">
                                     <div class="dropzone" id="uploadArea">
                                         <span class="dropzone-text">
@@ -62,31 +158,33 @@
                                         <input type="file" id="fileInput" multiple accept="image/png, image/jpeg, image/webp">
                                         <div id="previewArea" class="mt-3"></div>
                                     </div>
+                                    <div class="invalid-feedback" id="imageValidation">Please upload at least one image.</div>
                                 </div>
                             </div>
 
                             <!-- Description -->
                             <div class="mb-3">
-                                <label class="form-label">Hotel Description</label>
-                                <textarea id="hotelDescription" name="hotelDescription" class="form-control" rows="4" placeholder="Describe the hotel, its location, and unique features"></textarea>
+                                <label class="form-label">Hotel Description <span class="text-danger">*</span></label>
+                                <textarea id="hotelDescription" name="hotelDescription" class="form-control" rows="4" placeholder="Describe the hotel, its location, and unique features" required></textarea>
+                                <div class="invalid-feedback">Please provide a hotel description.</div>
                             </div>
 
                             <!-- Amenities -->
                             <div class="mb-3">
                                 <label class="form-label d-block">Amenities</label>
                                 <div class="d-flex flex-wrap">
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="wifi" id="wifi" />
                                         <label class="form-check-label" for="wifi">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23" fill="none">
                                                 <path d="M11.0011 18.9756H11.0094" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <path d="M1.83325 8.72694C4.35419 6.47215 7.61773 5.22559 10.9999 5.22559C14.3821 5.22559 17.6456 6.47215 20.1666 8.72694" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <path d="M4.58252 12.4299C6.29603 10.7503 8.59979 9.80957 10.9992 9.80957C13.3986 9.80957 15.7023 10.7503 17.4159 12.4299" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M7.79089 15.7018C8.64765 14.862 9.79953 14.3916 10.9992 14.3916C12.1989 14.3916 13.3508 14.862 14.2076 15.7018" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M7.79089 15.7018C8.64765 14.862 9.79953 14.3916 10.9992 14.3916C12.1989 14.3916 13.3508 14.862 14.2076 15.7018" stroke="#007BFF" stroke-width="2.16667" stroke-linecap" round" stroke-linejoin="round"/>
                                             </svg> Free WiFi
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="air_conditioning" id="air" />
                                         <label class="form-check-label" for="air">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23" fill="none">
@@ -94,17 +192,17 @@
                                             </svg> Air Conditioning
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="swimming_pool" id="pool" />
                                         <label class="form-check-label" for="pool">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17" fill="none">
-                                                <path d="M8.82526 3.93091L12.75 12.3076C10.7639 12.3076 10.1595 11.26 8.087 10.2124C6.42903 9.37428 4.11477 9.51397 3.42395 9.68857L6.1491 7.76193C6.45756 7.54385 6.61179 7.43482 6.66108 7.26883C6.71037 7.10284 6.64064 6.9273 6.50118 6.57623L6.50118 6.57622L6.13646 5.65805C6.00794 5.33451 5.94368 5.17273 5.83711 5.04731C5.75819 4.95444 5.66296 4.87678 5.55612 4.81816C5.41183 4.73899 5.24044 4.70858 4.89765 4.64776L1.91793 4.11909C1.29052 4.00777 0.833374 3.46238 0.833374 2.82517C0.833374 2.02465 1.54304 1.41011 2.33534 1.52454L6.36481 2.10651C7.00291 2.19866 7.32195 2.24474 7.5976 2.37679C7.82835 2.48732 8.03574 2.6411 8.20853 2.82979C8.41495 3.0552 8.55172 3.3471 8.82526 3.93091Z" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M8.82526 3.93091L12.75 12.3076C10.7639 12.3076 10.1595 11.26 8.087 10.2124C6.42903 9.37428 4.11477 9.51397 3.42395 9.68857L6.1491 7.76193C6.45756 7.54385 6.61179 7.43482 6.66108 7.26883C6.71037 7.10284 6.64064 6.9273 6.50118 6.57623L6.50118 6.57622L6.13646 5.65805C6.00794 5.33451 5.94368 5.17273 5.83711 5.04731C5.75819 4.95444 5.66296 4.87678 5.55612 4.81816C5.41183 4.73899 5.24044 4.70858 4.89765 4.64776L1.91793 4.11909C1.29052 4.00777 0.833374 3.46238 0.833374 2.82517C0.833374 2.02465 1.54304 1.41011 2.33534 1.52454L6.36481 2.10651C7.00291 2.19866 7.32195 2.24474 7.59760 2.37679C7.82835 2.48732 8.03574 2.6411 8.20853 2.82979C8.41495 3.0552 8.55172 3.3471 8.82526 3.93091Z" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <ellipse cx="16.4166" cy="6.80762" rx="2.75" ry="2.75" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <path d="M0.833374 14.2182C1.80097 10.9809 6.12117 12.4667 9.54171 14.2182C12.9622 15.9697 16.4167 17.0842 18.25 14.2182" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg> Swimming Pool
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="restaurant" id="restaurant" />
                                         <label class="form-check-label" for="restaurant">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23" fill="none">
@@ -114,7 +212,7 @@
                                             </svg> Restaurant
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="parking" id="parking" />
                                         <label class="form-check-label" for="parking">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none">
@@ -127,7 +225,7 @@
                                             </svg> Parking
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="fitness_center" id="gym" />
                                         <label class="form-check-label" for="gym">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none">
@@ -140,7 +238,7 @@
                                             </svg> Fitness Center
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" name="amenities[]" value="bar" id="bar" />
                                         <label class="form-check-label" for="bar">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21" fill="none">
@@ -151,13 +249,13 @@
                                             </svg> Bar
                                         </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check me-4 mb-2">
                                         <input class="form-check-input" type="checkbox" value="others" id="others" />
                                         <label class="form-check-label" for="others">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none">
                                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
                                                     10-4.48 10-10S17.52 2 12 2zm1 17.93c-2.83.48-5.64-.37-7.71-2.44C3.66 15.35 2.81 12.54
-                                                    3.29 9.71A8.97 8.97 0 0 1 12 4c2.21 0 4.21.9 5.65 2.35a8.975 8.975 0 0 1-4.65 13.58z"
+                                                    3.29 9.71A8.97 8.97 0 0 1 12 4c2.21 0 4.21.90 5.65 2.35a8.975 8.975 0 0 1-4.65 13.58z"
                                                     stroke="#007BFF" stroke-width="1.5" stroke-linecap="round"/>
                                             </svg>
                                             Others
@@ -165,15 +263,16 @@
                                     </div>
 
                                     <!-- Hidden input box for custom amenity -->
-                                    <div id="customAmenityInput" style="display: none; margin-top: 8px;">
+                                    <div id="customAmenityInput" style="display: none; margin-top: 8px; width: 100%;">
                                         <input type="text" id="customAmenity" name="customAmenity" class="form-control" placeholder="Enter custom amenity" />
+                                        <div class="invalid-feedback">Please provide a custom amenity name.</div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Buttons -->
                             <div class="d-flex justify-content-end">
-                                <a href="hotels-rooms.php" type="button" class="btn btn-outline-secondary me-2 align-content-center">Cancel</a>
+                                <a href="hotels-rooms" type="button" class="btn btn-outline-secondary me-2 align-content-center">Cancel</a>
                                 <button type="submit" class="btn btn-primary">Next</button>
                             </div>
                         </form>
@@ -234,12 +333,12 @@
                 function handleFiles(files) {
                     for (let file of files) {
                         if (!file.type.startsWith('image/')) {
-                            alert('Only image files are allowed.');
+                            showToast('Error', 'Only image files are allowed.', 'error');
                             continue;
                         }
 
                         if (file.size > 10 * 1024 * 1024) {
-                            alert('File size must be less than 10MB.');
+                            showToast('Error', 'File size must be less than 10MB.', 'error');
                             continue;
                         }
 
@@ -277,6 +376,9 @@
                                 if (filesArray.length === 0) {
                                     dropzoneText.show();
                                 }
+                                
+                                // Validate images
+                                validateImages();
                             });
 
                             previewItem.append(img);
@@ -287,6 +389,9 @@
                             if (filesArray.length > 0) {
                                 dropzoneText.hide();
                             }
+                            
+                            // Validate images
+                            validateImages();
                         };
                         reader.readAsDataURL(file);
                     }
@@ -307,6 +412,18 @@
                     // Update the file input with the new files
                     fileInput[0].files = dataTransfer.files;
                 }
+                
+                // Function to validate images
+                function validateImages() {
+                    const imageValidation = $('#imageValidation');
+                    if (filesArray.length === 0) {
+                        dropzone.addClass('is-invalid');
+                        imageValidation.show();
+                    } else {
+                        dropzone.removeClass('is-invalid');
+                        imageValidation.hide();
+                    }
+                }
 
                 // Handle window resize to adjust file input size
                 $(window).resize(function() {
@@ -320,22 +437,144 @@
                 $('#others').change(function () {
                     if ($(this).is(':checked')) {
                         $('#customAmenityInput').slideDown(); // Show input box
+                        $('#customAmenity').prop('required', true);
                     } else {
                         $('#customAmenityInput').slideUp();   // Hide input box
+                        $('#customAmenity').prop('required', false);
+                        $('#customAmenity').removeClass('is-invalid');
                     }
                 });
                 
-                // Handle form submission
+                // Form validation
                 $('#hotelForm').on('submit', function(e) {
                     e.preventDefault();
                     
+                    // Reset validation state
+                    $(this).removeClass('was-validated');
+                    $('.form-control').removeClass('is-invalid');
+                    
+                    // Validate all fields
+                    let isValid = true;
+                    
+                    // Check required fields
+                    $('#hotelName, #locationName, #mapCoordinates, #fullAddress, #hotelDescription').each(function() {
+                        if (!$(this).val().trim()) {
+                            $(this).addClass('is-invalid');
+                            isValid = false;
+                        }
+                    });
+                    
+                    // Validate URL format for map coordinates
+                    const mapUrl = $('#mapCoordinates').val().trim();
+                    if (mapUrl) {
+                        try {
+                            new URL(mapUrl);
+                        } catch (e) {
+                            $('#mapCoordinates').addClass('is-invalid');
+                            isValid = false;
+                        }
+                    }
+                    
+                    // Validate images
+                    if (filesArray.length === 0) {
+                        $('#imageValidation').show();
+                        dropzone.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    // Validate custom amenity if others is checked
+                    if ($('#others').is(':checked') && !$('#customAmenity').val().trim()) {
+                        $('#customAmenity').addClass('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) {
+                        // Scroll to first invalid field
+                        $('html, body').animate({
+                            scrollTop: $('.is-invalid').first().offset().top - 100
+                        }, 500);
+                        
+                        return false;
+                    }
+                    
+                    // If all validations pass, proceed with form submission
+                    submitForm();
+                });
+                
+                // Real-time validation for inputs
+                $('input, textarea').on('input', function() {
+                    $(this).removeClass('is-invalid');
+                    
+                    // Special handling for URL validation
+                    if ($(this).attr('id') === 'mapCoordinates' && $(this).val().trim()) {
+                        try {
+                            new URL($(this).val().trim());
+                            $(this).removeClass('is-invalid');
+                        } catch (e) {
+                            $(this).addClass('is-invalid');
+                        }
+                    }
+                });
+                
+                // Function to show toast notification
+                function showToast(title, message, type = 'info') {
+                    // Remove any existing toasts first
+                    $('.toast-container').remove();
+                    
+                    // Create toast container if it doesn't exist
+                    if ($('.toast-container').length === 0) {
+                        $('body').append('<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;"></div>');
+                    }
+                    
+                    const toastId = 'toast-' + Date.now();
+                    const toastHtml = `
+                        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <strong class="me-auto">${title}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                        </div>
+                    `;
+                    
+                    $('.toast-container').append(toastHtml);
+                    
+                    // Add appropriate styling based on type
+                    const toastElement = $('#' + toastId);
+                    if (type === 'success') {
+                        toastElement.find('.toast-header').addClass('bg-success text-white');
+                    } else if (type === 'error') {
+                        toastElement.find('.toast-header').addClass('bg-danger text-white');
+                    } else if (type === 'warning') {
+                        toastElement.find('.toast-header').addClass('bg-warning text-dark');
+                    } else {
+                        toastElement.find('.toast-header').addClass('bg-info text-white');
+                    }
+                    
+                    // Initialize and show the toast
+                    const toast = new bootstrap.Toast(toastElement[0], {
+                        autohide: true,
+                        delay: 5000
+                    });
+                    toast.show();
+                    
+                    // Remove toast from DOM after it's hidden
+                    toastElement.on('hidden.bs.toast', function () {
+                        $(this).remove();
+                    });
+                }
+                
+                // Function to submit form via AJAX
+                function submitForm() {
                     // Collect form data
                     const formData = new FormData();
-                    formData.append('hotelName', $('#hotelName').val());
-                    formData.append('locationName', $('#locationName').val());
-                    formData.append('mapCoordinates', $('#mapCoordinates').val());
-                    formData.append('fullAddress', $('#fullAddress').val());
-                    formData.append('hotelDescription', $('#hotelDescription').val());
+                    formData.append('hotelName', $('#hotelName').val().trim());
+                    formData.append('locationName', $('#locationName').val().trim());
+                    formData.append('mapCoordinates', $('#mapCoordinates').val().trim());
+                    formData.append('fullAddress', $('#fullAddress').val().trim());
+                    formData.append('hotelDescription', $('#hotelDescription').val().trim());
                     
                     // Get selected amenities
                     const amenities = [];
@@ -344,8 +583,8 @@
                     });
                     
                     // Add custom amenity if others is checked
-                    if ($('#others').is(':checked') && $('#customAmenity').val()) {
-                        amenities.push($('#customAmenity').val());
+                    if ($('#others').is(':checked') && $('#customAmenity').val().trim()) {
+                        amenities.push($('#customAmenity').val().trim());
                     }
                     
                     formData.append('amenities', JSON.stringify(amenities));
@@ -356,54 +595,41 @@
                     }
                     
                     // Show loading state
-                    const submitBtn = $(this).find('button[type="submit"]');
+                    const submitBtn = $('#hotelForm').find('button[type="submit"]');
+                    const originalText = submitBtn.html();
                     submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
                     
                     // Send AJAX request
                     $.ajax({
-                        url: '../api/admin/add-hotel.php',
+                        url: '../api/hotel/add',
                         type: 'POST',
                         data: formData,
                         processData: false,
                         contentType: false,
                         success: function(response) {
                             if (response.success) {
-                                // Success message
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'Hotel added successfully!',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = 'hotels-rooms.php';
-                                    }
-                                });
+                                // Success toast
+                                showToast('Success', 'Hotel added successfully!', 'success');
+                                
+                                // Redirect after a short delay
+                                setTimeout(function() {
+                                    window.location.href = 'add-rooms';
+                                }, 1500);
                             } else {
-                                // Error message
-                                Swal.fire({
-                                    title: 'Error!',
-                                    text: response.message || 'Failed to add hotel. Please try again.',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
+                                // Error toast
+                                showToast('Error', response.message || 'Failed to add hotel. Please try again.', 'error');
                             }
                         },
                         error: function(xhr, status, error) {
-                            // Error message
-                            Swal.fire({
-                                title: 'Error!',
-                                text: 'An error occurred while adding the hotel. Please try again.',
-                                icon: 'error',
-                                confirmButtonText: 'OK'
-                            });
+                            // Error toast
+                            showToast('Error', 'An error occurred while adding the hotel. Please try again.', 'error');
                         },
                         complete: function() {
                             // Reset button state
-                            submitBtn.prop('disabled', false).html('Next');
+                            submitBtn.prop('disabled', false).html(originalText);
                         }
                     });
-                });
+                }
             });
         </script>
         

@@ -9,24 +9,24 @@ class Operations
         return iterator_to_array($result);
     }
 
-    public static function getAllDoctors() {
+    public static function getAllHotels() {
         $conn = Database::getConnection();
-        $sql = "SELECT * FROM `doctors` ORDER BY `created_at` DESC";
+        $sql = "SELECT * FROM `hotels` ORDER BY `created_at` DESC";
         $result = $conn->query($sql);
         return iterator_to_array($result);
     }
 
-    public static function getDoctors($dpt = '')
+    public static function getHotel($id = '')
     {
         $conn = Database::getConnection();
 
-        if ($dpt !== '') {
-            $stmt = $conn->prepare("SELECT * FROM `doctors` WHERE `department` = ?");
-            $stmt->bind_param("s", $dpt);
+        if ($id !== '') {
+            $stmt = $conn->prepare("SELECT * FROM `hotels` WHERE `id` = ?");
+            $stmt->bind_param("s", $id);
             $stmt->execute();
             $result = $stmt->get_result();
         } else {
-            $result = $conn->query("SELECT * FROM `doctors`");
+            $result = $conn->query("SELECT * FROM `hotels`");
         }
 
         $doctors = [];

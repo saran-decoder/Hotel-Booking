@@ -11,9 +11,6 @@
 <!-- Google Fonts: Inter -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-<!-- Chart.js (Optional for chart placeholders) -->
-<script src="assets/css/libs/chart.js"></script>
-
 <link rel="stylesheet" href="assets/css/style.css">
 
 <link rel="stylesheet" href="assets/css/libs/sweetalert2.min.css" />
