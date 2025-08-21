@@ -1,12 +1,14 @@
 <?php
 
 ${basename(__FILE__, '.php')} = function () {
-    if ($this->paramsExists(['contact'])) {
-
-        $phone = $this->_request['contact'];
+    if ($this->paramsExists(['username'])) {
+         $conn = Database::getConnection();
+        $email = $this->_request['username'];
+        $qry = $conn->query("SELECT `id` FROM `admin` WHERE `email` = '$email'")->fetch_array();
+        $userId = $qry["id"];
 
         // Generate and send OTP (or reuse existing logic)
-        $otpSent = UserSession::resendOtp($phone); // You need to implement resendOtp()
+        $otpSent = Verification::resendEmailCode($userId, $email);
 
         if ($otpSent) {
             $this->response($this->json([
@@ -22,7 +24,7 @@ ${basename(__FILE__, '.php')} = function () {
 
     } else {
         $this->response($this->json([
-            'message' => 'Bad request. Phone number is required.',
+            'message' => 'Bad request. login again.',
             'status' => 'error'
         ]), 400);
     }

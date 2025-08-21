@@ -1,11 +1,11 @@
 <?php
 
 ${basename(__FILE__, '.php')} = function () {
-    if ($this->paramsExists(['contact', 'otp'])) {
-        $phone = $this->_request['contact'];
-        $otp   = $this->_request['otp'];
+    if ($this->paramsExists(['username', 'otp'])) {
+        $username = $this->_request['username'];
+        $code     = $this->_request['otp'];
 
-        $verified = UserSession::verifyOtp($phone, $otp);
+        $verified = Verification::verifyEmailCode($username, $code);
 
         if ($verified) {
             $this->response($this->json([

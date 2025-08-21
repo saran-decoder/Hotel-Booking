@@ -1,3 +1,19 @@
+<?php
+
+    include "../libs/load.php";
+
+    if (
+        Session::get('session_token') &&
+        Session::get('session_type')  == 'admin' &&
+        Session::get('username') &&
+        Session::get('email_verified') == 'verified'
+    ) {
+		header("Location: welcome");
+		exit;
+	}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -95,13 +111,13 @@
                 $("#loginForm").on("submit", function (e) {
                     e.preventDefault();
 
-                    const email = $("#email").val().trim();
+                    const user = $("#email").val().trim();
                     const password = $("#password").val().trim();
 
                     let isValid = true;
 
                     // Email validation
-                    if (email === "" || !/^\S+@\S+\.\S+$/.test(email)) {
+                    if (user === "" || !/^\S+@\S+\.\S+$/.test(user)) {
                         $("#email").addClass("is-invalid");
                         isValid = false;
                     } else {
@@ -124,17 +140,29 @@
                     $.ajax({
                         url: "../api/auth/admin",
                         type: "POST",
-                        data: { email, password },
+                        data: { user, password },
                         dataType: "json",
+                        beforeSend: function () {
+                            Swal.fire({
+                                title: 'Logging in...',
+                                text: 'Please wait while we verify your credentials',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                        },
                         success: function (response) {
-                            if (response.success) {
-                                window.location.href = "welcome";
+                            Swal.close(); // close the loader
+                            if (response) {
+                                window.location.href = "2fa";
                             } else {
                                 showError("Invalid login. Please check email/password.");
                             }
                         },
                         error: function (xhr, status, error) {
-                            Swal.close();
+                            Swal.close(); // close the loader
                             try {
                                 const response = JSON.parse(xhr.responseText);
                                 showError(response.message || "Please try again later.");

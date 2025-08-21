@@ -24,6 +24,7 @@ class ComposerStaticIniteeda4349afdfc2c28c86c81f0a71e547
         'P' => 
         array (
             'Psr\\Clock\\' => 10,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'C' => 
         array (
@@ -52,6 +53,10 @@ class ComposerStaticIniteeda4349afdfc2c28c86c81f0a71e547
         'Psr\\Clock\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/clock/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Carbon\\Doctrine\\' => 
         array (

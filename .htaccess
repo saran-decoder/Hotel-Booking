@@ -10,10 +10,14 @@
     RewriteCond %{REQUEST_URI} !^/hotel-booking/public/ [NC]
     RewriteRule ^$ public/ [L]
 
-    # Remove .php extension
+    # Remove .php extension (allow /file instead of /file.php)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME}\.php -f
     RewriteRule ^(.+?)/?$ $1.php [L]
+
+    # API rewrite rules
+    RewriteRule ^api/([^/]+)/([^/]+)/?$ api.php?rquest=$2&namespace=$1 [L,QSA]
+    RewriteRule ^api/([^/]+)/?$ api.php?rquest=$1 [L,QSA]
 
     # Block sensitive folders
     RewriteCond %{REQUEST_METHOD} ^(GET|POST)$

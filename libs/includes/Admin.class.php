@@ -1,4 +1,5 @@
 <?php
+
 require_once "Database.class.php";
 
 class Admin
@@ -21,13 +22,15 @@ class Admin
         if ($result->num_rows === 1) {
             $row = $result->fetch_assoc();
 
-            // Verify password (hashed)
-            if (password_verify($pass, $row['password'])) {
-                return $row['email']; // return email as identifier
+            // For plain text password (development)
+            if ($pass === $row['password']) {
+                return $row['email']; // success
             }
+            return false; // password mismatch
         }
-        return false;
+        return false; // user not found
     }
+
 
     // Constructor: load Admin object by email or ID
     public function __construct($identifier)

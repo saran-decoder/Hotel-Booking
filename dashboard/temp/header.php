@@ -36,7 +36,7 @@
 
         <!-- Dropdown Menu -->
         <ul class="dropdown-menu dropdown-menu-end mt-2">
-            <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+            <li><a class="dropdown-item text-danger" href="logout?logout">Logout</a></li>
         </ul>
     </div>
 </div>

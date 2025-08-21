@@ -1,7 +1,5 @@
 <?php
 
-use MongoDB\Driver\Session as DriverSession;
-
 class Session
 {
     public static $isError = false;
@@ -90,16 +88,17 @@ class Session
      */
     public static function isOwnerOf($owner){
         $sess_user = Session::getUser();
-        if($sess_user){
-            if($sess_user->getUsername() == $owner){
+        if ($sess_user) {
+            if (
+                (method_exists($sess_user, 'getEmail') && $sess_user->getEmail() == $owner) ||
+                (method_exists($sess_user, 'getPhone') && $sess_user->getPhone() == $owner)
+            ) {
                 return true;
-            }else{
-                return false;
             }
-        } else {
-            return false;
         }
+        return false;
     }
+
 
     public static function currentScript()
     {

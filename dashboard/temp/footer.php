@@ -4,6 +4,10 @@
 <!-- jQuery -->
 <script src="assets/js/libs/jquery-3.7.1.min.js"></script>
 
+<script src="assets/js/libs/sweetalert2.all.min.js"></script>
+<script src="assets/js/libs/chart.js"></script>
+<script src="assets/js/libs/dropzone.min.js"></script>
+
 <!-- Charts Script (dummy data) -->
 <script>
     // Wait for DOM to be fully loaded

@@ -1,7 +1,9 @@
 <?php
-require_once "Database.class.php";
-require_once "Session.class.php";
-require_once "vendor/autoload.php"; // For PHPMailer
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 class Verification
 {
@@ -25,16 +27,16 @@ class Verification
         
         if ($conn->query($query)) {
             // Send email using PHPMailer
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail = new PHPMailer(true);
             
             try {
                 // Server settings
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com'; // Set your SMTP server
                 $mail->SMTPAuth = true;
-                $mail->Username = 'your-email@gmail.com'; // SMTP username
-                $mail->Password = 'your-app-password'; // SMTP password
-                $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+                $mail->Username = 'saranmass685@gmail.com'; // SMTP username
+                $mail->Password = 'hsvt dntq qfak bgvq'; // SMTP password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                 $mail->Port = 465;
                 
                 // Recipients
@@ -110,15 +112,15 @@ class Verification
         }
     }
     
-    public static function verifyEmailCode($userId, $code)
+    public static function verifyEmailCode($username, $code)
     {
         $conn = Database::getConnection();
         
         $code = $conn->real_escape_string(trim($code));
-        $userId = $conn->real_escape_string($userId);
+        $email = $conn->real_escape_string($username);
         
         $query = "SELECT `email_code`, `email_code_expires` FROM `verification` 
-                  WHERE `user_id` = '$userId'";
+                  WHERE `email` = '$email'";
         
         $result = $conn->query($query);
         
@@ -134,12 +136,12 @@ class Verification
                 return "Invalid or expired verification code.";
             }
             
-            if ($row['email_code'] == $code && $expiryTimestamp >= time()) {
+            if ($row['email_code'] === $code && $expiryTimestamp >= time()) {
                 // Update verification status
-                $update = $conn->query("UPDATE `verification` SET `email_verified` = 1, `verified_at` = NOW() WHERE `user_id` = '$userId'");
+                $update = $conn->query("UPDATE `verification` SET `email_verified` = 1, `verified_at` = NOW() WHERE `email` = '$email'");
                 
                 if ($update) {
-                    Session::set('email_verified', true);
+                    Session::set('email_verified', 'verified');
                     return true;
                 } else {
                     return "Failed to update verification status.";

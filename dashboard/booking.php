@@ -1,3 +1,22 @@
+<?php
+    include "../libs/load.php";
+
+    if (!Session::get('email_verified') == 'verified') {
+        header("Location: 2fa");
+        exit;
+    }
+
+    if (
+        !Session::get('session_token') || 
+		Session::get('session_type') != 'admin' && 
+		!Session::get('username') || 
+		Session::get('email_verified') != 'verified'
+    ) {
+		header("Location: logout?logout");
+		exit;
+	}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -25,6 +44,12 @@
                                 <h4 class="bookings-title">Bookings</h4>
                                 <p class="bookings-subtitle">Manage all hotel bookings</p>
                             </div>
+                            <a href="add-booking.php" class="btn btn-primary d-flex align-items-center justify-content-between">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="me-2" viewBox="0 0 18 18" fill="none">
+                                <path d="M4.52368 9.23145H14.4316" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M9.47754 4.27734V14.1853" stroke="white" stroke-width="2.12313" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg> Add Booking
+                            </a>
                         </div>
 
                         <div class="bg-white p-4 rounded-4">

@@ -3,6 +3,7 @@
         "php": "^8.0",
         "symfony/translation": "^5.4",
         "symfony/translation-contracts": "^2.5",
-        "nesbot/carbon": "^2.62"
+        "nesbot/carbon": "^2.62",
+        "phpmailer/phpmailer": "^6.10"
     }
 }

@@ -1,0 +1,81 @@
+body {
+    background-color: #f8f9fa;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.otp-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.otp-box {
+    background: #fff;
+    /* padding: 2.5rem;
+    border-radius: 1rem; */
+    border-end-end-radius: 1rem;
+    border-start-end-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+.otp-input {
+    width: 3.5rem;
+    height: 3.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 0.4rem;
+    border: 2px solid #dee2e6;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+}
+.otp-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    transform: translateY(-2px);
+}
+.left-panel {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    padding: 3rem 2.5rem;
+    border-radius: 1rem 0 0 1rem;
+}
+.btn-primary {
+    padding: 0.8rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    background: linear-gradient(to right, #0d6efd, #0a58ca);
+    border: none;
+    transition: all 0.3s;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+}
+.resend-link {
+    color: #6c757d;
+    transition: color 0.3s;
+}
+.resend-link:hover {
+    color: #0d6efd;
+}
+.brand-text {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+}
+.brand-subtext {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+.otp-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0a58ca;
+    margin-bottom: 1rem;
+}
+.otp-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}

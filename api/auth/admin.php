@@ -3,23 +3,23 @@
 ${basename(__FILE__, '.php')} = function () {
     if ($this->paramsExists(['user', 'password'])) {
         $user = $this->_request['user'];
-        $password = $this->_request['password'];
-        $token = UserSession::authenticateAdmin($user, $password);
-        if($token) {
+        $pass = $this->_request['password'];
+
+        $token = UserSession::authenticateAdmin($user, $pass);
+        if ($token) {
             $this->response($this->json([
-                'message'=>'Authenticated',
-                'token' => $token
+                'message' => 'Authenticated',
+                'token'   => $token
             ]), 200);
         } else {
             $this->response($this->json([
-                'message'=>'Unauthorized',
-                'token' => $token
+                'message' => 'Unauthorized - invalid email or password'
             ]), 401);
         }
 
     } else {
         $this->response($this->json([
-            'message'=>"bad request"
+            'message' => "Bad Request"
         ]), 400);
     }
 };

@@ -2,12 +2,10 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>TNBooking Dashboard</title>
+        <title>TNBooking - Add Hotel</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <?php include "temp/head.php" ?>
-
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css" rel="stylesheet" />
 
     </head>
     <body>
@@ -28,24 +26,24 @@
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <label class="form-label">Hotel Name</label>
-                                    <input type="text" class="form-control" placeholder="Enter hotel name" required />
+                                    <input type="text" id="hotelName" name="hotelName" class="form-control" placeholder="Enter hotel name" required />
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Location Name</label>
-                                    <input type="text" class="form-control" placeholder="Downtown, New York" />
+                                    <input type="text" id="locationName" name="locationName" class="form-control" placeholder="Downtown, New York" />
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Map Coordinates</label>
-                                    <input type="text" class="form-control" placeholder="e.g., 12.34, 56.78" />
+                                    <input type="text" id="mapCoordinates" name="mapCoordinates" class="form-control" placeholder="e.g., 12.34, 56.78" />
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Full Address</label>
-                                <input type="text" class="form-control" placeholder="Enter complete address" />
+                                <input type="text" id="fullAddress" name="fullAddress" class="form-control" placeholder="Enter complete address" />
                             </div>
 
                             <!-- Slideshow Images -->
@@ -70,7 +68,7 @@
                             <!-- Description -->
                             <div class="mb-3">
                                 <label class="form-label">Hotel Description</label>
-                                <textarea class="form-control" rows="4" placeholder="Describe the hotel, its location, and unique features"></textarea>
+                                <textarea id="hotelDescription" name="hotelDescription" class="form-control" rows="4" placeholder="Describe the hotel, its location, and unique features"></textarea>
                             </div>
 
                             <!-- Amenities -->
@@ -78,7 +76,7 @@
                                 <label class="form-label d-block">Amenities</label>
                                 <div class="d-flex flex-wrap">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="wifi" />
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="wifi" id="wifi" />
                                         <label class="form-check-label" for="wifi">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23" fill="none">
                                                 <path d="M11.0011 18.9756H11.0094" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
@@ -89,15 +87,15 @@
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="air" />
-                                        <label class="form-check-label" for="ac">
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="air_conditioning" id="air" />
+                                        <label class="form-check-label" for="air">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23" fill="none">
-                                                <path d="M12.8339 4.26497V13.9266C13.5329 14.3302 14.0792 14.9532 14.3881 15.6989C14.697 16.4446 14.7512 17.2714 14.5423 18.0511C14.3334 18.8307 13.873 19.5197 13.2327 20.011C12.5923 20.5024 11.8077 20.7687 11.0005 20.7687C10.1934 20.7687 9.40877 20.5024 8.76841 20.011C8.12804 19.5197 7.66771 18.8307 7.4588 18.0511C7.24989 17.2714 7.30409 16.4446 7.61297 15.6989C7.92186 14.9532 8.46818 14.3302 9.1672 13.9266V4.26497C9.1672 3.77874 9.36035 3.31243 9.70417 2.96861C10.048 2.62479 10.5143 2.43164 11.0005 2.43164C11.4868 2.43164 11.9531 2.62479 12.2969 2.96861C12.6407 3.31243 12.8339 3.77874 12.8339 4.26497Z" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12.8339 4.26497V13.9266C13.5329 14.3302 14.0792 14.9532 14.3881 15.6989C14.697 16.4446 14.7512 17.2714 14.5423 18.0511C14.3334 18.8307 13.873 19.5197 13.2327 20.011C12.5923 20.5024 11.8077 20.7687 11.0005 20.7687C10.1934 20.7687 9.40877 20.5024 8.76841 20.011C8.12804 19.5197 7.66771 18.8307 7.45880 18.0511C7.24989 17.2714 7.30409 16.4446 7.61297 15.6989C7.92186 14.9532 8.46818 14.3302 9.16720 13.9266V4.26497C9.16720 3.77874 9.36035 3.31243 9.70417 2.96861C10.0480 2.62479 10.5143 2.43164 11.0005 2.43164C11.4868 2.43164 11.9531 2.62479 12.2969 2.96861C12.6407 3.31243 12.8339 3.77874 12.8339 4.26497Z" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg> Air Conditioning
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="pool" />
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="swimming_pool" id="pool" />
                                         <label class="form-check-label" for="pool">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17" fill="none">
                                                 <path d="M8.82526 3.93091L12.75 12.3076C10.7639 12.3076 10.1595 11.26 8.087 10.2124C6.42903 9.37428 4.11477 9.51397 3.42395 9.68857L6.1491 7.76193C6.45756 7.54385 6.61179 7.43482 6.66108 7.26883C6.71037 7.10284 6.64064 6.9273 6.50118 6.57623L6.50118 6.57622L6.13646 5.65805C6.00794 5.33451 5.94368 5.17273 5.83711 5.04731C5.75819 4.95444 5.66296 4.87678 5.55612 4.81816C5.41183 4.73899 5.24044 4.70858 4.89765 4.64776L1.91793 4.11909C1.29052 4.00777 0.833374 3.46238 0.833374 2.82517C0.833374 2.02465 1.54304 1.41011 2.33534 1.52454L6.36481 2.10651C7.00291 2.19866 7.32195 2.24474 7.5976 2.37679C7.82835 2.48732 8.03574 2.6411 8.20853 2.82979C8.41495 3.0552 8.55172 3.3471 8.82526 3.93091Z" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -107,7 +105,7 @@
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="restaurant" />
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="restaurant" id="restaurant" />
                                         <label class="form-check-label" for="restaurant">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23" fill="none">
                                                 <path d="M2.75073 2.13867V8.55534C2.75073 9.56367 3.57573 10.3887 4.58407 10.3887H8.25073C8.73696 10.3887 9.20328 10.1955 9.54709 9.8517C9.89091 9.50788 10.0841 9.04157 10.0841 8.55534V2.13867" stroke="#007BFF" stroke-width="2.16667" stroke-linecap="round" stroke-linejoin="round"/>
@@ -117,7 +115,7 @@
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="parking" />
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="parking" id="parking" />
                                         <label class="form-check-label" for="parking">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none">
                                                 <path d="M19.9024 17.8906V7.45039C19.9024 6.23769 19.9024 5.63134 19.5872 5.16175C19.272 4.69215 18.7138 4.46696 17.5975 4.01658L12.0975 1.79759C11.4251 1.52628 11.0888 1.39062 10.7358 1.39062C10.3827 1.39062 10.0465 1.52628 9.37399 1.79759L3.87399 4.01658C2.75767 4.46696 2.19951 4.69215 1.8843 5.16175C1.56909 5.63134 1.56909 6.23769 1.56909 7.45039V17.8906" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -130,7 +128,7 @@
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="gym" />
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="fitness_center" id="gym" />
                                         <label class="form-check-label" for="gym">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none">
                                                 <path d="M19.9024 17.8906V7.45039C19.9024 6.23769 19.9024 5.63134 19.5872 5.16175C19.272 4.69215 18.7138 4.46696 17.5975 4.01658L12.0975 1.79759C11.4251 1.52628 11.0888 1.39062 10.7358 1.39062C10.3827 1.39062 10.0465 1.52628 9.37399 1.79759L3.87399 4.01658C2.75767 4.46696 2.19951 4.69215 1.8843 5.16175C1.56909 5.63134 1.56909 6.23769 1.56909 7.45039V17.8906" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -143,7 +141,7 @@
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="bar" />
+                                        <input class="form-check-input" type="checkbox" name="amenities[]" value="bar" id="bar" />
                                         <label class="form-check-label" for="bar">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21" fill="none">
                                                 <path d="M7.01908 13.427L3.63818 9.50637C1.90349 7.49478 1.03615 6.48899 1.42095 5.66881C1.80574 4.84863 3.14495 4.84863 5.82339 4.84863H9.67157C12.35 4.84863 13.6892 4.84863 14.074 5.66881C14.4588 6.48899 13.5915 7.49478 11.8568 9.50637L8.47588 13.427C8.13764 13.8192 7.96852 14.0153 7.74748 14.0153C7.52643 14.0153 7.35731 13.8192 7.01908 13.427Z" stroke="#007BFF" stroke-width="1.5" stroke-linecap="round"/>
@@ -154,7 +152,7 @@
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="others" />
+                                        <input class="form-check-input" type="checkbox" value="others" id="others" />
                                         <label class="form-check-label" for="others">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none">
                                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
@@ -168,7 +166,7 @@
 
                                     <!-- Hidden input box for custom amenity -->
                                     <div id="customAmenityInput" style="display: none; margin-top: 8px;">
-                                        <input type="text" class="form-control" placeholder="Enter custom amenity" />
+                                        <input type="text" id="customAmenity" name="customAmenity" class="form-control" placeholder="Enter custom amenity" />
                                     </div>
                                 </div>
                             </div>
@@ -185,8 +183,6 @@
         </div>
 
         <?php include "temp/footer.php" ?>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 
         <script>
             $(document).ready(function () {
@@ -319,15 +315,94 @@
                         'height': dropzone.outerHeight()
                     });
                 });
-            });
-
-            $(document).ready(function () {
+                
+                // Handle others checkbox
                 $('#others').change(function () {
                     if ($(this).is(':checked')) {
                         $('#customAmenityInput').slideDown(); // Show input box
                     } else {
                         $('#customAmenityInput').slideUp();   // Hide input box
                     }
+                });
+                
+                // Handle form submission
+                $('#hotelForm').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Collect form data
+                    const formData = new FormData();
+                    formData.append('hotelName', $('#hotelName').val());
+                    formData.append('locationName', $('#locationName').val());
+                    formData.append('mapCoordinates', $('#mapCoordinates').val());
+                    formData.append('fullAddress', $('#fullAddress').val());
+                    formData.append('hotelDescription', $('#hotelDescription').val());
+                    
+                    // Get selected amenities
+                    const amenities = [];
+                    $('input[name="amenities[]"]:checked').each(function() {
+                        amenities.push($(this).val());
+                    });
+                    
+                    // Add custom amenity if others is checked
+                    if ($('#others').is(':checked') && $('#customAmenity').val()) {
+                        amenities.push($('#customAmenity').val());
+                    }
+                    
+                    formData.append('amenities', JSON.stringify(amenities));
+                    
+                    // Add files
+                    for (let i = 0; i < filesArray.length; i++) {
+                        formData.append('images[]', filesArray[i]);
+                    }
+                    
+                    // Show loading state
+                    const submitBtn = $(this).find('button[type="submit"]');
+                    submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                    
+                    // Send AJAX request
+                    $.ajax({
+                        url: '../api/admin/add-hotel.php',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            if (response.success) {
+                                // Success message
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Hotel added successfully!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = 'hotels-rooms.php';
+                                    }
+                                });
+                            } else {
+                                // Error message
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: response.message || 'Failed to add hotel. Please try again.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Error message
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An error occurred while adding the hotel. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        },
+                        complete: function() {
+                            // Reset button state
+                            submitBtn.prop('disabled', false).html('Next');
+                        }
+                    });
                 });
             });
         </script>
