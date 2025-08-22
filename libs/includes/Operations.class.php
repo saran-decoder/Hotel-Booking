@@ -11,10 +11,25 @@ class Operations
 
     public static function getAllHotels() {
         $conn = Database::getConnection();
-        $sql = "SELECT * FROM `hotels` ORDER BY `created_at` DESC";
-        $result = $conn->query($sql);
-        return iterator_to_array($result);
+        $username = Session::get("username");
+
+        // Use prepared statements for security (avoid SQL injection)
+        $sql = "SELECT h.*, r.id AS room_id, r.room_type, r.guests_allowed, 
+                    r.description AS room_description, r.price_per_night, 
+                    r.amenities, r.images, r.status AS room_status
+                FROM hotels h
+                LEFT JOIN rooms r ON h.id = r.hotel_id
+                WHERE h.owner = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Convert to array
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
+
 
     public static function getHotel($id = '')
     {

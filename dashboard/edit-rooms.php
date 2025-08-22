@@ -162,11 +162,23 @@
                                 <div class="invalid-feedback">Please provide a room description.</div>
                             </div>
                             
-                            <!-- Price per Night -->
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">Price per Night (₹) <span class="text-danger">*</span></label>
-                                <input type="number" id="pricePerNight" name="pricePerNight" class="form-control" placeholder="0.00" step="0.01" min="0" required>
-                                <div class="invalid-feedback">Please provide a valid price.</div>
+                            <div class="row mb-3">
+                                <!-- Price per Night -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Price per Night (₹) <span class="text-danger">*</span></label>
+                                    <input type="number" id="pricePerNight" name="pricePerNight" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                                    <div class="invalid-feedback">Please provide a valid price.</div>
+                                </div>
+    
+                                <div class="col-md-6">
+                                    <label class="form-label">Room Status <span class="text-danger">*</span></label>
+                                    <select id="roomStatus" name="roomStatus" class="form-control" required>
+                                        <option id="status">-- Select Status --</option>
+                                        <option value="active">Active</option>
+                                        <option value="maintenance">Maintenance</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a valid status.</div>
+                                </div>
                             </div>
 
                             <!-- Amenities -->
@@ -317,6 +329,7 @@
                         $("#guestsAllowed").val(roomData.guests_allowed);
                         $("#roomDescription").val(roomData.description);
                         $("#pricePerNight").val(roomData.price_per_night);
+                        $("#status").val(roomData.status);
 
                         // Parse amenities from JSON string
                         let amenities = [];
@@ -513,6 +526,8 @@
                     formData.append("guestsAllowed", $("#guestsAllowed").val().trim());
                     formData.append("roomDescription", $("#roomDescription").val().trim());
                     formData.append("pricePerNight", $("#pricePerNight").val().trim());
+                    formData.append("status", $("#roomStatus").val().trim());
+                    
                     
                     // Gather checked amenities
                     const amenities = [];

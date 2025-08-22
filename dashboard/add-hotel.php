@@ -612,7 +612,7 @@
                                 
                                 // Redirect after a short delay
                                 setTimeout(function() {
-                                    window.location.href = 'add-rooms';
+                                    window.location.href = 'add-rooms?id=' + response.hotel_id;
                                 }, 1500);
                             } else {
                                 // Error toast

@@ -23,6 +23,7 @@ ${basename(__FILE__, '.php')} = function () {
         $pricePerNight    = trim($this->_request['pricePerNight'] ?? '');
         $amenities        = json_decode($this->_request['amenities'] ?? '[]', true);
         $imagesToDelete   = json_decode($this->_request['imagesToDelete'] ?? '[]', true);
+        $status           = trim($this->_request['status'] ?? '');
 
         // Validation
         if ($roomId === '') {
@@ -143,7 +144,8 @@ ${basename(__FILE__, '.php')} = function () {
             $roomDescription,
             $pricePerNight,
             $amenities,
-            $updatedImages
+            $updatedImages,
+            $status
         );
 
         if ($updated) {

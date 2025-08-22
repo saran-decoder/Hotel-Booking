@@ -15,6 +15,11 @@
         header("Location: logout?logout");
         exit;
     }
+    
+    if (!isset($_GET['id'])) {
+        header("Location: hotels-rooms");
+        exit;
+    }
 ?>
 
 <!DOCTYPE html>
