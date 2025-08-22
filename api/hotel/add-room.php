@@ -18,6 +18,7 @@ ${basename(__FILE__, '.php')} = function () {
 
     try {
         // Collect data from form (matching the field names in the HTML form)
+        $hotelId = trim($this->_request['hotelID'] ?? '');
         $roomType = trim($this->_request['roomType'] ?? '');
         $guestsAllowed = trim($this->_request['guestsAllowed'] ?? '');
         $roomDescription = trim($this->_request['roomDescription'] ?? '');
@@ -111,10 +112,6 @@ ${basename(__FILE__, '.php')} = function () {
                 'message' => 'At least one room image is required'
             ]), 400);
         }
-
-        // Get hotel ID - you might need to adjust this based on your application logic
-        // For example, if the admin is associated with a specific hotel
-        $hotelId = Operations::getAdminHotelId(Session::get('username'));
         
         if (!$hotelId) {
             return $this->response($this->json([

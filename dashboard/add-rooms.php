@@ -121,6 +121,7 @@
                     <div class="card m-5 p-4">
                         <h4>Add New Room</h4>
                         <form id="roomForm" novalidate>
+                            <input type="hidden" id="hotelID" value="<?= $_GET['id'] ?>">
                             <div class="row">
                                 <!-- Room Type -->
                                 <div class="mb-3 col-md-6">
@@ -624,6 +625,7 @@
                 function submitForm() {
                     // Collect form data
                     const formData = new FormData();
+                    formData.append('hotelID', $('#hotelID').val());
                     formData.append('roomType', $('#roomType').val());
                     formData.append('guestsAllowed', $('#guestsAllowed').val());
                     formData.append('roomDescription', $('#roomDescription').val().trim());
@@ -662,26 +664,48 @@
                         processData: false,
                         contentType: false,
                         success: function(response) {
-                            if (response) {
-                                // Success toast
-                                showToast('Success', 'Room added successfully!', 'success');
+                            try {
+                                const data = typeof response === 'string' ? JSON.parse(response) : response;
                                 
-                                // Reset form after a short delay
-                                setTimeout(function() {
-                                    $('#roomForm')[0].reset();
-                                    filesArray = [];
-                                    previewArea.empty();
-                                    dropzoneText.show();
-                                    validateImages();
-                                }, 1500);
-                            } else {
-                                // Error toast
-                                showToast('Error', response.message || 'Failed to add room. Please try again.', 'error');
+                                if (data.success) {
+                                    // Success toast
+                                    showToast('Success', data.message || 'Room added successfully!', 'success');
+                                    
+                                    // Reset form after a short delay
+                                    setTimeout(function() {
+                                        $('#roomForm')[0].reset();
+                                        filesArray = [];
+                                        previewArea.empty();
+                                        dropzoneText.show();
+                                        validateImages();
+                                        // Reset amenities checkboxes
+                                        $('input[name="amenities[]"]').prop('checked', false);
+                                        $('#others').prop('checked', false);
+                                        $('#customAmenityInput').hide();
+                                        window.location.href = 'hotel';
+                                    }, 1500);
+                                } else {
+                                    // Error toast
+                                    showToast('Error', data.message || 'Failed to add room. Please try again.', 'error');
+                                }
+                            } catch (e) {
+                                showToast('Error', 'Invalid response from server. Please try again.', 'error');
                             }
                         },
                         error: function(xhr, status, error) {
                             // Error toast
-                            showToast('Error', 'An error occurred while adding the room. Please try again.', 'error');
+                            let errorMsg = 'An error occurred while adding the room. Please try again.';
+                            
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response && response.message) {
+                                    errorMsg = response.message;
+                                }
+                            } catch (e) {
+                                // Use default error message
+                            }
+                            
+                            showToast('Error', errorMsg, 'error');
                         },
                         complete: function() {
                             // Reset button state
