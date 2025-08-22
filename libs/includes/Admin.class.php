@@ -107,7 +107,7 @@ class Admin
         }
     }
     
-    public static function addRoom($hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenities, $defaultAdults, $defaultChildren, $images)
+    public static function addRoom($hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenities, $images)
     {
         $conn = Database::getConnection();
         
@@ -118,10 +118,10 @@ class Admin
             
             // Insert room
             $stmt = $conn->prepare("INSERT INTO rooms
-                (hotel_id, room_type, guests_allowed, description, price_per_night, amenities, default_adults, default_children, images)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                (hotel_id, room_type, guests_allowed, description, price_per_night, amenities, images)
+                VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-            $stmt->bind_param("issdsssss", $hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenitiesJson, $defaultAdults, $defaultChildren, $imagesJson);
+            $stmt->bind_param("isssdss", $hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenitiesJson, $imagesJson);
 
             if (!$stmt->execute()) {
                 throw new Exception("Failed to insert room: " . $stmt->error);
@@ -134,6 +134,42 @@ class Admin
 
         } catch (Exception $e) {
             error_log("Room addition failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function updateRoom($roomId, $hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenities, $images)
+    {
+        $conn = Database::getConnection();
+        
+        try {
+            // Convert arrays to JSON strings for storage
+            $imagesJson = json_encode($images, JSON_UNESCAPED_SLASHES);
+            $amenitiesJson = json_encode($amenities, JSON_UNESCAPED_SLASHES);
+            
+            // Update room
+            $stmt = $conn->prepare("UPDATE rooms SET 
+                room_type = ?, 
+                guests_allowed = ?, 
+                description = ?, 
+                price_per_night = ?, 
+                amenities = ?, 
+                images = ? 
+                WHERE id = ? AND hotel_id = ?");
+
+            $stmt->bind_param("sssdssii", $roomType, $guestsAllowed, $description, $pricePerNight, $amenitiesJson, $imagesJson, $roomId, $hotelId);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to update room: " . $stmt->error);
+            }
+
+            $affectedRows = $stmt->affected_rows;
+            $stmt->close();
+
+            return $affectedRows > 0;
+
+        } catch (Exception $e) {
+            error_log("Room update failed: " . $e->getMessage());
             return false;
         }
     }

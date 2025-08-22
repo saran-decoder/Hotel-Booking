@@ -235,23 +235,6 @@
                                 </div>
                             </div>
 
-                            <!-- Stay Information -->
-                            <div class="mb-3">
-                                <label class="form-label">Default Guests <span class="text-danger">*</span></label>
-                                <div class="d-flex">
-                                    <div class="me-3">
-                                        <label class="form-label">Adults</label>
-                                        <input type="number" id="adults" class="form-control" value="2" min="1" required>
-                                        <div class="invalid-feedback">Please provide number of adults.</div>
-                                    </div>
-                                    <div>
-                                        <label class="form-label">Children</label>
-                                        <input type="number" id="children" class="form-control" value="0" min="0" required>
-                                        <div class="invalid-feedback">Please provide number of children.</div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Buttons -->
                             <div class="d-flex justify-content-end">
                                 <a href="hotels-rooms" type="button" class="btn btn-outline-secondary me-2 align-content-center">Cancel</a>
@@ -445,9 +428,7 @@
                         '#roomType', 
                         '#guestsAllowed', 
                         '#roomDescription', 
-                        '#pricePerNight', 
-                        '#adults', 
-                        '#children'
+                        '#pricePerNight'
                     ];
                     
                     requiredFields.forEach(field => {
@@ -466,9 +447,7 @@
                     // Validate numeric fields
                     const numericFields = [
                         {id: '#guestsAllowed', min: 1, message: 'Please provide a valid number of guests (minimum 1).'},
-                        {id: '#pricePerNight', min: 0.01, message: 'Please provide a valid price (minimum ₹0.01).'},
-                        {id: '#adults', min: 1, message: 'Please provide number of adults (minimum 1).'},
-                        {id: '#children', min: 0, message: 'Please provide number of children (minimum 0).'}
+                        {id: '#pricePerNight', min: 0.01, message: 'Please provide a valid price (minimum ₹0.01).'}
                     ];
                     
                     numericFields.forEach(field => {
@@ -630,8 +609,6 @@
                     formData.append('guestsAllowed', $('#guestsAllowed').val());
                     formData.append('roomDescription', $('#roomDescription').val().trim());
                     formData.append('pricePerNight', $('#pricePerNight').val());
-                    formData.append('adults', $('#adults').val());
-                    formData.append('children', $('#children').val());
                     
                     // Get selected amenities
                     const amenities = [];

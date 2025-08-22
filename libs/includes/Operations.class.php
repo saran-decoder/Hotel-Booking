@@ -47,6 +47,34 @@ class Operations
         return $result->fetch_assoc();
     }
 
+    public static function getAllRooms() {
+        $conn = Database::getConnection();
+        $sql = "SELECT * FROM `rooms` ORDER BY `created_at` DESC";
+        $result = $conn->query($sql);
+        return iterator_to_array($result);
+    }
+
+    public static function getRoom($id = '')
+    {
+        $conn = Database::getConnection();
+
+        if ($id !== '') {
+            $stmt = $conn->prepare("SELECT * FROM `rooms` WHERE `id` = ?");
+            $stmt->bind_param("s", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = $conn->query("SELECT * FROM `rooms`");
+        }
+
+        $doctors = [];
+        while ($row = $result->fetch_assoc()) {
+            $doctors[] = $row;
+        }
+
+        return $doctors;
+    }
+
     public static function getAllDepartments() {
         $conn = Database::getConnection();
         $sql = "SELECT * FROM `departments` ORDER BY `created_at` DESC";

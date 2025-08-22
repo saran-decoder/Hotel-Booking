@@ -24,8 +24,6 @@ ${basename(__FILE__, '.php')} = function () {
         $roomDescription = trim($this->_request['roomDescription'] ?? '');
         $pricePerNight = trim($this->_request['pricePerNight'] ?? '');
         $amenities = json_decode($this->_request['amenities'] ?? '[]', true);
-        $adults = trim($this->_request['adults'] ?? '');
-        $children = trim($this->_request['children'] ?? '');
 
         // Validation - check for required fields
         if (empty($roomType)) {
@@ -56,46 +54,19 @@ ${basename(__FILE__, '.php')} = function () {
             ]), 400);
         }
 
-        if (empty($adults) || !is_numeric($adults) || $adults < 1) {
-            return $this->response($this->json([
-                'success' => false,
-                'message' => 'Number of adults is required and must be at least 1'
-            ]), 400);
-        }
-
         // Handle image uploads
         $uploadedImages = [];
         if (!empty($_FILES['images']) && is_array($_FILES['images']['tmp_name'])) {
-            $uploadDir = '../uploads/rooms/';
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
+            $uploadDir = 'uploads/rooms/';
+            if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
 
             foreach ($_FILES['images']['tmp_name'] as $i => $tmpName) {
                 if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
-                    // Check file type
-                    $finfo = new finfo(FILEINFO_MIME_TYPE);
-                    $mime = $finfo->file($tmpName);
-                    $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
-                    
-                    if (!in_array($mime, $allowedMimes)) {
-                        continue;
-                    }
+                    $ext = strtolower(pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION));
+                    $allowed = ['jpg','jpeg','png','webp'];
+                    if (!in_array($ext, $allowed)) continue;
 
-                    // Check file size (max 10MB)
-                    if ($_FILES['images']['size'][$i] > 10 * 1024 * 1024) {
-                        continue;
-                    }
-
-                    // Generate safe filename
-                    $ext = '';
-                    switch ($mime) {
-                        case 'image/jpeg': $ext = 'jpg'; break;
-                        case 'image/png': $ext = 'png'; break;
-                        case 'image/webp': $ext = 'webp'; break;
-                    }
-                    
-                    $fileName = uniqid() . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+                    $fileName   = time() . '_' . preg_replace('/[^a-zA-Z0-9\._-]/', '', $_FILES['images']['name'][$i]);
                     $targetPath = $uploadDir . $fileName;
 
                     if (move_uploaded_file($tmpName, $targetPath)) {
@@ -128,8 +99,6 @@ ${basename(__FILE__, '.php')} = function () {
             $roomDescription,
             $pricePerNight,
             $amenities,
-            $adults,
-            $children,
             $uploadedImages
         );
 
