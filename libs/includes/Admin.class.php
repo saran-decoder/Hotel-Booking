@@ -52,7 +52,7 @@ class Admin
         }
     }
 
-    public static function addHotel($name, $location, $coordinates, $address, $description, $amenities, $images)
+    public static function addHotel($owner, $name, $location, $coordinates, $address, $description, $amenities, $images)
     {
         $conn = Database::getConnection();
         
@@ -63,10 +63,10 @@ class Admin
 
             // Insert hotel with all data in one table
             $stmt = $conn->prepare("INSERT INTO hotels 
-                (name, location_name, coordinates, address, description, amenities, images) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)");
+                (owner, name, location_name, coordinates, address, description, amenities, images) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-            $stmt->bind_param("sssssss", $name, $location, $coordinates, $address, $description, $amenitiesJson, $imagesJson);
+            $stmt->bind_param("ssssssss", $owner, $name, $location, $coordinates, $address, $description, $amenitiesJson, $imagesJson);
 
             if (!$stmt->execute()) {
                 throw new Exception("Failed to insert hotel: " . $stmt->error);
@@ -103,6 +103,37 @@ class Admin
             
         } catch (Exception $e) {
             error_log("Hotel update failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public static function addRoom($hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenities, $defaultAdults, $defaultChildren, $images)
+    {
+        $conn = Database::getConnection();
+        
+        try {
+            // Convert arrays to JSON strings for storage
+            $imagesJson = json_encode($images, JSON_UNESCAPED_SLASHES);
+            $amenitiesJson = json_encode($amenities, JSON_UNESCAPED_SLASHES);
+            
+            // Insert room
+            $stmt = $conn->prepare("INSERT INTO rooms
+                (hotel_id, room_type, guests_allowed, description, price_per_night, amenities, default_adults, default_children, images)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+            $stmt->bind_param("issdsssss", $hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenitiesJson, $defaultAdults, $defaultChildren, $imagesJson);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to insert room: " . $stmt->error);
+            }
+
+            $roomId = $stmt->insert_id;
+            $stmt->close();
+
+            return $roomId;
+
+        } catch (Exception $e) {
+            error_log("Room addition failed: " . $e->getMessage());
             return false;
         }
     }

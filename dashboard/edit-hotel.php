@@ -16,7 +16,7 @@
 		exit;
 	}
 
-    if (isset($_GET['id'])) {
+    if (!isset($_GET['id'])) {
         header("Location: hotels-rooms");
         exit;
     }

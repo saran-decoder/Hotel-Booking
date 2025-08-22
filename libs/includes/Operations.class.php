@@ -37,6 +37,16 @@ class Operations
         return $doctors;
     }
 
+    public static function getAdminHotelId($username)
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("SELECT * FROM `hotels` WHERE `id` = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
     public static function getAllDepartments() {
         $conn = Database::getConnection();
         $sql = "SELECT * FROM `departments` ORDER BY `created_at` DESC";

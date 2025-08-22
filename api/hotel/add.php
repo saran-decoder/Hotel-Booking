@@ -54,8 +54,11 @@ ${basename(__FILE__, '.php')} = function () {
             }
         }
 
+        $owner = Session::get('username');
+
         // Insert hotel
         $hotelId = Admin::addHotel(
+            $owner,
             $hotelName,
             $locationName,
             $mapCoordinates,
