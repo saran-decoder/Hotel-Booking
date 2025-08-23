@@ -179,11 +179,9 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $.post("../api/hotel/delete", { id: id }, function (response) {
-                                if (response || response.message === "Hotel & Rooms deleted successfully") { 
-                                    showToast("Success", response.message || "Hotel & Rooms deleted successfully"); 
-                                    setTimeout(function () {
-                                        window.location.href = "hotels-rooms";
-                                    }, 1500);
+                                if (response || response.message === "Hotel & Rooms deleted successfully") {
+                                    fetchHotels();
+                                    showToast('Success', 'Hotel & Rooms deleted successfully', 'success'); 
                                 } else { 
                                     showToast("Error", response.message || "Delete failed"); 
                                 }
