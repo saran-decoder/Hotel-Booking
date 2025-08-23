@@ -664,7 +664,7 @@
                                         $('input[name="amenities[]"]').prop('checked', false);
                                         $('#others').prop('checked', false);
                                         $('#customAmenityInput').hide();
-                                        window.location.href = 'hotel';
+                                        window.location.href = 'hotel?id=' + data.hotel_id;
                                     }, 1500);
                                 } else {
                                     // Error toast

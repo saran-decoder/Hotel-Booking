@@ -76,7 +76,16 @@ ${basename(__FILE__, '.php')} = function () {
         // Remove deleted images from array + unlink files
         $updatedImages = [];
         foreach ($existingImages as $img) {
-            if (in_array($img, $imagesToDelete)) {
+            // Use basename for comparison to handle different path formats
+            $shouldDelete = false;
+            foreach ($imagesToDelete as $imageToDelete) {
+                if (basename($img) === basename($imageToDelete)) {
+                    $shouldDelete = true;
+                    break;
+                }
+            }
+            
+            if ($shouldDelete) {
                 $filePath = __DIR__ . '/../' . $img;
                 if (file_exists($filePath)) {
                     unlink($filePath);
@@ -87,8 +96,9 @@ ${basename(__FILE__, '.php')} = function () {
         }
 
         // Handle new uploads
+        $newImagePaths = [];
         if (!empty($_FILES['images']) && is_array($_FILES['images']['tmp_name'])) {
-            $uploadDir = '../uploads/rooms/';
+            $uploadDir = 'uploads/rooms/';
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -121,14 +131,17 @@ ${basename(__FILE__, '.php')} = function () {
                     $targetPath = $uploadDir . $fileName;
 
                     if (move_uploaded_file($tmpName, $targetPath)) {
-                        $updatedImages[] = 'uploads/rooms/' . $fileName;
+                        $newImagePaths[] = 'uploads/rooms/' . $fileName;
                     }
                 }
             }
         }
 
+        // Merge existing and new images
+        $allImages = array_merge($updatedImages, $newImagePaths);
+
         // Check if we have at least one image
-        if (empty($updatedImages)) {
+        if (empty($allImages)) {
             return $this->response($this->json([
                 'success' => false,
                 'message' => 'At least one room image is required'
@@ -144,14 +157,15 @@ ${basename(__FILE__, '.php')} = function () {
             $roomDescription,
             $pricePerNight,
             $amenities,
-            $updatedImages,
+            $allImages,
             $status
         );
 
         if ($updated) {
             return $this->response($this->json([
                 'success' => true,
-                'message' => 'Room updated successfully'
+                'message' => 'Room updated successfully',
+                'hotel_id'=> $hotelId
             ]), 200);
         } else {
             return $this->response($this->json([

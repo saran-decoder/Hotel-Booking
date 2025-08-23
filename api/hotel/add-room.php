@@ -106,7 +106,8 @@ ${basename(__FILE__, '.php')} = function () {
             return $this->response($this->json([
                 'success' => true,
                 'message' => 'Room added successfully',
-                'room_id' => $roomId
+                'room_id' => $roomId,
+                'hotel_id'=> $hotelId
             ]), 200);
         }
 

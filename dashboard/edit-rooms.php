@@ -565,7 +565,7 @@
                             if (response.success) {
                                 showToast("Success", id ? "Room updated successfully!" : "Room added successfully!", "success");
                                 setTimeout(function () {
-                                    window.location.href = "hotels-rooms";
+                                    window.location.href = 'hotel?id=' + response.hotel_id;
                                 }, 1500);
                             } else {
                                 showToast("Error", response.message || (id ? "Failed to update room." : "Failed to add room."), "error");

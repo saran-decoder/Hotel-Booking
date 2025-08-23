@@ -82,13 +82,58 @@ class Admin
             return false;
         }
     }
-    public static function updateHotel($id, $name, $location, $coordinates, $address, $description, $amenities, $images)
+    public static function updateHotel($id, $name, $location, $coordinates, $address, $description, $amenities, $newImages = [], $imagesToDelete = [])
     {
         $conn = Database::getConnection();
         
         try {
+            // First, get the current images
+            $stmt = $conn->prepare("SELECT images FROM hotels WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $currentData = $result->fetch_assoc();
+            
+            // Parse current images
+            $currentImages = json_decode($currentData['images'], true) ?? [];
+            
+            // Remove images that were marked for deletion
+            $updatedImages = [];
+            foreach ($currentImages as $currentImage) {
+                // Check if this image should be deleted
+                $shouldDelete = false;
+                foreach ($imagesToDelete as $imageToDelete) {
+                    // Compare using basename to handle different paths
+                    if (basename($currentImage) === basename($imageToDelete)) {
+                        $shouldDelete = true;
+                        
+                        // Delete the physical file
+                        $filePath = __DIR__ . '/../' . $currentImage;
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                        break;
+                    }
+                }
+                
+                // Keep the image if it shouldn't be deleted
+                if (!$shouldDelete) {
+                    $updatedImages[] = $currentImage;
+                }
+            }
+            
+            // Add new images to the array
+            foreach ($newImages as $newImage) {
+                $updatedImages[] = $newImage;
+            }
+            
+            // Remove any duplicates that might have been created
+            $updatedImages = array_unique($updatedImages);
+            // Reindex the array to ensure proper JSON encoding
+            $updatedImages = array_values($updatedImages);
+            
             // Convert arrays to JSON strings for storage
-            $imagesJson = json_encode($images, JSON_UNESCAPED_SLASHES);
+            $imagesJson = json_encode($updatedImages, JSON_UNESCAPED_SLASHES);
             $amenitiesJson = json_encode($amenities, JSON_UNESCAPED_SLASHES);
             
             // Update hotel
@@ -194,7 +239,6 @@ class Admin
             return false;
         }
     }
-
     public static function updateRoom($roomId, $hotelId, $roomType, $guestsAllowed, $description, $pricePerNight, $amenities, $images, $status)
     {
         $conn = Database::getConnection();
@@ -230,5 +274,32 @@ class Admin
             error_log("Room update failed: " . $e->getMessage());
             return false;
         }
+    }
+    public static function deleteRoom($id)
+    {
+        $conn = Database::getConnection();
+        $roomId = (int)$id;
+
+        // Step 1 + 2: Delete the room and fetch images in one query
+        $deleteQuery = "DELETE FROM rooms WHERE id = $roomId RETURNING images";
+        $result = $conn->query($deleteQuery);
+
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+
+            if (!empty($row['images'])) {
+                $roomImages = json_decode($row['images'], true);
+                if (is_array($roomImages)) {
+                    foreach ($roomImages as $file) {
+                        if (file_exists($file)) {
+                            unlink($file);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 }

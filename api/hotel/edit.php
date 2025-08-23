@@ -32,62 +32,47 @@ ${basename(__FILE__, '.php')} = function () {
             ]), 400);
         }
 
-        // Get existing images
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT images FROM hotels WHERE id = ?");
-        $stmt->bind_param("i", $hotelId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $hotel = $result->fetch_assoc();
-        $existingImages = json_decode($hotel['images'] ?? '[]', true);
+        // Initialize new image paths array
+        $newImagePaths = [];
 
-        // Remove deleted images from array + unlink files
-        $updatedImages = [];
-        foreach ($existingImages as $img) {
-            if (in_array($img, $imagesToDelete)) {
-                $filePath = __DIR__ . '/../' . $img; // adjust path if needed
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
-            } else {
-                $updatedImages[] = $img;
-            }
-        }
-
-        // Handle new uploads
+        // Handle new file uploads
         if (!empty($_FILES['images']) && is_array($_FILES['images']['tmp_name'])) {
             $uploadDir = 'uploads/hotels/';
-            if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
 
             foreach ($_FILES['images']['tmp_name'] as $i => $tmpName) {
                 if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
                     $ext = strtolower(pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION));
                     $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-                    if (!in_array($ext, $allowed)) continue;
+                    
+                    if (in_array($ext, $allowed)) {
+                        $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9\._-]/', '', $_FILES['images']['name'][$i]);
+                        $targetPath = $uploadDir . $fileName;
 
-                    $fileName   = time() . '_' . preg_replace('/[^a-zA-Z0-9\._-]/', '', $_FILES['images']['name'][$i]);
-                    $targetPath = $uploadDir . $fileName;
-
-                    if (move_uploaded_file($tmpName, $targetPath)) {
-                        $updatedImages[] = $uploadDir . $fileName;
+                        if (move_uploaded_file($tmpName, $targetPath)) {
+                            $newImagePaths[] = $targetPath;
+                        }
                     }
                 }
             }
         }
 
-        // Call central function
-        $updated = Admin::updateHotel(
-            $hotelId,
-            $hotelName,
-            $locationName,
-            $mapCoordinates,
-            $fullAddress,
-            $hotelDescription,
-            $amenities,
-            $updatedImages
+        // Call the update function
+        $success = Admin::updateHotel(
+            $hotelId, 
+            $hotelName, 
+            $locationName, 
+            $mapCoordinates, 
+            $fullAddress, 
+            $hotelDescription, 
+            $amenities, 
+            $newImagePaths,
+            $imagesToDelete
         );
 
-        if ($updated) {
+        if ($success) {
             return $this->response($this->json([
                 'success' => true,
                 'message' => 'Hotel updated successfully'
