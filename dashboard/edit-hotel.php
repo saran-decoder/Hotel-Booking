@@ -126,7 +126,7 @@
                             </div>
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Location Name <span class="text-danger">*</span></label>
+                                    <label class="form-label">City Name <span class="text-danger">*</span></label>
                                     <input type="text" id="locationName" name="locationName" class="form-control" required />
                                     <div class="invalid-feedback">Please provide a location name.</div>
                                 </div>

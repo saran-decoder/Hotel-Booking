@@ -8,13 +8,32 @@
 
     if (
         !Session::get('session_token') || 
-		Session::get('session_type') != 'admin' && 
-		!Session::get('username') || 
-		Session::get('email_verified') != 'verified'
+        Session::get('session_type') != 'admin' && 
+        !Session::get('username') || 
+        Session::get('email_verified') != 'verified'
     ) {
-		header("Location: logout?logout");
-		exit;
-	}
+        header("Location: logout?logout");
+        exit;
+    }
+
+// Admin static functions for booking management
+// class AdminBooking {
+//     public static function getAllBookings() {
+//         // Implementation to get all bookings
+//     }
+    
+//     public static function getBookingById($id) {
+//         // Implementation to get booking by ID
+//     }
+    
+//     public static function updateBookingStatus($id, $status) {
+//         // Implementation to update booking status
+//     }
+    
+//     public static function cancelBooking($id) {
+//         // Implementation to cancel booking
+//     }
+// }
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +46,7 @@
         <?php include "temp/head.php" ?>
 
         <link rel="stylesheet" href="assets/css/booking.css">
-        
+
     </head>
     <body>
         <div class="container-fluid">
@@ -72,19 +91,9 @@
                                 <div class="bg-light p-3 rounded mb-4">
                                     <label class="form-label">Destination</label>
                                     <div class="input-group">
-                                        <i class="fas fa-map-marker-alt position-absolute align-self-center ms-3"></i>
-                                        <select class="form-select" id="destinationSelect">
+                                        <select class="form-select rounded" id="destinationSelect">
                                             <option value="" selected disabled>Select destination</option>
-                                            <option value="Chennai">Chennai</option>
-                                            <option value="Coimbatore">Coimbatore</option>
-                                            <option value="Madurai">Madurai</option>
-                                            <option value="Ooty">Ooty</option>
-                                            <option value="Kodaikanal">Kodaikanal</option>
-                                            <option value="Rameswaram">Rameswaram</option>
-                                            <option value="Mahabalipuram">Mahabalipuram</option>
-                                            <option value="Kanyakumari">Kanyakumari</option>
-                                            <option value="Trichy">Trichy</option>
-                                            <option value="Pondicherry">Pondicherry</option>
+                                            <!-- Options will be populated by JavaScript -->
                                         </select>
                                     </div>
                                 </div>
@@ -262,58 +271,21 @@
                             <div class="row">
                                 <!-- Carousel Section -->
                                 <div id="hotelCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
-                                    <div class="carousel-inner rounded">
-                                        <div class="carousel-item active">
-                                            <img src="public/assets/images/chennai.jpg" class="d-block w-100" alt="Hotel Room">
-                                        </div>
-                                        <div class="carousel-item">
-                                            <img src="public/assets/images/coimbatore.jpg" class="d-block w-100" alt="Hotel Lobby">
-                                        </div>
-                                        <div class="carousel-item">
-                                            <img src="public/assets/images/ooty.jpg" class="d-block w-100" alt="Hotel Pool">
-                                        </div>
+                                    <div class="carousel-inner rounded" id="hotelImageSlider">
+                                        <!-- Carousel items will be populated by JavaScript -->
                                     </div>
-                                    <button class="carousel-control-prev ms-5" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev" style="background: none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="control-prev-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path d="M15 18L9 12L15 6" stroke="#4A4A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next me-5" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next" style="background: none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="control-next-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path d="M9 18L15 12L9 6" stroke="#4A4A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
                                 </div>
 
                                 <div class="col-md-8">
                                     <div class="card p-4 mb-4">
-                                        <h2 class="mb-3" id="hotelNameDisplay">Taj Coromandel Chennai</h2>
-                                        <p class="text-muted"><i class="fas fa-star text-warning"></i> <strong>4.8</strong> (324 reviews) • <i class="fas fa-map-marker-alt"></i> <span id="hotelLocationDisplay">Nungambakkam, Chennai</span></p>
+                                        <h2 class="mb-3" id="hotelNameDisplay">Hotel Name</h2>
+                                        <p class="text-muted"><i class="fas fa-star text-warning"></i> <strong>4.8</strong> (324 reviews) • <i class="fas fa-map-marker-alt"></i> <span id="hotelLocationDisplay">Location</span></p>
                                         
-                                        <p id="hotelDescriptionDisplay">Experience the epitome of luxury in the heart of Chennai. Our heritage property combines traditional Tamil hospitality with modern amenities. Located near major business districts and cultural landmarks, we offer authentic Chettinad cuisine and a rejuvenating spa experience.</p>
+                                        <p id="hotelDescriptionDisplay">Hotel description will appear here.</p>
                                         
                                         <h4 class="mt-4 mb-3">Amenities</h4>
                                         <div class="row" id="hotelAmenitiesDisplay">
-                                            <div class="col-md-6 mb-2">
-                                                <i class="fas fa-wifi me-2"></i> Free WiFi
-                                            </div>
-                                            <div class="col-md-6 mb-2">
-                                                <i class="fas fa-swimming-pool me-2"></i> Outdoor Pool
-                                            </div>
-                                            <div class="col-md-6 mb-2">
-                                                <i class="fas fa-utensils me-2"></i> 3 Restaurants
-                                            </div>
-                                            <div class="col-md-6 mb-2">
-                                                <i class="fas fa-spa me-2"></i> Ayurvedic Spa
-                                            </div>
-                                            <div class="col-md-6 mb-2">
-                                                <i class="fas fa-dumbbell me-2"></i> Fitness Center
-                                            </div>
-                                            <div class="col-md-6 mb-2">
-                                                <i class="fas fa-parking me-2"></i> Free Parking
-                                            </div>
+                                            <!-- Amenities will be populated by JavaScript -->
                                         </div>
                                     </div>
 
@@ -321,122 +293,13 @@
                                     
                                     <!-- Room Cards -->
                                     <div id="roomSelectionContainer">
-                                        <div class="card mb-3 room-card">
-                                            <div class="row g-0">
-                                                <div class="col-md-4">
-                                                    <img src="public/assets/images/deluxe-room.jpg" class="img-fluid rounded-start" alt="Deluxe Room">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">Deluxe Room</h5>
-                                                        <p class="card-text">Spacious room with traditional Tamil decor, king-size bed, and city views. Includes complimentary breakfast.</p>
-                                                        <div class="amenities">
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-wifi"></i> WiFi</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-tv"></i> TV</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-snowflake"></i> AC</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2 d-flex flex-column justify-content-between p-3">
-                                                    <div class="text-end">
-                                                        <h5 class="mb-0">₹4,500</h5>
-                                                        <small class="text-muted">per night</small>
-                                                    </div>
-                                                    <button class="btn btn-outline-primary select-room-btn">Select</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card mb-3 room-card">
-                                            <div class="row g-0">
-                                                <div class="col-md-4">
-                                                    <img src="public/assets/images/executive-room.jpg" class="img-fluid rounded-start" alt="Executive Room">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">Executive Suite</h5>
-                                                        <p class="card-text">Luxurious suite with separate living area, premium amenities, and panoramic city views. Butler service included.</p>
-                                                        <div class="amenities">
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-wifi"></i> WiFi</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-tv"></i> TV</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-snowflake"></i> AC</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-coffee"></i> Tea Maker</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2 d-flex flex-column justify-content-between p-3">
-                                                    <div class="text-end">
-                                                        <h5 class="mb-0">₹7,200</h5>
-                                                        <small class="text-muted">per night</small>
-                                                    </div>
-                                                    <button class="btn btn-outline-primary select-room-btn">Select</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card mb-3 room-card">
-                                            <div class="row g-0">
-                                                <div class="col-md-4">
-                                                    <img src="public/assets/images/heritage-room.jpg" class="img-fluid rounded-start" alt="Heritage Room">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">Heritage Room</h5>
-                                                        <p class="card-text">Experience traditional Tamil architecture with modern comforts. Features antique furniture and courtyard view.</p>
-                                                        <div class="amenities">
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-wifi"></i> WiFi</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-tv"></i> TV</span>
-                                                            <span class="badge bg-light text-dark me-2"><i class="fas fa-snowflake"></i> AC</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2 d-flex flex-column justify-content-between p-3">
-                                                    <div class="text-end">
-                                                        <h5 class="mb-0">₹5,800</h5>
-                                                        <small class="text-muted">per night</small>
-                                                    </div>
-                                                    <button class="btn btn-outline-primary select-room-btn">Select</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <!-- Room cards will be populated by JavaScript -->
                                     </div>
 
                                     <h3 class="mt-5 mb-4">Guest Reviews</h3>
                                     
                                     <div id="hotelReviewsContainer">
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <h5 class="mb-0">Excellent stay</h5>
-                                                    <div>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                    </div>
-                                                </div>
-                                                <p class="text-muted">By Rajesh from Bangalore • Stayed in June 2025</p>
-                                                <p>The authentic Tamil hospitality was exceptional. The Chettinad restaurant served the best meals we had during our Tamil Nadu trip.</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <h5 class="mb-0">Perfect location</h5>
-                                                    <div>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star-half-alt text-warning"></i>
-                                                    </div>
-                                                </div>
-                                                <p class="text-muted">By Priya from Chennai • Stayed in May 2025</p>
-                                                <p>Great hotel for both business and leisure. The spa's traditional Ayurvedic treatments were rejuvenating after long meetings.</p>
-                                            </div>
-                                        </div>
+                                        <!-- Reviews will be populated by JavaScript -->
                                     </div>
                                 </div>
 
@@ -480,15 +343,7 @@
                                         <button class="btn btn-outline-secondary w-100 mt-2" id="backToHotelsBtn">Back to Hotels</button>
                                     </div>
                                     <div class="card p-4 mt-4 sticky-sidebar">
-                                        <h4 class="mb-3">Location</h4>
-                                        
-                                        <iframe
-                                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.0080690943427!2d80.2407223153466!3d13.060900990787582!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5265e8f1f1a1d9%3A0x3a5265e8f1f1a1d9!2sTaj%20Coromandel!5e0!3m2!1sen!2sin!4v1755236572589!5m2!1sen!2sin"
-                                            style="border:0;"
-                                            allowfullscreen=""
-                                            loading="lazy"
-                                            referrerpolicy="no-referrer-when-downgrade">
-                                        </iframe>
+                                        <h4 class="mb-0">Location <span  id="hotelMap"></span></h4>
                                     </div>
                                 </div>
                             </div>
@@ -500,10 +355,7 @@
                                 <div class="col-md-8">
                                     <div class="card p-5 text-center">
                                         <div class="mb-4">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="86" height="86" viewBox="0 0 86 86" style="background: rgba(52, 199, 89, 0.10); border-radius: 4rem; padding: 1rem;" fill="none">
-                                                <path d="M77.789 35.9274C79.4099 43.882 78.2547 52.1519 74.5162 59.3579C70.7777 66.5639 64.6818 72.2704 57.2451 75.5259C49.8084 78.7814 41.4803 79.389 33.6499 77.2474C25.8194 75.1058 18.9597 70.3445 14.2149 63.7575C9.47001 57.1704 7.12675 49.1558 7.57586 41.0501C8.02497 32.9445 11.2393 25.2378 16.6828 19.2153C22.1263 13.1927 29.47 9.21836 37.4892 7.95496C45.5083 6.69156 53.7182 8.21549 60.7498 12.2726" stroke="#34C759" stroke-width="4.25895" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M32.3545 39.4766L43.0018 50.1239L78.4929 14.6328" stroke="#34C759" stroke-width="4.25895" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
+                                            <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
                                         </div>
                                         <h2 class="mb-3">Booking Confirmed!</h2>
                                         <p class="text-muted mb-4">Thank you for choosing TNBooking.in. We've sent a confirmation email to your registered email address. Vanakkam!</p>
@@ -517,7 +369,7 @@
                                                 <hr>
                                                 <div class="d-flex justify-content-between fw-bold">
                                                     <span>Total</span>
-                                                    <span id="confirmationTotal">₹1492</span>
+                                                    <span id="confirmationTotal">₹0</span>
                                                 </div>
                                             </div>
                                         </div>

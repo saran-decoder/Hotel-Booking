@@ -1,10 +1,11 @@
+// booking.js - Updated with API integration
 $(document).ready(function() {
     // Initialize variables
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to beginning of day
+    today.setHours(0, 0, 0, 0);
 
     let currentDate = new Date();
-    currentDate.setDate(1); // Set to first day of current month
+    currentDate.setDate(1);
     let checkInDate = null;
     let checkOutDate = null;
     let adultsCount = 1;
@@ -14,70 +15,183 @@ $(document).ready(function() {
     let selectedRoom = null;
     let roomPrice = 0;
     let nights = 0;
+    let hotels = [];
+    let rooms = [];
 
-    // Sample hotel data with images
-    const hotels = [
-        {
-            id: 1,
-            name: "Grand Plaza Hotel",
-            rating: 5,
-            reviews: 324,
-            location: "Downtown, New York",
-            price: 199,
-            image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "parking", "ac", "restaurant", "fitness"]
-        },
-        {
-            id: 2,
-            name: "Sunset Bay Resort",
-            rating: 5,
-            reviews: 186,
-            location: "Beachfront, Miami",
-            price: 299,
-            image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "pool", "parking", "ac", "restaurant"]
-        },
-        {
-            id: 3,
-            name: "City Comfort Inn",
-            rating: 4,
-            reviews: 452,
-            location: "Midtown, Chicago",
-            price: 129,
-            image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "parking", "ac"]
-        },
-        {
-            id: 4,
-            name: "Mountain View Lodge",
-            rating: 5,
-            reviews: 128,
-            location: "Aspen, Colorado",
-            price: 349,
-            image: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "parking", "ac", "restaurant"]
-        },
-        {
-            id: 5,
-            name: "Harbor View Hotel",
-            rating: 5,
-            reviews: 215,
-            location: "Fisherman's Wharf, San Francisco",
-            price: 229,
-            image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
-            amenities: ["wifi", "parking", "ac", "fitness"]
-        },
-        {
-            id: 6,
-            name: "Riverside Boutique",
-            rating: 5,
-            reviews: 163,
-            location: "Riverwalk, San Antonio",
-            price: 179,
-            image: "https://images.unsplash.com/photo-1568084680786-a84f91d1153c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
-            amenities: ["wifi", "ac", "restaurant"]
-        }
-    ];
+    // Fetch hotels from API
+    function fetchHotels() {
+        $.ajax({
+            url: '../api/hotel/list',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response && response.length > 0) {
+                    hotels = processHotelData(response);
+                    populateDestinationSelect(hotels);
+                    renderHotels();
+                } else {
+                    showNoHotelsMessage();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching hotels:', error);
+                showErrorMessage();
+            }
+        });
+    }
+
+    // Process hotel data from API
+    function processHotelData(apiData) {
+        return apiData.map(hotel => {
+            // Parse amenities from JSON string if needed
+            let amenities = [];
+            if (typeof hotel.hotel_amenities === 'string') {
+                try {
+                    amenities = JSON.parse(hotel.hotel_amenities);
+                } catch (e) {
+                    amenities = hotel.hotel_amenities.split(',');
+                }
+            } else {
+                amenities = hotel.hotel_amenities || [];
+            }
+
+            // Get all hotel images
+            let hotelImages = [];
+            if (hotel.hotel_images) {
+                try {
+                    const images = typeof hotel.hotel_images === 'string' ? 
+                        JSON.parse(hotel.hotel_images) : hotel.hotel_images;
+                    if (images.length > 0) {
+                        hotelImages = images.map(img => '../' + img);
+                    } else {
+                        hotelImages = ['https://via.placeholder.com/500x300?text=No+Image'];
+                    }
+                } catch (e) {
+                    console.error('Error parsing hotel images:', e);
+                    hotelImages = ['https://via.placeholder.com/500x300?text=No+Image'];
+                }
+            } else {
+                hotelImages = ['https://via.placeholder.com/500x300?text=No+Image'];
+            }
+
+            return {
+                id: hotel.id,
+                name: hotel.hotel_name,
+                rating: 4, // Default rating since API doesn't provide
+                reviews: Math.floor(Math.random() * 100) + 50, // Random reviews
+                location: hotel.hotel_location_name,
+                price: parseFloat(hotel.price_per_night) || 1000,
+                image: hotelImages[0], // Keep first image for backward compatibility
+                images: hotelImages, // All images for carousel
+                amenities: amenities,
+                description: hotel.hotel_description,
+                address: hotel.hotel_address,
+                coordinates: hotel.hotel_coordinates
+            };
+        });
+    }
+
+    // Populate destination select dropdown
+    function populateDestinationSelect(hotels) {
+        $('#destinationSelect').empty();
+        $('#destinationSelect').append('<option value="" selected disabled>Select destination</option>');
+        
+        // Get unique locations
+        const uniqueLocations = [...new Set(hotels.map(hotel => hotel.location))];
+        
+        uniqueLocations.forEach(location => {
+            $('#destinationSelect').append(`<option value="${location}">${location}</option>`);
+        });
+    }
+
+    // Show no hotels message
+    function showNoHotelsMessage() {
+        $('#hotelList').html('<div class="col-12 text-center py-5"><h5>No hotels available at the moment</h5><p>Please try again later</p></div>');
+    }
+
+    // Show error message
+    function showErrorMessage() {
+        $('#hotelList').html('<div class="col-12 text-center py-5"><h5>Error loading hotels</h5><p>Please refresh the page</p></div>');
+    }
+
+    // Fetch rooms for selected hotel
+    function fetchRooms(hotelId) {
+        $.ajax({
+            url: `../api/hotel/info?id=${hotelId}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response && response.length > 0) {
+                    rooms = processRoomData(response);
+                    renderRoomSelection();
+                } else {
+                    showNoRoomsMessage();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching rooms:', error);
+                showRoomErrorMessage();
+            }
+        });
+    }
+
+    // Process room data from API
+    function processRoomData(apiData) {
+        return apiData.map(room => {
+            // Parse amenities from JSON string if needed
+            let amenities = [];
+            if (typeof room.room_amenities === 'string') {
+                try {
+                    amenities = JSON.parse(room.room_amenities);
+                } catch (e) {
+                    amenities = room.room_amenities.split(',');
+                }
+            } else {
+                amenities = room.room_amenities || [];
+            }
+
+            // Get all room images
+            let roomImages = [];
+            if (room.room_images) {
+                try {
+                    roomImages = typeof room.room_images === 'string' ? 
+                        JSON.parse(room.room_images) : room.room_images;
+                    // Prepend the correct path
+                    roomImages = roomImages.map(img => img);
+                } catch (e) {
+                    console.error('Error parsing room images:', e);
+                    // Fallback to single image if parsing fails
+                    roomImages = ['../' + (room.image || 'uploads/rooms/placeholder.jpg')];
+                }
+            } else {
+                // Use the single image as fallback
+                roomImages = ['../' + (room.image || 'uploads/rooms/placeholder.jpg')];
+            }
+
+            return {
+                id: room.room_id, // This is correct
+                hotelId: room.hotel_id, // Changed from room.room_hotel_id
+                type: room.room_type,
+                name: room.room_type.charAt(0).toUpperCase() + room.room_type.slice(1) + ' Room',
+                price: parseFloat(room.price_per_night) || 1000, // This is correct
+                description: room.room_description,
+                amenities: amenities,
+                image: roomImages[0], // Keep first image as primary for backward compatibility
+                room_images: roomImages, // Store all images for the carousel
+                guestsAllowed: room.guests_allowed || 2 // This is correct
+            };
+        });
+    }
+
+    // Show no rooms message
+    function showNoRoomsMessage() {
+        $('#roomSelectionContainer').html('<div class="col-12 text-center py-5"><h5>No rooms available for this hotel</h5><p>Please select another hotel</p></div>');
+    }
+
+    // Show room error message
+    function showRoomErrorMessage() {
+        $('#roomSelectionContainer').html('<div class="col-12 text-center py-5"><h5>Error loading rooms</h5><p>Please try again</p></div>');
+    }
 
     // Initialize calendar
     function renderCalendar() {
@@ -240,6 +354,9 @@ $(document).ready(function() {
         });
         
         return hotels.filter(hotel => {
+            // Filter by destination
+            if (destination && hotel.location !== destination) return false;
+            
             // Filter by price
             if (hotel.price > maxPrice) return false;
             
@@ -269,12 +386,13 @@ $(document).ready(function() {
         }
         
         filteredHotels.forEach(hotel => {
+            
             const isSelected = selectedHotel && selectedHotel.id === hotel.id;
             
             // Generate star rating
             let stars = '';
             for (let i = 0; i < 5; i++) {
-                stars += i < hotel.rating ? '★' : '☆';
+                stars += i < hotel.rating ? '<i class="fas fa-star text-warning"></i>' : '<i class="far fa-star text-warning"></i>';
             }
             
             // Generate amenities badges
@@ -284,8 +402,33 @@ $(document).ready(function() {
             });
             
             const hotelCard = $(`
-                <div class="card hotel-card" data-hotel-id="${hotel.id}" ${isSelected ? 'style="border: 2px solid #0d6efd;"' : ''}>
-                    <img src="${hotel.image}" class="hotel-img" alt="${hotel.name}">
+                <div class="card hotel-card mb-4" data-hotel-id="${hotel.id}" ${isSelected ? 'style="border: 2px solid #0d6efd;"' : ''}>
+                    <div id="hotelCarousel-${hotel.id}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            ${hotel.images.map((_, index) => `
+                                <button type="button" data-bs-target="#hotelCarousel-${hotel.id}" 
+                                    data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" 
+                                    aria-label="Slide ${index + 1}"></button>
+                            `).join('')}
+                        </div>
+                        <div class="carousel-inner">
+                            ${hotel.images.map((image, index) => `
+                                <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                    <img src="${image}" class="d-block w-100 hotel-img" alt="${hotel.name} - Image ${index + 1}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${hotel.images.length > 1 ? `
+                            <button class="carousel-control-prev" type="button" data-bs-target="#hotelCarousel-${hotel.id}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#hotelCarousel-${hotel.id}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        ` : ''}
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">${hotel.name}</h5>
                         <div class="mb-2">
@@ -293,23 +436,24 @@ $(document).ready(function() {
                             <span class="text-muted ms-2">${hotel.reviews} reviews</span>
                         </div>
                         <p class="card-text text-muted">
-                            <i class="fas fa-map-marker-alt me-2"></i>${hotel.location}
+                            <i class="fa fa-map-marker me-2"></i>${hotel.location}
                         </p>
-                        <div class="hotel-amenities">
+                        <div class="hotel-amenities mb-3">
                             ${amenitiesHTML}
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="text-primary mb-0">₹${hotel.price}<small class="text-muted"> /night</small></h4>
                             </div>
                             <button class="btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} select-hotel-btn">
-                                ${isSelected ? 'Selected' : 'Select'}
+                                ${isSelected ? '<i class="fas fa-check me-1"></i> Selected' : 'Select'}
                             </button>
                         </div>
                     </div>
                 </div>
             `);
-            
+
+            $('#hotelMap').html('<a href="' + hotel.coordinates + '" target="_blank">Click Here</a>');
             $('#hotelList').append(hotelCard);
         });
 
@@ -323,13 +467,13 @@ $(document).ready(function() {
                 .find('.select-hotel-btn')
                 .removeClass('btn-primary')
                 .addClass('btn-outline-primary')
-                .text('Select');
+                .html('Select');
             
             // Update the selected card and button
             $(this).closest('.hotel-card').css('border', '2px solid #0d6efd');
             $(this).removeClass('btn-outline-primary')
                 .addClass('btn-primary')
-                .text('Selected');
+                .html('<i class="fas fa-check me-1"></i> Selected');
             
             // Enable continue to rooms button
             $('#continueToRoomsBtn').prop('disabled', false)
@@ -361,15 +505,11 @@ $(document).ready(function() {
         );
         
         if (selectedRoom) {
-            $('#selectedRoomType').text(
-                selectedRoom === 'deluxe' ? 'Deluxe King Room' : 
-                selectedRoom === 'executive' ? 'Executive Suite' : 'Twin Room'
-            );
-            
-            $('#selectedRoomPrice').text(`₹${roomPrice} / night`);
+            $('#selectedRoomType').text(selectedRoom.name);
+            $('#selectedRoomPrice').text(`₹${selectedRoom.price} / night`);
             $('#selectedRoomDisplay').show();
             
-            const subtotal = roomPrice * nights;
+            const subtotal = selectedRoom.price * nights;
             $('#roomSubtotal').text(`₹${subtotal}`);
             $('#bookingTotal').text(`₹${subtotal + 99}`);
             
@@ -383,62 +523,104 @@ $(document).ready(function() {
         
         $('#roomSelectionContainer').empty();
         
-        // Sample room types
-        const rooms = [
-            {
-                type: 'deluxe',
-                name: 'Deluxe King Room',
-                price: 199,
-                description: 'Spacious room with a king-size bed, work desk, and city views. Perfect for couples or business travelers.',
-                amenities: ['Free WiFi', 'Air Conditioning', 'TV', 'Mini Bar', 'Safe'],
-                image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-            },
-            {
-                type: 'executive',
-                name: 'Executive Suite',
-                price: 299,
-                description: 'Luxurious suite with separate living area, premium amenities, and access to the executive lounge.',
-                amenities: ['Free WiFi', 'Air Conditioning', 'TV', 'Mini Bar', 'Safe', 'Lounge Access', 'Complimentary Breakfast'],
-                image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-            },
-            {
-                type: 'twin',
-                name: 'Twin Room',
-                price: 179,
-                description: 'Comfortable room with two single beds, ideal for friends or family traveling together.',
-                amenities: ['Free WiFi', 'Air Conditioning', 'TV', 'Safe'],
-                image: 'https://images.unsplash.com/photo-1566669437687-7040a6926753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80'
-            }
-        ];
+        if (rooms.length === 0) {
+            showNoRoomsMessage();
+            return;
+        }
         
-        rooms.forEach(room => {
+        rooms.forEach((room, roomIndex) => {
+            // Reset carousel variables for each room
+            let carouselItems = '';
+            let carouselIndicators = '';
+            
+            // Get all room images (parse if needed)
+            let roomImages = [];
+            if (room.room_images) {
+                try {
+                    roomImages = typeof room.room_images === 'string' ? 
+                        JSON.parse(room.room_images) : room.room_images;
+                } catch (e) {
+                    console.error('Error parsing room images:', e);
+                    // Fallback to single image if parsing fails
+                    roomImages = [room.image];
+                }
+            } else {
+                // Use the single image as fallback
+                roomImages = [room.image];
+            }
+            
+            // Generate carousel items and indicators for all room images
+            roomImages.forEach((image, imageIndex) => {
+                const imageUrl = image.startsWith('http') ? image : `../${image}`;
+                const isActive = imageIndex === 0 ? 'active' : '';
+                
+                carouselItems += `
+                    <div class="carousel-item ${isActive}">
+                        <img src="${imageUrl}" class="d-block w-100" alt="Room Image ${imageIndex + 1}">
+                    </div>
+                `;
+                
+                carouselIndicators += `
+                    <button type="button" data-bs-target="#roomCarousel-${room.id}" 
+                        data-bs-slide-to="${imageIndex}" class="${isActive}" 
+                        aria-current="${isActive ? 'true' : 'false'}" 
+                        aria-label="Slide ${imageIndex + 1}"></button>
+                `;
+            });
+            
             // Generate amenities list
             let amenitiesHTML = room.amenities.map(amenity => `
                 <div class="d-flex align-items-center mb-2">
-                    <i class="fas fa-check-circle amenity-icon"></i>
-                    <span>${amenity}</span>
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <span>${amenity.replace(/_/g, ' ')}</span>
                 </div>
             `).join('');
             
+            const isSelected = selectedRoom && selectedRoom.id === room.id;
+            
             const roomCard = $(`
-                <div class="room-card" data-room-type="${room.type}">
-                    <div class="row">
+                <div class="card room-card mb-4 ${isSelected ? 'border-primary' : ''}" data-room-id="${room.id}">
+                    <div class="row g-0">
                         <div class="col-md-4">
-                            <img src="${room.image}" class="img-fluid rounded" alt="${room.name}">
+                            <div id="roomCarousel-${room.id}" class="carousel slide room-carousel" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    ${carouselIndicators}
+                                </div>
+                                <div class="carousel-inner rounded">
+                                    ${carouselItems}
+                                </div>
+                                ${roomImages.length > 1 ? `
+                                    <button class="carousel-control-prev" style="width: max-content;" type="button" data-bs-target="#roomCarousel-${room.id}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" style="width: max-content;" type="button" data-bs-target="#roomCarousel-${room.id}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
                         <div class="col-md-5">
-                            <h4 class="room-type">${room.name}</h4>
-                            <p>${room.description}</p>
-                            <div class="amenities-container">
-                                ${amenitiesHTML}
+                            <div class="card-body">
+                                <h4 class="card-title">${room.name}</h4>
+                                <p class="card-text">${room.description}</p>
+                                <div class="amenities-container">
+                                    ${amenitiesHTML}
+                                </div>
+                                <p class="card-text mt-2"><small class="text-muted">Up to ${room.guestsAllowed} guests</small></p>
                             </div>
                         </div>
-                        <div class="col-md-3 text-end d-flex flex-column justify-content-between align-items-end">
-                            <div class="mb-3">
-                                <span class="room-price">₹${room.price}</span>
-                                <span class="text-muted">/night</span>
+                        <div class="col-md-3">
+                            <div class="card-body h-100 d-flex flex-column justify-content-between">
+                                <div class="text-end mb-3">
+                                    <span class="h4 text-primary">₹${room.price}</span>
+                                    <span class="text-muted">/night</span>
+                                </div>
+                                <button class="btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} select-room-btn w-100" data-room-id="${room.id}">
+                                    ${isSelected ? '<i class="fas fa-check me-1"></i> Selected' : 'Select Room'}
+                                </button>
                             </div>
-                            <button class="btn btn-outline-primary select-room-btn" data-room="${room.type}">Select Room</button>
                         </div>
                     </div>
                 </div>
@@ -449,25 +631,16 @@ $(document).ready(function() {
         
         // Add event listeners to room selection buttons
         $('.select-room-btn').on('click', function() {
+            const roomId = parseInt($(this).data('room-id'));
+            selectedRoom = rooms.find(room => room.id === roomId);
+            
             // Remove selected class from all rooms
-            $('.room-card').removeClass('selected');
+            $('.room-card').removeClass('border-primary');
+            $('.select-room-btn').removeClass('btn-primary').addClass('btn-outline-primary').html('Select Room');
             
             // Add selected class to clicked room
-            $(this).closest('.room-card').addClass('selected');
-            
-            // Update button text
-            $('.select-room-btn').text('Select Room')
-                .removeClass('btn-primary')
-                .addClass('btn-outline-primary');
-            
-            $(this).text('Selected')
-                .removeClass('btn-outline-primary')
-                .addClass('btn-primary');
-            
-            // Set selected room
-            selectedRoom = $(this).data('room');
-            roomPrice = $(this).data('room') === 'deluxe' ? 199 : 
-                    $(this).data('room') === 'executive' ? 299 : 179;
+            $(this).closest('.room-card').addClass('border-primary');
+            $(this).removeClass('btn-outline-primary').addClass('btn-primary').html('<i class="fas fa-check me-1"></i> Selected');
             
             // Update booking summary
             updateBookingSummary();
@@ -480,7 +653,7 @@ $(document).ready(function() {
         
         $('#hotelReviewsContainer').empty();
         
-        // Sample reviews
+        // Sample reviews (in a real app, these would come from the API)
         const reviews = [
             {
                 author: 'John D.',
@@ -493,12 +666,6 @@ $(document).ready(function() {
                 date: '2025-04-22',
                 rating: 4,
                 comment: 'Very comfortable stay. The staff was friendly and helpful. The only minor issue was the slow WiFi in our room.'
-            },
-            {
-                author: 'Michael T.',
-                date: '2025-03-10',
-                rating: 5,
-                comment: 'One of the best hotels I\'ve stayed at. The executive lounge was fantastic and the views from our room were breathtaking.'
             }
         ];
         
@@ -506,17 +673,19 @@ $(document).ready(function() {
             // Generate star rating
             let stars = '';
             for (let i = 0; i < 5; i++) {
-                stars += i < review.rating ? '★' : '☆';
+                stars += i < review.rating ? '<i class="fas fa-star text-warning"></i>' : '<i class="far fa-star text-warning"></i>';
             }
             
             const reviewCard = $(`
-                <div class="review-card">
-                    <div class="d-flex justify-content-between">
-                        <div class="review-author">${review.author}</div>
-                        <div class="text-warning">${stars}</div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">${review.author}</h5>
+                            <div>${stars}</div>
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">${review.date}</h6>
+                        <p class="card-text">${review.comment}</p>
                     </div>
-                    <div class="review-date">${review.date}</div>
-                    <p class="mt-2">${review.comment}</p>
                 </div>
             `);
             
@@ -530,23 +699,22 @@ $(document).ready(function() {
         
         $('#hotelAmenitiesDisplay').empty();
         
-        const amenities = [
-            { icon: 'wifi', name: 'Free WiFi' },
-            { icon: 'swimming-pool', name: 'Swimming Pool' },
-            { icon: 'parking', name: 'Free Parking' },
-            { icon: 'utensils', name: 'Restaurant' },
-            { icon: 'dumbbell', name: 'Fitness Center' },
-            { icon: 'concierge-bell', name: '24-Hour Front Desk' },
-            { icon: 'cocktail', name: 'Bar/Lounge' },
-            { icon: 'bus', name: 'Airport Shuttle' }
-        ];
+        const amenities = selectedHotel.amenities;
+        
+        if (amenities.length === 0) {
+            $('#hotelAmenitiesDisplay').html('<p>No amenities listed</p>');
+            return;
+        }
         
         amenities.forEach(amenity => {
+            const amenityName = amenity.replace(/_/g, ' ');
+            const iconClass = getAmenityIcon(amenity);
+            
             const col = $(`
                 <div class="col-md-6 mb-3">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-${amenity.icon} me-3"></i>
-                        <span>${amenity.name}</span>
+                        <i class="${iconClass} me-3 text-primary"></i>
+                        <span>${amenityName}</span>
                     </div>
                 </div>
             `);
@@ -555,22 +723,139 @@ $(document).ready(function() {
         });
     }
 
+    // Function to render hotel image slider
+    function renderHotelImageSlider() {
+        if (!selectedHotel || !selectedHotel.images) return;
+        
+        $('#hotelImageSlider').empty();
+        
+        const images = selectedHotel.images;
+        
+        // Generate carousel indicators
+        const indicators = images.map((_, index) => `
+            <button type="button" data-bs-target="#hotelDetailsCarousel" 
+                data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" 
+                aria-label="Slide ${index + 1}"></button>
+        `).join('');
+        
+        // Generate carousel items
+        const carouselItems = images.map((image, index) => `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                <img src="${image}" class="d-block w-100 hotel-detail-img" alt="${selectedHotel.name} - Image ${index + 1}">
+            </div>
+        `).join('');
+        
+        // Generate navigation controls if multiple images
+        const navigationControls = images.length > 1 ? `
+            <button class="carousel-control-prev ms-5" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev" style="background: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="control-prev-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 18L9 12L15 6" stroke="#4A4A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next me-5" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next" style="background: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="control-next-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18L15 12L9 6" stroke="#4A4A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="visually-hidden">Next</span>
+            </button>
+        ` : '';
+        
+        // Build the carousel HTML
+        const carouselHTML = `
+            <div id="hotelDetailsCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    ${indicators}
+                </div>
+                <div class="carousel-inner rounded">
+                    ${carouselItems}
+                </div>
+                ${navigationControls}
+            </div>
+        `;
+        
+        $('#hotelImageSlider').html(carouselHTML);
+    }
+
+    // Get appropriate icon for amenity
+    function getAmenityIcon(amenity) {
+        const iconMap = {
+            'wifi': 'fas fa-wifi',
+            'parking': 'fas fa-parking',
+            'pool': 'fas fa-swimming-pool',
+            'ac': 'fas fa-snowflake',
+            'restaurant': 'fas fa-utensils',
+            'fitness': 'fas fa-dumbbell',
+            'air_conditioning': 'fas fa-snowflake',
+            'swimming_pool': 'fas fa-swimming-pool',
+            'fitness_center': 'fas fa-dumbbell',
+            'bar': 'fas fa-glass-martini-alt'
+        };
+        
+        return iconMap[amenity] || 'fas fa-check-circle';
+    }
+
     // Update confirmation details
     function updateConfirmationDetails() {
         $('#confirmationHotelName').text(selectedHotel.name);
         $('#confirmationDates').text(
             `${formatDate(checkInDate)} - ${formatDate(checkOutDate)} (${calculateNights()} nights)`
         );
-        $('#confirmationRoomType').text(
-            selectedRoom === 'deluxe' ? 'Deluxe King Room' : 
-            selectedRoom === 'executive' ? 'Executive Suite' : 'Twin Room'
-        );
+        $('#confirmationRoomType').text(selectedRoom.name);
         $('#confirmationGuests').text(
             `${adultsCount} Adult${adultsCount !== 1 ? 's' : ''}${childrenCount > 0 ? `, ${childrenCount} Child${childrenCount !== 1 ? 'ren' : ''}` : ''}`
         );
         
-        const subtotal = roomPrice * nights;
+        const subtotal = selectedRoom.price * nights;
         $('#confirmationTotal').text(`₹${subtotal + 99}`);
+    }
+
+    // Submit booking to API
+    function submitBooking() {
+        const bookingData = {
+            hotel_id: parseInt(selectedHotel.id),
+            room_id: parseInt(selectedRoom.id),
+            check_in: formatDateYMD(checkInDate),
+            check_out: formatDateYMD(checkOutDate),
+            adults: parseInt(adultsCount),
+            children: parseInt(childrenCount),
+            total_price: parseFloat(selectedRoom.price * nights + 99)
+        };
+
+        console.log('Submitting booking:', bookingData);
+        
+        $.ajax({
+            url: '../api/booking/add',
+            type: 'POST',
+            data: bookingData,
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded',
+            success: function(response) {
+                console.log('Booking response:', response);
+                
+                if (response.success) {
+                    // Show success message
+                    $('#bookingConfirmationId').text(response.booking_id || 'N/A');
+                    showStep(4);
+                } else {
+                    alert('Booking failed: ' + (response.message || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error submitting booking:', error, status, xhr);
+                console.log('Response text:', xhr.responseText);
+                
+                // Try to parse the response to see what's wrong
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    console.log('Parsed response:', response);
+                    alert('Booking error: ' + (response.message || 'Unknown error'));
+                } catch (e) {
+                    console.log('Could not parse response as JSON, raw response:', xhr.responseText);
+                    alert('Server error: Please check the API endpoint and try again.');
+                }
+            }
+        });
     }
 
     // Event listeners
@@ -625,7 +910,9 @@ $(document).ready(function() {
 
     // Destination select change handler
     $('#destinationSelect').on('change', function() {
+        destination = $(this).val();
         updateContinueButton();
+        renderHotels();
     });
 
     // Continue button click handler (Step 1 -> Step 2)
@@ -672,15 +959,16 @@ $(document).ready(function() {
             return;
         }
         
+        // Fetch rooms for selected hotel
+        fetchRooms(selectedHotel.id);
+        
         // Update hotel details display
         $('#hotelNameDisplay').text(selectedHotel.name);
         $('#hotelLocationDisplay').text(selectedHotel.location);
-        $('#hotelDescriptionDisplay').text(
-            `Experience luxury and comfort at ${selectedHotel.name}. Our ${selectedHotel.rating}-star hotel offers exceptional service and world-class amenities.`
-        );
+        $('#hotelDescriptionDisplay').text(selectedHotel.description || `Experience luxury and comfort at ${selectedHotel.name}.`);
         
-        // Render room selection and other hotel details
-        renderRoomSelection();
+        // Render hotel details
+        renderHotelImageSlider()
         renderHotelAmenities();
         renderHotelReviews();
         
@@ -709,8 +997,8 @@ $(document).ready(function() {
         // Update confirmation details
         updateConfirmationDetails();
         
-        // Show step 4
-        showStep(4);
+        // Submit booking
+        submitBooking();
     });
 
     // Back to home button (Step 4 -> Step 1)
@@ -727,11 +1015,12 @@ $(document).ready(function() {
         selectedRoom = null;
         roomPrice = 0;
         nights = 0;
+        rooms = [];
         
         // Reset UI elements
         $('#checkInDate').text("Select date");
         $('#checkOutDate').text("Select date");
-        $('#guestDisplay').text("1 Adults, 0 Children");
+        $('#guestDisplay').text("1 Adult, 0 Children");
         $('#adultCount').text("1");
         $('#childCount').text("0");
         $('#destinationSelect').val("");
@@ -751,12 +1040,12 @@ $(document).ready(function() {
     // Price range slider live update
     $('#priceRange').on('input', function() {
         $('#priceRangeValue').text($(this).val());
-        renderHotels(); // Live filtering
+        renderHotels();
     });
 
     // Star rating and amenities filter changes
     $('.star-rating-checkbox, .amenities-checkbox').on('change', function() {
-        renderHotels(); // Live filtering
+        renderHotels();
     });
 
     // Reset filters button
@@ -765,8 +1054,8 @@ $(document).ready(function() {
         $('.star-rating-checkbox, .amenities-checkbox').prop('checked', false);
         
         // Reset price range
-        $('#priceRange').val(750);
-        $('#priceRangeValue').text('750');
+        $('#priceRange').val(5000);
+        $('#priceRangeValue').text('5000');
         
         // Re-render hotels
         renderHotels();
@@ -784,4 +1073,5 @@ $(document).ready(function() {
     updateGuestDisplay();
     updateContinueButton();
     showStep(1);
+    fetchHotels();
 });

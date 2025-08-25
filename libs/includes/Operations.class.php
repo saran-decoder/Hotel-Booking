@@ -14,9 +14,30 @@ class Operations
         $username = Session::get("username");
 
         // Use prepared statements for security (avoid SQL injection)
-        $sql = "SELECT h.*, r.id AS room_id, r.room_type, r.guests_allowed, 
-                    r.description AS room_description, r.price_per_night, 
-                    r.amenities, r.images, r.status AS room_status
+        $sql = "SELECT 
+                    h.id,
+                    h.owner AS hotel_owner,
+                    h.name AS hotel_name,
+                    h.location_name AS hotel_location_name,
+                    h.coordinates AS hotel_coordinates,
+                    h.address AS hotel_address,
+                    h.description AS hotel_description,
+                    h.amenities AS hotel_amenities,
+                    h.images AS hotel_images,
+                    h.created_at AS hotel_created_at,
+                    h.updated_at AS hotel_updated_at,
+
+                    r.id AS room_id,
+                    r.hotel_id AS room_hotel_id,
+                    r.room_type,
+                    r.guests_allowed,
+                    r.description AS room_description,
+                    r.price_per_night,
+                    r.amenities AS room_amenities,
+                    r.images AS room_images,
+                    r.status AS room_status,
+                    r.created_at AS room_created_at,
+                    r.updated_at AS room_updated_at
                 FROM hotels h
                 LEFT JOIN rooms r ON h.id = r.hotel_id
                 WHERE h.owner = ?";

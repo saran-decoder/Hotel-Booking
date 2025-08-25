@@ -118,15 +118,15 @@
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <label class="form-label">Hotel Name <span class="text-danger">*</span></label>
-                                    <input type="text" id="hotelName" name="hotelName" class="form-control" placeholder="Enter hotel name" required />
+                                    <input type="text" id="hotelName" name="hotelName" class="form-control" required />
                                     <div class="invalid-feedback">Please provide a hotel name.</div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Location Name <span class="text-danger">*</span></label>
-                                    <input type="text" id="locationName" name="locationName" class="form-control" placeholder="Downtown, New York" required />
+                                    <label class="form-label">City Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="locationName" name="locationName" class="form-control" required />
                                     <div class="invalid-feedback">Please provide a location name.</div>
                                 </div>
                                 <div class="col-md-6">
@@ -138,7 +138,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Full Address <span class="text-danger">*</span></label>
-                                <input type="text" id="fullAddress" name="fullAddress" class="form-control" placeholder="Enter complete address" required />
+                                <input type="text" id="fullAddress" name="fullAddress" class="form-control" required />
                                 <div class="invalid-feedback">Please provide a full address.</div>
                             </div>
 

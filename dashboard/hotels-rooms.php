@@ -225,8 +225,8 @@
 
                         const row = `
                             <tr>
-                                <td>${hotel.name || 'N/A'}</td>
-                                <td><a href="${hotel.coordinates || '#'}">Find</a></td>
+                                <td>${hotel.hotel_name || 'N/A'}</td>
+                                <td><a href="${hotel.hotel_coordinates || '#'}">Find</a></td>
                                 <td>${hotel.rooms.length}</td>
                                 <td>${hotel.occupancy_rate || '0'}%</td>
                                 <td>${hotel.rating || 'N/A'}</td>

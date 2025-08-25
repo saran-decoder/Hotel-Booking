@@ -302,4 +302,102 @@ class Admin
 
         return false;
     }
+
+    // Create a new booking
+    public static function createBooking($user_id, $hotel_id, $room_id, $check_in, $check_out, $adults, $children, $total_price)
+    {
+        $db = Database::getConnection();
+        
+        try {
+            
+            // Check room availability
+            if (!self::isRoomAvailable($room_id, $check_in, $check_out)) {
+                return "Room not available for selected dates";
+            }
+            
+            // Generate booking reference
+            $booking_ref = self::generateBookingReference();
+            
+            // Insert booking - FIXED parameter types
+            $stmt = $db->prepare("INSERT INTO bookings (booking_ref, user_id, hotel_id, room_id, check_in_date, check_out_date, adults, children, total_price, status, created_at) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', NOW())");
+            
+            // Changed from "ssiissiid" to "siissiid" - user_id might be integer, not string
+            $stmt->bind_param("ssissiid", $booking_ref, $user_id, $hotel_id, $room_id, $check_in, $check_out, $adults, $children, $total_price);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to create booking: " . $stmt->error);
+            }
+            
+            $booking_id = $stmt->insert_id;
+
+            return $booking_id;
+            
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $db->rollback();
+            error_log("Booking creation error: " . $e->getMessage());
+            return $e->getMessage();
+        }
+    }
+    
+    // Check if room is available for given dates
+    public static function isRoomAvailable($room_id, $check_in, $check_out) {
+        $db = Database::getConnection();
+        
+        $stmt = $db->prepare("SELECT COUNT(*) as overlapping_bookings 
+                             FROM bookings 
+                             WHERE room_id = ? 
+                             AND status IN ('confirmed', 'checked_in')
+                             AND (
+                                 (check_in_date <= ? AND check_out_date > ?) OR
+                                 (check_in_date < ? AND check_out_date >= ?) OR
+                                 (check_in_date >= ? AND check_out_date <= ?)
+                             )");
+        
+        $stmt->bind_param("issssss", $room_id, $check_out, $check_in, $check_out, $check_in, $check_in, $check_out);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        return $row['overlapping_bookings'] == 0;
+    }
+    
+    // Generate unique booking reference in format: [A-Z][1-9][A-Z][1-9]-[01-99]
+    private static function generateBookingReference() {
+        // Get total booking count to create sequence number
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM bookings");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        $sequence_number = str_pad($row['total'] + 1, 2, '0', STR_PAD_LEFT);
+        
+        // Generate random uppercase letters and numbers
+        $first_char = chr(rand(65, 90)); // A-Z
+        $first_num = rand(1, 9); // 1-9
+        $second_char = chr(rand(65, 90)); // A-Z
+        $second_num = rand(1, 9); // 1-9
+        
+        return $first_char . $first_num . $second_char . $second_num . '-' . $sequence_number;
+    }
+    
+    // Get booking details by ID
+    public static function getBookingById($booking_id) {
+        $db = Database::getConnection();
+        
+        $stmt = $db->prepare("SELECT b.*, h.hotel_name, h.hotel_location, r.room_type, r.price_per_night
+                             FROM bookings b
+                             JOIN hotels h ON b.hotel_id = h.id
+                             JOIN rooms r ON b.room_id = r.id
+                             WHERE b.id = ?");
+        
+        $stmt->bind_param("i", $booking_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $booking = $result->fetch_assoc();
+        
+        return $booking;
+    }
 }
