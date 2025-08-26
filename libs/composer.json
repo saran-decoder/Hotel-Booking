@@ -4,6 +4,7 @@
         "symfony/translation": "^5.4",
         "symfony/translation-contracts": "^2.5",
         "nesbot/carbon": "^2.62",
-        "phpmailer/phpmailer": "^6.10"
+        "phpmailer/phpmailer": "^6.10",
+        "razorpay/razorpay": "2.*"
     }
 }

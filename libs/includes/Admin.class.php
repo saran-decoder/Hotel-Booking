@@ -303,69 +303,90 @@ class Admin
         return false;
     }
 
+    // Check room availability with detailed response
+    // public static function checkRoomAvailability($room_id, $check_in, $check_out) {
+    //     $db = Database::getConnection();
+        
+    //     // Convert dates to proper format
+    //     $check_in_date = date('Y-m-d', strtotime($check_in));
+    //     $check_out_date = date('Y-m-d', strtotime($check_out));
+        
+    //     // Check for overlapping bookings
+    //     $stmt = $db->prepare("SELECT b.id, b.booking_ref, b.check_in_date, b.check_out_date, 
+    //                         u.username, u.email 
+    //                         FROM bookings b
+    //                         JOIN users u ON b.user_id = u.id
+    //                         WHERE b.room_id = ? 
+    //                         AND b.status IN ('confirmed', 'checked_in')
+    //                         AND (
+    //                             (b.check_in_date < ? AND b.check_out_date > ?) OR
+    //                             (b.check_in_date < ? AND b.check_out_date > ?) OR
+    //                             (b.check_in_date >= ? AND b.check_out_date <= ?)
+    //                         )");
+        
+    //     $stmt->bind_param("issssss", $room_id, $check_out_date, $check_in_date, 
+    //                     $check_out_date, $check_in_date, $check_in_date, $check_out_date);
+    //     $stmt->execute();
+    //     $result = $stmt->get_result();
+        
+    //     if ($result->num_rows > 0) {
+    //         $conflicting_booking = $result->fetch_assoc();
+            
+    //         // Format the dates for display
+    //         $conflict_check_in = date('M j, Y', strtotime($conflicting_booking['check_in_date']));
+    //         $conflict_check_out = date('M j, Y', strtotime($conflicting_booking['check_out_date']));
+            
+    //         return [
+    //             'available' => false,
+    //             'message' => "This room is already booked from $conflict_check_in to $conflict_check_out. " .
+    //                         "Please select different dates or another room."
+    //         ];
+    //     }
+        
+    //     return ['available' => true, 'message' => 'Room is available'];
+    // }
+
     // Create a new booking
-    public static function createBooking($user_id, $hotel_id, $room_id, $check_in, $check_out, $adults, $children, $total_price)
-    {
+    public static function createBooking($user_id, $hotel_id, $room_id, $check_in, $check_out, $adults, $children, $total_price) {
         $db = Database::getConnection();
         
         try {
-            
-            // Check room availability
-            if (!self::isRoomAvailable($room_id, $check_in, $check_out)) {
-                return "Room not available for selected dates";
+            // Double-check availability right before booking
+            $availability = self::checkRoomAvailability($room_id, $check_in, $check_out);
+            if (!$availability['available']) {
+                return $availability['message'];
             }
             
             // Generate booking reference
             $booking_ref = self::generateBookingReference();
             
-            // Insert booking - FIXED parameter types
-            $stmt = $db->prepare("INSERT INTO bookings (booking_ref, user_id, hotel_id, room_id, check_in_date, check_out_date, adults, children, total_price, status, created_at) 
+            // Convert dates to proper format
+            $check_in_date = date('Y-m-d', strtotime($check_in));
+            $check_out_date = date('Y-m-d', strtotime($check_out));
+            
+            // Insert booking
+            $stmt = $db->prepare("INSERT INTO bookings (booking_ref, user_id, hotel_id, room_id, 
+                                check_in_date, check_out_date, adults, children, total_price, status, created_at) 
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', NOW())");
             
-            // Changed from "ssiissiid" to "siissiid" - user_id might be integer, not string
-            $stmt->bind_param("ssissiid", $booking_ref, $user_id, $hotel_id, $room_id, $check_in, $check_out, $adults, $children, $total_price);
+            $stmt->bind_param("ssiissiid", $booking_ref, $user_id, $hotel_id, $room_id, 
+                            $check_in_date, $check_out_date, $adults, $children, $total_price);
             
             if (!$stmt->execute()) {
                 throw new Exception("Failed to create booking: " . $stmt->error);
             }
             
             $booking_id = $stmt->insert_id;
-
             return $booking_id;
             
         } catch (Exception $e) {
-            // Rollback transaction on error
-            $db->rollback();
             error_log("Booking creation error: " . $e->getMessage());
             return $e->getMessage();
         }
     }
-    
-    // Check if room is available for given dates
-    public static function isRoomAvailable($room_id, $check_in, $check_out) {
-        $db = Database::getConnection();
-        
-        $stmt = $db->prepare("SELECT COUNT(*) as overlapping_bookings 
-                             FROM bookings 
-                             WHERE room_id = ? 
-                             AND status IN ('confirmed', 'checked_in')
-                             AND (
-                                 (check_in_date <= ? AND check_out_date > ?) OR
-                                 (check_in_date < ? AND check_out_date >= ?) OR
-                                 (check_in_date >= ? AND check_out_date <= ?)
-                             )");
-        
-        $stmt->bind_param("issssss", $room_id, $check_out, $check_in, $check_out, $check_in, $check_in, $check_out);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        
-        return $row['overlapping_bookings'] == 0;
-    }
-    
-    // Generate unique booking reference in format: [A-Z][1-9][A-Z][1-9]-[01-99]
+
+    // Generate unique booking reference
     private static function generateBookingReference() {
-        // Get total booking count to create sequence number
         $db = Database::getConnection();
         $stmt = $db->prepare("SELECT COUNT(*) as total FROM bookings");
         $stmt->execute();
@@ -382,22 +403,103 @@ class Admin
         
         return $first_char . $first_num . $second_char . $second_num . '-' . $sequence_number;
     }
-    
-    // Get booking details by ID
-    public static function getBookingById($booking_id) {
+
+    // Check room availability with detailed response
+    public static function checkRoomAvailability($room_id, $check_in, $check_out) {
         $db = Database::getConnection();
         
-        $stmt = $db->prepare("SELECT b.*, h.hotel_name, h.hotel_location, r.room_type, r.price_per_night
-                             FROM bookings b
-                             JOIN hotels h ON b.hotel_id = h.id
-                             JOIN rooms r ON b.room_id = r.id
-                             WHERE b.id = ?");
+        // Validate dates
+        if (!self::validateDates($check_in, $check_out)) {
+            return [
+                'available' => false,
+                'message' => 'Invalid date range. Check-out date must be after check-in date.'
+            ];
+        }
         
-        $stmt->bind_param("i", $booking_id);
+        // Convert dates to proper format
+        $check_in_date = date('Y-m-d', strtotime($check_in));
+        $check_out_date = date('Y-m-d', strtotime($check_out));
+        
+        // Check for overlapping bookings
+        $stmt = $db->prepare("SELECT b.id, b.booking_ref, b.check_in_date, b.check_out_date, 
+                            u.username, u.email, b.status,
+                            DATEDIFF(b.check_out_date, b.check_in_date) as nights_booked
+                            FROM bookings b
+                            JOIN users u ON b.user_id = u.id
+                            WHERE b.room_id = ? 
+                            AND b.status IN ('confirmed', 'checked_in')
+                            AND (
+                                (b.check_in_date < ? AND b.check_out_date > ?) OR
+                                (b.check_in_date < ? AND b.check_out_date > ?) OR
+                                (b.check_in_date >= ? AND b.check_out_date <= ?)
+                            )
+                            ORDER BY b.check_in_date ASC");
+        
+        $stmt->bind_param("issssss", $room_id, $check_out_date, $check_in_date, 
+                        $check_out_date, $check_in_date, $check_in_date, $check_out_date);
         $stmt->execute();
         $result = $stmt->get_result();
-        $booking = $result->fetch_assoc();
         
-        return $booking;
+        if ($result->num_rows > 0) {
+            $conflicting_bookings = [];
+            
+            while ($booking = $result->fetch_assoc()) {
+                // Format the dates for display
+                $conflict_check_in = date('M j, Y', strtotime($booking['check_in_date']));
+                $conflict_check_out = date('M j, Y', strtotime($booking['check_out_date']));
+                
+                $conflicting_bookings[] = [
+                    'booking_ref' => $booking['booking_ref'],
+                    'check_in' => $conflict_check_in,
+                    'check_out' => $conflict_check_out,
+                    'nights' => $booking['nights_booked'],
+                    'status' => $booking['status'],
+                    'booked_by' => $booking['username']
+                ];
+            }
+            
+            $first_conflict = $conflicting_bookings[0];
+            $message = "This room is already booked from {$first_conflict['check_in']} to {$first_conflict['check_out']}.";
+            
+            if (count($conflicting_bookings) > 1) {
+                $message .= " There are " . (count($conflicting_bookings) - 1) . " other conflicting bookings.";
+            }
+            
+            $message .= " Please select different dates or another room.";
+            
+            return [
+                'available' => false,
+                'message' => $message,
+                'details' => $conflicting_bookings
+            ];
+        }
+        
+        return [
+            'available' => true, 
+            'message' => 'Room is available for selected dates'
+        ];
+    }
+
+    // Validate date range
+    private static function validateDates($check_in, $check_out) {
+        $check_in_time = strtotime($check_in);
+        $check_out_time = strtotime($check_out);
+        
+        // Check if dates are valid
+        if (!$check_in_time || !$check_out_time) {
+            return false;
+        }
+        
+        // Check if check-out is after check-in
+        if ($check_out_time <= $check_in_time) {
+            return false;
+        }
+        
+        // Check if dates are in the future
+        if ($check_in_time < time() || $check_out_time < time()) {
+            return false;
+        }
+        
+        return true;
     }
 }

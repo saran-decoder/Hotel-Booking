@@ -1,5 +1,4 @@
 <?php
-
 ${basename(__FILE__, '.php')} = function () {
     if ($this->get_request_method() != "POST") {
         $this->response($this->json([
@@ -17,16 +16,31 @@ ${basename(__FILE__, '.php')} = function () {
         $children = $this->_request['children'];
         $total_price = $this->_request['total_price'];
 
-        // Get user ID from token (if using authentication)
-        if(Session::get('user_id')) {
-            $user_id = Session::get('user_id');
+        // Get user identifier from session
+        if (Session::get('user_id')) {
+            $userIdentifier = Session::get('user_id');
+        } else if (Session::get('username')) {
+            $userIdentifier = Session::get('username');
         } else {
-            $user_id = Session::get('username');
+            // Fallback - use email or generate guest user
+            $userIdentifier = 'guest_' . time();
         }
 
-        // Change the method call
-        $booking_id = Admin::createBooking( // Changed from Admin::createBooking
-            $user_id,
+        // Check room availability first
+        $availability_check = Admin::checkRoomAvailability($room_id, $check_in, $check_out);
+        
+        if (!$availability_check['available']) {
+            $this->response($this->json([
+                'success' => false,
+                'message' => 'Room not available for selected dates',
+                'details' => $availability_check['message']
+            ]), 409); // 409 Conflict status code
+            return;
+        }
+
+        // Create the booking
+        $booking_id = Admin::createBooking(
+            $userIdentifier,
             $hotel_id,
             $room_id,
             $check_in,
@@ -36,7 +50,7 @@ ${basename(__FILE__, '.php')} = function () {
             $total_price
         );
 
-        if ($booking_id) {
+        if ($booking_id && is_numeric($booking_id)) {
             $this->response($this->json([
                 'success' => true,
                 'message' => 'Booking created successfully',
@@ -45,8 +59,7 @@ ${basename(__FILE__, '.php')} = function () {
         } else {
             $this->response($this->json([
                 'success' => false,
-                'message' => 'Failed to create booking',
-                'booking_id' => $booking_id
+                'message' => 'Failed to create booking: ' . $booking_id
             ]), 500);
         }
 

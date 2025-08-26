@@ -358,7 +358,7 @@
                                             <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
                                         </div>
                                         <h2 class="mb-3">Booking Confirmed!</h2>
-                                        <p class="text-muted mb-4">Thank you for choosing TNBooking.in. We've sent a confirmation email to your registered email address. Vanakkam!</p>
+                                        <p class="text-muted mb-4">Thank you for choosing TNBooking.in. We've sent a confirmation email to your registered email address.</p>
                                         
                                         <div class="card mb-4">
                                             <div class="card-body text-start">
@@ -386,6 +386,7 @@
 
         <?php include "temp/footer.php" ?>
 
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script src="assets/js/booking.js"></script>
         
     </body>

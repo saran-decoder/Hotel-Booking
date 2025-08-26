@@ -37,27 +37,28 @@
         <link rel="stylesheet" href="assets/css/2fa.css" />
     </head>
     <body>
-        <div class="container-fluid otp-container">
-            <div class="row w-100 shadow-lg rounded overflow-hidden" style="max-width: 1000px;">
+        <div class="container otp-container py-5">
+            <div class="row g-0 shadow-lg rounded overflow-hidden">
                 <!-- Left Branding Section -->
-                <div class="col-md-5 left-panel d-none d-md-flex flex-column justify-content-center">
+                <div class="col-12 col-md-5 left-panel d-none d-md-flex flex-column justify-content-center p-4">
                     <h2 class="brand-text">TNBooking.in</h2>
                     <p class="brand-subtext">Secure your account with OTP verification. Your security is our priority.</p>
                 </div>
 
                 <!-- OTP Form Section -->
-                <div class="col-md-7 p-0">
-                    <div class="otp-box p-5">
-                        <h2 class="otp-title text-center">OTP Verification</h2>
+                <div class="col-12 col-md-7 p-0">
+                    <div class="otp-box p-4 p-md-5">
+                        <h2 class="otp-title text-center mb-3">OTP Verification</h2>
                         <p class="text-center otp-subtitle text-muted">Enter the 6-digit code sent to your registered email.</p>
 
                         <form id="otpForm">
-                            <!-- hidden username -->
                             <input type="hidden" id="username" value="<?= htmlspecialchars(Session::get('username')) ?>">
 
-                            <div class="d-flex justify-content-center mb-4">
+                            <div class="d-flex justify-content-center mb-4 flex-wrap">
                                 <?php for ($i=0; $i<6; $i++): ?>
-                                    <input type="text" maxlength="1" class="form-control otp-input mx-1 text-center" pattern="[0-9]*" inputmode="numeric" required />
+                                    <input type="text" maxlength="1"
+                                        class="form-control form-control-sm otp-input mx-1 text-center"
+                                        style="max-width:45px;" pattern="[0-9]*" inputmode="numeric" required />
                                 <?php endfor; ?>
                             </div>
 
@@ -66,7 +67,8 @@
                             </div>
 
                             <div class="text-center">
-                                <p class="text-muted">Didn't receive the code? 
+                                <p class="text-muted">
+                                    Didn't receive the code? 
                                     <a href="#" id="resendOtp" class="resend-link">Resend OTP</a>
                                 </p>
                             </div>
@@ -150,8 +152,8 @@
                     e.preventDefault();
                     let btn = $(this);
 
-                    btn.addClass("text-muted").css("pointer-events","none").text("Resend available in 10s");
-                    let seconds = 10;
+                    btn.addClass("text-muted").css("pointer-events","none").text("Resend available in 30s");
+                    let seconds = 30;
                     let countdown = setInterval(()=>{
                         seconds--;
                         btn.text(`Resend available in ${seconds}s`);

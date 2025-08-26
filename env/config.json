@@ -4,5 +4,7 @@
 	"db_password": "",
 	"db_name": "tnbooking",
 	"base_path": "/hotel-booking/",
-	"dashboard_base_path": "/hotel-booking/dashboard/"
+	"dashboard_base_path": "/hotel-booking/dashboard/",
+	"razorpay_key": "rzp_test_CZnxmrbV9AAJAA",
+	"razorpay_secret": "0is9hn7Xljr2lCYp7LwrN7Zk"
 }
