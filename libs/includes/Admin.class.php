@@ -303,49 +303,6 @@ class Admin
         return false;
     }
 
-    // Check room availability with detailed response
-    // public static function checkRoomAvailability($room_id, $check_in, $check_out) {
-    //     $db = Database::getConnection();
-        
-    //     // Convert dates to proper format
-    //     $check_in_date = date('Y-m-d', strtotime($check_in));
-    //     $check_out_date = date('Y-m-d', strtotime($check_out));
-        
-    //     // Check for overlapping bookings
-    //     $stmt = $db->prepare("SELECT b.id, b.booking_ref, b.check_in_date, b.check_out_date, 
-    //                         u.username, u.email 
-    //                         FROM bookings b
-    //                         JOIN users u ON b.user_id = u.id
-    //                         WHERE b.room_id = ? 
-    //                         AND b.status IN ('confirmed', 'checked_in')
-    //                         AND (
-    //                             (b.check_in_date < ? AND b.check_out_date > ?) OR
-    //                             (b.check_in_date < ? AND b.check_out_date > ?) OR
-    //                             (b.check_in_date >= ? AND b.check_out_date <= ?)
-    //                         )");
-        
-    //     $stmt->bind_param("issssss", $room_id, $check_out_date, $check_in_date, 
-    //                     $check_out_date, $check_in_date, $check_in_date, $check_out_date);
-    //     $stmt->execute();
-    //     $result = $stmt->get_result();
-        
-    //     if ($result->num_rows > 0) {
-    //         $conflicting_booking = $result->fetch_assoc();
-            
-    //         // Format the dates for display
-    //         $conflict_check_in = date('M j, Y', strtotime($conflicting_booking['check_in_date']));
-    //         $conflict_check_out = date('M j, Y', strtotime($conflicting_booking['check_out_date']));
-            
-    //         return [
-    //             'available' => false,
-    //             'message' => "This room is already booked from $conflict_check_in to $conflict_check_out. " .
-    //                         "Please select different dates or another room."
-    //         ];
-    //     }
-        
-    //     return ['available' => true, 'message' => 'Room is available'];
-    // }
-
     // Create a new booking
     public static function createBooking($user_id, $hotel_id, $room_id, $check_in, $check_out, $adults, $children, $total_price) {
         $db = Database::getConnection();

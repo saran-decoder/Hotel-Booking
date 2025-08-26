@@ -194,7 +194,7 @@ class Operations
     public static function getAdminHotelId($username)
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT * FROM `hotels` WHERE `id` = ?");
+        $stmt = $conn->prepare("SELECT * FROM `hotels` WHERE `id` = ?, OR `owner` = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -250,7 +250,7 @@ class Operations
         
         while ($room = $result->fetch_assoc()) {
             // Check availability for each room
-            $availability = self::checkRoomAvailability($room['id'], $check_in, $check_out);
+            $availability = Admin::checkRoomAvailability($room['id'], $check_in, $check_out);
             
             if ($availability['available']) {
                 $room['availability'] = $availability;
@@ -265,10 +265,11 @@ class Operations
     public static function getBookingById($booking_id) {
         $db = Database::getConnection();
         
-        $stmt = $db->prepare("SELECT b.*, h.hotel_name, h.hotel_location, r.room_type, r.price_per_night
+        $stmt = $db->prepare("SELECT b.*, h.*, r.*, p.*
                              FROM bookings b
                              JOIN hotels h ON b.hotel_id = h.id
                              JOIN rooms r ON b.room_id = r.id
+                             JOIN payments ON b.booking_id = b.id
                              WHERE b.id = ?");
         
         $stmt->bind_param("i", $booking_id);
