@@ -85,4 +85,54 @@
             });
         }
     });
+
+    // Function to show toast notification
+    function showToast(title, message, type = 'info') {
+        // Remove any existing toasts first
+        $('.toast-container').remove();
+        
+        // Create toast container if it doesn't exist
+        if ($('.toast-container').length === 0) {
+            $('body').append('<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;"></div>');
+        }
+        
+        const toastId = 'toast-' + Date.now();
+        const toastHtml = `
+            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `;
+        
+        $('.toast-container').append(toastHtml);
+        
+        // Add appropriate styling based on type
+        const toastElement = $('#' + toastId);
+        if (type === 'success') {
+            toastElement.find('.toast-header').addClass('bg-success text-white');
+        } else if (type === 'error') {
+            toastElement.find('.toast-header').addClass('bg-danger text-white');
+        } else if (type === 'warning') {
+            toastElement.find('.toast-header').addClass('bg-warning text-dark');
+        } else {
+            toastElement.find('.toast-header').addClass('bg-info text-white');
+        }
+        
+        // Initialize and show the toast
+        const toast = new bootstrap.Toast(toastElement[0], {
+            autohide: true,
+            delay: 5000
+        });
+        toast.show();
+        
+        // Remove toast from DOM after it's hidden
+        toastElement.on('hidden.bs.toast', function () {
+            $(this).remove();
+        });
+    }
 </script>

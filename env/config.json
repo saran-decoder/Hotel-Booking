@@ -2,7 +2,7 @@
 	"db_server": "localhost",
 	"db_username": "root",
 	"db_password": "",
-	"db_name": "tnbooking",
+	"db_name": "booking",
 	"base_path": "/hotel-booking/",
 	"dashboard_base_path": "/hotel-booking/dashboard/",
 	"razorpay_key": "rzp_test_CZnxmrbV9AAJAA",

@@ -323,8 +323,8 @@ class Admin
             
             // Insert booking
             $stmt = $db->prepare("INSERT INTO bookings (booking_ref, user_id, hotel_id, room_id, 
-                                check_in_date, check_out_date, adults, children, total_price, status, created_at) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', NOW())");
+                                check_in_date, check_out_date, adults, children, total_price, status, payment_status, payment_id, created_at) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', '0', '0', NOW())");
             
             $stmt->bind_param("ssiissiid", $booking_ref, $user_id, $hotel_id, $room_id, 
                             $check_in_date, $check_out_date, $adults, $children, $total_price);

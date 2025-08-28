@@ -15,25 +15,6 @@
         header("Location: logout?logout");
         exit;
     }
-
-// Admin static functions for booking management
-// class AdminBooking {
-//     public static function getAllBookings() {
-//         // Implementation to get all bookings
-//     }
-    
-//     public static function getBookingById($id) {
-//         // Implementation to get booking by ID
-//     }
-    
-//     public static function updateBookingStatus($id, $status) {
-//         // Implementation to update booking status
-//     }
-    
-//     public static function cancelBooking($id) {
-//         // Implementation to cancel booking
-//     }
-// }
 ?>
 
 <!DOCTYPE html>
