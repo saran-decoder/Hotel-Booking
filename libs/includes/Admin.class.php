@@ -101,6 +101,130 @@ class Admin
         }
     }
 
+    // Employee management methods
+    public static function addEmployee($name, $email, $role) {
+        $conn = Database::getConnection();
+        
+        // Validate input
+        if (empty($name) || empty($email) || empty($role)) {
+            return ['success' => false, 'message' => 'All fields are required'];
+        }
+        
+        // Check if email already exists
+        $stmt = $conn->prepare("SELECT id FROM workers WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return ['success' => false, 'message' => 'Email already exists'];
+        }
+        
+        try {
+            $stmt = $conn->prepare("INSERT INTO workers (name, email, role, status, created_at) VALUES (?, ?, ?, 'Active', NOW())");
+            $stmt->bind_param("sss", $name, $email, $role);
+            
+            if ($stmt->execute()) {
+                return ['success' => true, 'message' => 'Employee added successfully'];
+            } else {
+                return ['success' => false, 'message' => 'Failed to add employee'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error adding employee: ' . $e->getMessage()];
+        }
+    }
+    
+    public static function editEmployee($id, $name, $email, $role) {
+        $conn = Database::getConnection();
+        
+        // Validate input
+        if (empty($id) || empty($name) || empty($email) || empty($role)) {
+            return ['success' => false, 'message' => 'All fields except password are required'];
+        }
+        
+        // Check if email already exists for another employee
+        $stmt = $conn->prepare("SELECT id FROM workers WHERE email = ? AND id != ?");
+        $stmt->bind_param("si", $email, $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return ['success' => false, 'message' => 'Email already exists for another employee'];
+        }
+        
+        try {
+            $stmt = $conn->prepare("UPDATE workers SET name = ?, email = ?, role = ? WHERE id = ?");
+            $stmt->bind_param("sssi", $name, $email, $role, $id);
+            
+            if ($stmt->execute()) {
+                return ['success' => true, 'message' => 'Employee updated successfully'];
+            } else {
+                return ['success' => false, 'message' => 'Failed to update employee'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error updating employee: ' . $e->getMessage()];
+        }
+    }
+    
+    public static function enableEmployee($id) {
+        $conn = Database::getConnection();
+        
+        // Validate input
+        if (empty($id)) {
+            return ['success' => false, 'message' => 'Employee ID is required'];
+        }
+        
+        try {
+            // Check if employee exists
+            $stmt = $conn->prepare("SELECT id FROM workers WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                return ['success' => false, 'message' => 'Employee not found'];
+            }
+            
+            $stmt = $conn->prepare("UPDATE workers SET status = 'Active' WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            
+            if ($stmt->execute()) {
+                return ['success' => true, 'message' => 'Employee enable successfully'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error enable employee: ' . $e->getMessage()];
+        }
+    }
+    public static function disableEmployee($id) {
+        $conn = Database::getConnection();
+        
+        // Validate input
+        if (empty($id)) {
+            return ['success' => false, 'message' => 'Employee ID is required'];
+        }
+        
+        try {
+            // Check if employee exists
+            $stmt = $conn->prepare("SELECT id FROM workers WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                return ['success' => false, 'message' => 'Employee not found'];
+            }
+            
+            $stmt = $conn->prepare("UPDATE workers SET status = 'Disbale' WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            
+            if ($stmt->execute()) {
+                return ['success' => true, 'message' => 'Employee disabled successfully'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error disabling employee: ' . $e->getMessage()];
+        }
+    }
+
     public static function addHotel($owner, $name, $location, $coordinates, $address, $description, $amenities, $images)
     {
         $conn = Database::getConnection();

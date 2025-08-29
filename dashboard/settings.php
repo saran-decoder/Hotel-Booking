@@ -79,7 +79,7 @@
                                         <path d="M8.25114 10.0833C10.2762 10.0833 11.9178 8.44171 11.9178 6.41667C11.9178 4.39162 10.2762 2.75 8.25114 2.75C6.22609 2.75 4.58447 4.39162 4.58447 6.41667C4.58447 8.44171 6.22609 10.0833 8.25114 10.0833Z" stroke="#3B82F6" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg> Employee Management
                                 </div>
-                                <button class="btn text-primary">Add New Employee</button>
+                                <button class="btn text-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Add New Employee</button>
                             </div>
                             
                             <div class="table-responsive">
@@ -94,31 +94,77 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>Jane Cooper</td>
-                                            <td>jane@hotelmanager.com</td>
-                                            <td>Booking Manager</td>
-                                            <td><span class="status-badge status-active">Active</span></td>
-                                            <td>
-                                                <button class="action-btn edit-btn">Edit</button>
-                                                <button class="action-btn disable-btn">Disable</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Robert Fox</td>
-                                            <td>roben@hotelmanager.com</td>
-                                            <td>Hotel Manager</td>
-                                            <td><span class="status-badge status-active">Active</span></td>
-                                            <td>
-                                                <button class="action-btn edit-btn">Edit</button>
-                                                <button class="action-btn disable-btn">Disable</button>
-                                            </td>
-                                        </tr>
+                                        <!-- Employee data will be loaded dynamically -->
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-
+                        
+                        <!-- Add Employee Modal -->
+                        <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="addEmployeeForm">
+                                            <div class="mb-3">
+                                                <label for="employeeName" class="form-label">Name</label>
+                                                <input type="text" class="form-control" id="employeeName" name="name" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="employeeEmail" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="employeeEmail" name="email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="employeeRole" class="form-label">Role</label>
+                                                <input type="text" class="form-control" id="employeeRole" name="role" required>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-primary" id="saveEmployeeBtn">Save Employee</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Employee Modal -->
+                        <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="editEmployeeForm">
+                                            <input type="hidden" id="editEmployeeId" name="id">
+                                            <div class="mb-3">
+                                                <label for="editEmployeeName" class="form-label">Name</label>
+                                                <input type="text" class="form-control" id="editEmployeeName" name="name" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="editEmployeeEmail" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="editEmployeeEmail" name="email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="editEmployeeRole" class="form-label">Role</label>
+                                                <input type="text" class="form-control" id="editEmployeeRole" name="role" required>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-primary" id="updateEmployeeBtn">Update Employee</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- Security Settings -->
                         <div class="settings-section">
                             <div class="settings-title">
@@ -212,8 +258,85 @@
         <?php include "temp/footer.php" ?>
 
         <script>
-            // Form validation
             $(document).ready(function() {
+                // Load employees function
+                function loadEmployees() {
+                    $.get("../api/admin/list-emp", function(response) {
+                        console.log("API Response:", response); // Debug log
+                        
+                        if (response.success && response.data) {
+                            const tbody = $('.table tbody');
+                            tbody.empty();
+                            
+                            if (response.data.length === 0) {
+                                tbody.append('<tr><td colspan="5" class="text-center">No employees found</td></tr>');
+                                return;
+                            }
+                            
+                            response.data.forEach(function(employee) {
+                                // Determine the status class based on employee status
+                                const statusClass = employee.status && employee.status.toLowerCase() === 'active' 
+                                    ? 'status-active' 
+                                    : 'status-inactive';
+                                
+                                // Determine button text based on status
+                                const buttonText = employee.status && employee.status.toLowerCase() === 'active' 
+                                    ? 'Disable' 
+                                    : 'Enable';
+                                
+                                // Determine button class based on status
+                                const buttonClass = employee.status && employee.status.toLowerCase() === 'active' 
+                                    ? 'disable-btn' 
+                                    : 'enable-btn';
+                                
+                                const row = `
+                                    <tr>
+                                        <td>${employee.name || 'N/A'}</td>
+                                        <td>${employee.email || 'N/A'}</td>
+                                        <td>${employee.role || 'N/A'}</td>
+                                        <td><span class="status-badge ${statusClass}">${employee.status || 'Unknown'}</span></td>
+                                        <td>
+                                            <button class="action-btn edit-btn" data-id="${employee.id}">Edit</button>
+                                            <button class="action-btn ${buttonClass}" data-id="${employee.id}">${buttonText}</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                tbody.append(row);
+                            });
+                        } else {
+                            $('.table tbody').html('<tr><td colspan="5" class="text-center">Error loading employees: ' + (response.message || 'Unknown error') + '</td></tr>');
+                        }
+                    }, "json").fail(function(xhr, status, error) {
+                        console.error("Error loading employees:", error);
+                        $('.table tbody').html('<tr><td colspan="5" class="text-center">Error loading employees. Please check console for details.</td></tr>');
+                    });
+                }
+
+                // Load admin function
+                function loadAdmin() {
+                    $.get("../api/admin/list", function(response) {
+                        console.log("Admin API Response:", response); // Debug log
+                        
+                        if (response.success && response.data) {
+                            $("#email").html(response.data.email || 'N/A');
+                            $("#phone").html(response.data.phone || 'N/A');
+                        } else {
+                            $("#email").html('N/A');
+                            $("#phone").html('N/A');
+                            console.error("Error loading admin:", response.message);
+                        }
+                    }, "json").fail(function(xhr, status, error) {
+                        console.error("Error loading admin:", error);
+                        $("#email").html('N/A');
+                        $("#phone").html('N/A');
+                    });
+                }
+
+                // Load employees and admin on page load
+                loadAdmin();
+                loadEmployees();
+
+                // Rest of your existing code (form validation, button handlers, etc.)
                 // Live validation for password fields
                 $('#passwordForm input[type="password"]').on('input', function() {
                     validateField($(this));
@@ -337,48 +460,247 @@
                 }
                 
                 // Handle edit user buttons
-                $('.edit-btn').on('click', function() {
+                $(document).on('click', '.edit-btn', function() {
                     const row = $(this).closest('tr');
-                    const name = row.find('td:first').text();
-                    alert(`Edit user: ${name}`);
+                    const id = $(this).data('id');
+                    const name = row.find('td:eq(0)').text();
+                    const email = row.find('td:eq(1)').text();
+                    const role = row.find('td:eq(2)').text();
+                    
+                    // Populate edit modal with current data
+                    $('#editEmployeeId').val(id);
+                    $('#editEmployeeName').val(name);
+                    $('#editEmployeeEmail').val(email);
+                    $('#editEmployeeRole').val(role);
+                    $('#editEmployeePassword').val('');
+                    
+                    // Show edit modal
+                    $('#editEmployeeModal').modal('show');
                 });
                 
-                // Handle disable user buttons
-                $('.disable-btn').on('click', function() {
+                // Handle disable/enable user buttons
+                $(document).on('click', '.disable-btn, .enable-btn', function() {
                     const row = $(this).closest('tr');
-                    const name = row.find('td:first').text();
+                    const id = $(this).data('id');
+                    const name = row.find('td:eq(0)').text();
+                    const isDisable = $(this).hasClass('disable-btn');
+                    const action = isDisable ? 'disable' : 'enable';
                     
-                    if (confirm(`Are you sure you want to disable ${name}?`)) {
-                        const statusBadge = row.find('.status-badge');
-                        statusBadge.text('Inactive');
-                        statusBadge.removeClass('status-active').addClass('status-inactive');
-                        
-                        $(this).text('Enable')
-                            .removeClass('disable-btn')
-                            .addClass('edit-btn');
-                        
-                        showToast('Success', `${name} has been disabled.`, 'success');
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: `Do you want to ${action} ${name}?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: `Yes, ${action} it!`
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // AJAX call to disable/enable employee API
+                            $.ajax({
+                                url: `../api/admin/${action}`,
+                                method: 'POST',
+                                data: {
+                                    id: id
+                                },
+                                dataType: 'json',
+                                success: function(response) {
+                                    if (response.success) {
+                                        const statusBadge = row.find('.status-badge');
+                                        
+                                        if (isDisable) {
+                                            statusBadge.text('Inactive');
+                                            statusBadge.removeClass('status-active').addClass('status-inactive');
+                                            
+                                            $(this).text('Enable')
+                                                .removeClass('disable-btn')
+                                                .addClass('enable-btn');
+                                        } else {
+                                            statusBadge.text('Active');
+                                            statusBadge.removeClass('status-inactive').addClass('status-active');
+                                            
+                                            $(this).text('Disable')
+                                                .removeClass('enable-btn')
+                                                .addClass('disable-btn');
+                                        }
+                                        
+                                        Swal.fire(
+                                            'Success!',
+                                            `${name} has been ${action}d.`,
+                                            'success'
+                                        );
+                                        
+                                        // Refresh the table to ensure consistency
+                                        loadEmployees();
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            response.message,
+                                            'error'
+                                        );
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    // Show error message from API response if available
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        Swal.fire(
+                                            'Error!',
+                                            xhr.responseJSON.message,
+                                            'error'
+                                        );
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            `An error occurred while ${action}ing employee. Please try again.`,
+                                            'error'
+                                        );
+                                    }
+                                    
+                                    console.error(`Employee ${action} error:`, error);
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // Handle add employee form submission
+                $('#saveEmployeeBtn').on('click', function() {
+                    const form = $('#addEmployeeForm');
+                    const name = $('#employeeName').val().trim();
+                    const email = $('#employeeEmail').val().trim();
+                    const role = $('#employeeRole').val();
+                    
+                    // Basic validation
+                    if (!name || !email || !role) {
+                        showToast('Error', 'Please fill in all fields', 'error');
+                        return;
                     }
+                    
+                    // Disable save button and show loading
+                    const saveBtn = $(this);
+                    const originalText = saveBtn.text();
+                    saveBtn.prop('disabled', true).text('Saving...');
+                    
+                    // AJAX call to add employee API
+                    $.ajax({
+                        url: '../api/admin/add',
+                        method: 'POST',
+                        data: {
+                            name: name,
+                            email: email,
+                            role: role
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            saveBtn.prop('disabled', false).text(originalText);
+                            
+                            if (response.success) {
+                                // Show success message
+                                showToast('Success', response.message, 'success');
+                                
+                                // Reset form and hide modal
+                                form[0].reset();
+                                $('#addEmployeeModal').modal('hide');
+                                
+                                // Refresh employee table
+                                loadEmployees();
+                            } else {
+                                // Show error message
+                                showToast('Error', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            saveBtn.prop('disabled', false).text(originalText);
+                            
+                            // Show error message from API response if available
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                showToast('Error', xhr.responseJSON.message, 'error');
+                            } else {
+                                showToast('Error', 'An error occurred while adding employee. Please try again.', 'error');
+                            }
+                            
+                            console.error('Employee add error:', error);
+                        }
+                    });
+                });
+                
+                // Handle edit employee form submission
+                $('#updateEmployeeBtn').on('click', function() {
+                    const form = $('#editEmployeeForm');
+                    const id = $('#editEmployeeId').val();
+                    const name = $('#editEmployeeName').val().trim();
+                    const email = $('#editEmployeeEmail').val().trim();
+                    const role = $('#editEmployeeRole').val();
+                    const password = $('#editEmployeePassword').val();
+                    
+                    // Basic validation
+                    if (!id || !name || !email || !role) {
+                        showToast('Error', 'Please fill in all required fields', 'error');
+                        return;
+                    }
+                    
+                    // Validate password if provided
+                    if (password && password.length < 8) {
+                        showToast('Error', 'Password must be at least 8 characters', 'error');
+                        return;
+                    }
+                    
+                    // Disable update button and show loading
+                    const updateBtn = $(this);
+                    const originalText = updateBtn.text();
+                    updateBtn.prop('disabled', true).text('Updating...');
+                    
+                    // Prepare data for API call
+                    const data = {
+                        id: id,
+                        name: name,
+                        email: email,
+                        role: role
+                    };
+                    
+                    // Add password to data if provided
+                    if (password) {
+                        data.password = password;
+                    }
+                    
+                    // AJAX call to edit employee API
+                    $.ajax({
+                        url: '../api/admin/edit',
+                        method: 'POST',
+                        data: data,
+                        dataType: 'json',
+                        success: function(response) {
+                            updateBtn.prop('disabled', false).text(originalText);
+                            
+                            if (response.success) {
+                                // Show success message
+                                showToast('Success', response.message, 'success');
+                                
+                                // Hide modal
+                                $('#editEmployeeModal').modal('hide');
+                                
+                                // Refresh employee table
+                                loadEmployees();
+                            } else {
+                                // Show error message
+                                showToast('Error', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            updateBtn.prop('disabled', false).text(originalText);
+                            
+                            // Show error message from API response if available
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                showToast('Error', xhr.responseJSON.message, 'error');
+                            } else {
+                                showToast('Error', 'An error occurred while updating employee. Please try again.', 'error');
+                            }
+                            
+                            console.error('Employee update error:', error);
+                        }
+                    });
                 });
             });
-
-            function loadAdmin() {
-                $.get("../api/admin/list", function (response) {
-                    if (response.success && response.data) {
-                        $("#email").html(response.data.email);
-                        $("#phone").html(response.data.phone);
-                    } else {
-                        $("#email").html('N/A');
-                        $("#phone").html('N/A');
-                    }
-                }, "json").fail(function(xhr, status, error) {
-                    console.error("Error loading admin:", error);
-                    $("#email").html('N/A');
-                    $("#phone").html('N/A');
-                });
-            }
-
-            loadAdmin();
         </script>
     </body>
 </html>

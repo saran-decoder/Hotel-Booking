@@ -367,7 +367,7 @@ class Operations
         $conn = Database::getConnection();
         $username = Session::get("username");
 
-        $sql = "SELECT 
+        $sql = "SELECT
                     SUM(CASE WHEN p.status = 'completed' THEN p.amount ELSE 0 END) as total_revenue,
                     SUM(CASE WHEN p.status = 'pending' THEN p.amount ELSE 0 END) as pending_payments,
                     COUNT(CASE WHEN p.status = 'refunded' THEN 1 END) as refunds_count,
@@ -383,6 +383,25 @@ class Operations
         $result = $stmt->get_result();
 
         return $result->fetch_assoc();
+    }
+
+    public static function getAllEmployees() {
+        $conn = Database::getConnection();
+        
+        try {
+            $stmt = $conn->prepare("SELECT * FROM workers ORDER BY created_at DESC");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $employees = [];
+            while ($row = $result->fetch_assoc()) {
+                $employees[] = $row;
+            }
+            
+            return ['success' => true, 'data' => $employees];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error fetching employees: ' . $e->getMessage()];
+        }
     }
 
 }
