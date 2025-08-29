@@ -2,8 +2,8 @@
     RewriteEngine On
     RewriteBase /hotel-booking/
 
-    # Allow direct access to assets
-    RewriteCond %{REQUEST_URI} ^/hotel-booking/assets/ [NC]
+    # Allow direct access to assets and error pages
+    RewriteCond %{REQUEST_URI} ^/hotel-booking/(assets|403|404|500)/ [NC]
     RewriteRule ^ - [L]
 
     # Redirect root to /public/ (only if not already in /public/)
@@ -19,7 +19,23 @@
     RewriteRule ^api/([^/]+)/([^/]+)/?$ api.php?rquest=$2&namespace=$1 [L,QSA]
     RewriteRule ^api/([^/]+)/?$ api.php?rquest=$1 [L,QSA]
 
-    # Block sensitive folders
-    RewriteCond %{REQUEST_METHOD} ^(GET|POST)$
-    RewriteRule ^(libs|api|vendor|env)/ /hotel-booking/not-allowed [R=302,L]
+    # Block sensitive folders and redirect to error pages
+    RewriteCond %{REQUEST_URI} ^/hotel-booking/(libs|api|vendor|env)/ [NC]
+    RewriteRule ^ - [E=ACCESS_DENIED:1]
+
+    # Handle 403 errors
+    RewriteCond %{ENV:ACCESS_DENIED} =1
+    RewriteRule ^ - [R=403,L]
+
+    # Handle 404 errors for non-existent files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ - [R=404,L]
+
+    # Handle 500 errors (server errors are handled by PHP)
 </IfModule>
+
+# Error document handling
+ErrorDocument 403 /hotel-booking/403
+ErrorDocument 404 /hotel-booking/404
+ErrorDocument 500 /hotel-booking/500

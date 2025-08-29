@@ -210,46 +210,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Notification Preferences -->
-                        <div class="settings-section">
-                            <div class="settings-title">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M10.2686 21C10.4441 21.304 10.6966 21.5565 11.0006 21.732C11.3046 21.9075 11.6495 21.9999 12.0006 21.9999C12.3516 21.9999 12.6965 21.9075 13.0005 21.732C13.3045 21.5565 13.557 21.304 13.7326 21" stroke="#3B82F6" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M3.26273 15.326C3.1321 15.4692 3.04589 15.6472 3.01459 15.8385C2.98329 16.0298 3.00825 16.226 3.08644 16.4034C3.16463 16.5807 3.29267 16.7316 3.45499 16.8375C3.61731 16.9434 3.80691 16.9999 4.00073 17H20.0007C20.1945 17.0001 20.3842 16.9438 20.5466 16.8381C20.709 16.7324 20.8372 16.5817 20.9156 16.4045C20.994 16.2273 21.0192 16.0311 20.9882 15.8398C20.9571 15.6485 20.8712 15.4703 20.7407 15.327C19.4107 13.956 18.0007 12.499 18.0007 8C18.0007 6.4087 17.3686 4.88258 16.2434 3.75736C15.1182 2.63214 13.592 2 12.0007 2C10.4094 2 8.88331 2.63214 7.75809 3.75736C6.63288 4.88258 6.00073 6.4087 6.00073 8C6.00073 12.499 4.58973 13.956 3.26273 15.326Z" stroke="#3B82F6" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg> Notification Preferences
-                            </div>
-                            
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="form-label">Email Notifications</div>
-                                        <div class="text-sm text-gray-500">Receive booking and system alerts via email</div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="form-label">SMS Notifications</div>
-                                        <div class="text-sm text-gray-500">Receive urgent alerts via SMS</div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="w-100 text-center">
-                                <button class="btn-primary">Save Preferences</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
