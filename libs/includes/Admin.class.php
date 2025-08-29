@@ -52,6 +52,55 @@ class Admin
         }
     }
 
+    public static function changePassword($old, $new, $conf)
+    {
+        $conn = Database::getConnection();
+
+        // Check if new password is same as old password
+        if ($new === $old) {
+            return "New password cannot be the same as the old password";
+        }
+
+        // Check if new password and confirm password match
+        if ($new !== $conf) {
+            return "New password and confirm password do not match";
+        }
+
+        // Get current admin user from session
+        $username = Session::get("username");
+        if (!$username) {
+            return "User not logged in";
+        }
+
+        // Get current password from database
+        $stmt = $conn->prepare("SELECT `password` FROM `admin` WHERE `email` = ? OR `phone` = ?");
+        $stmt->bind_param("ss", $username, $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows !== 1) {
+            return "User not found";
+        }
+
+        $row = $result->fetch_assoc();
+        $currentPassword = $row['password'];
+
+        // Verify old password
+        if ($old !== $currentPassword) {
+            return "Old password is incorrect";
+        }
+
+        // Update password
+        $stmt = $conn->prepare("UPDATE `admin` SET `password` = ? WHERE `email` = ? OR `phone` = ?");
+        $stmt->bind_param("sss", $new, $username, $username);
+        
+        if ($stmt->execute()) {
+            return true; // Success
+        } else {
+            return "Failed to update password";
+        }
+    }
+
     public static function addHotel($owner, $name, $location, $coordinates, $address, $description, $amenities, $images)
     {
         $conn = Database::getConnection();

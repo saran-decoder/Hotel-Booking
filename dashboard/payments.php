@@ -8,13 +8,13 @@
 
     if (
         !Session::get('session_token') || 
-		Session::get('session_type') != 'admin' && 
-		!Session::get('username') || 
-		Session::get('email_verified') != 'verified'
+        Session::get('session_type') != 'admin' && 
+        !Session::get('username') || 
+        Session::get('email_verified') != 'verified'
     ) {
-		header("Location: logout?logout");
-		exit;
-	}
+        header("Location: logout?logout");
+        exit;
+    }
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +26,26 @@
         
         <?php include "temp/head.php" ?>
         
+        <style>
+            .badge-refunded { background-color: #6c757d; }
+            
+            .card-title {
+                color: #6B7280;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            
+            .card-value {
+                color: #111827;
+                font-size: 24px;
+                font-weight: 600;
+            }
+            
+            .card-change {
+                font-size: 12px;
+                font-weight: 500;
+            }
+        </style>
     </head>
     <body>
         <div class="container-fluid">
@@ -45,25 +65,25 @@
                         </div>
 
                         <!-- Top Cards -->
-                        <div class="row pb-4 g-4">
+                        <div class="row pb-4 g-4" id="paymentStats">
                             <div class="col-md-4 col-sm-6">
                                 <div class="card p-3 h-100 d-flex align-items-center flex-row rounded-4">
                                     <div class="card-body">
                                         <div class="card-title mb-2">Total Revenue</div>
-                                        <div class="card-value">₹12,426.00</div>
-                                        <div class="card-change mt-2">+8.2% <span class="text-muted">from last month</span></div>
+                                        <div class="card-value" id="totalRevenue">₹0.00</div>
+                                        <div class="card-change mt-2 text-success">+0% <span class="text-muted">from last month</span></div>
                                     </div>
                                     <div class="p-3" style="background: #DCFCE7; border-radius: 2rem; height: 60px; width: 60px;">
-                                        <p style="color: #16A34A; margin: 0; text-align: center; font-family: Inter; font-size: 35px; font-style: normal; font-weight: 700; line-height: 29.67px; /* 84.772% */">₹</p>
+                                        <p style="color: #16A34A; margin: 0; text-align: center; font-family: Inter; font-size: 35px; font-style: normal; font-weight: 700; line-height: 29.67px;">₹</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6">
                                 <div class="card p-3 h-100 d-flex align-items-center flex-row rounded-4">
                                     <div class="card-body">
-                                        <div class="card-title mb-2">Panding Payments</div>
-                                        <div class="card-value">₹1,320.00</div>
-                                        <div class="card-change text-warning mt-2">+2.5% <span class="text-muted">from last month</span></div>
+                                        <div class="card-title mb-2">Pending Payments</div>
+                                        <div class="card-value" id="pendingPayments">₹0.00</div>
+                                        <div class="card-change text-warning mt-2">+0% <span class="text-muted">from last month</span></div>
                                     </div>
                                     <div class="p-3" style="background: #FEF9C3; border-radius: 2rem; height: 60px; width: 60px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
@@ -77,8 +97,8 @@
                                 <div class="card p-3 h-100 d-flex align-items-center flex-row rounded-4">
                                     <div class="card-body">
                                         <div class="card-title mb-1">Refunds Processed</div>
-                                        <div class="card-value">78%</div>
-                                        <div class="card-change text-danger mt-1">-1.2% <span class="text-muted">from last month</span></div>
+                                        <div class="card-value" id="refundsCount">0</div>
+                                        <div class="card-change text-danger mt-1">-0% <span class="text-muted">from last month</span></div>
                                     </div>
                                     <div class="p-3" style="background: #FEE2E2; border-radius: 2rem; height: 60px; width: 60px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
@@ -96,18 +116,17 @@
                                     <h4 class="bookings-title">Recent Transactions</h4>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <select class="form-select" style="width: 150px;">
-                                        <option>All Status</option>
-                                        <option>Completed</option>
-                                        <option>Pending</option>
-                                        <option>Refunded</option>
+                                    <select class="form-select status-filter" style="width: 150px;">
+                                        <option value="">All Status</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="refunded">Refunded</option>
                                     </select>
-                                    <select class="form-select" style="width: 150px;">
-                                        <option>Last 30 Days</option>
-                                        <option>Today</option>
-                                        <option>Week</option>
-                                        <option>Last 30 Days</option>
-                                        <option>Year</option>
+                                    <select class="form-select date-filter" style="width: 150px;">
+                                        <option value="30">Last 30 Days</option>
+                                        <option value="1">Today</option>
+                                        <option value="7">This Week</option>
+                                        <option value="365">This Year</option>
                                     </select>
                                 </div>
                             </div>
@@ -126,51 +145,14 @@
                                             <th>Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>TXN-1001</td>
-                                            <td>B-1001</td>
-                                            <td>John Smith</td>
-                                            <td>Seaside Resort</td>
-                                            <td>₹450.00</td>
-                                            <td>12/06/2003</td>
-                                            <td>Credit Card</td>
-                                            <td><span class="badge badge-confirmed px-3 py-1 rounded-pill">Confirmed</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>TXN-1002</td>
-                                            <td>B-1002</td>
-                                            <td>Emma Johnson</td>
-                                            <td>Mountain View</td>
-                                            <td>₹320.00</td>
-                                            <td>15/06/2003</td>
-                                            <td>PayPal</td>
-                                            <td><span class="badge badge-pending px-3 py-1 rounded-pill">Pending</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>TXN-1003</td>
-                                            <td>B-1003</td>
-                                            <td>Sarah Wilson</td>
-                                            <td>Seaside Resort</td>
-                                            <td>₹520.00</td>
-                                            <td>18/06/2003</td>
-                                            <td>Bank Transfer</td>
-                                            <td><span class="badge badge-cancelled px-3 py-1 rounded-pill">Refunded</span></td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="paymentTableBody"></tbody>
                                 </table>
                             </div>
         
                             <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-3">
-                                <span class="text-muted">Showing 5 of 125 bookings</span>
+                                <span class="text-muted" id="showingText">Showing 0 of 0 payments</span>
                                 <nav>
-                                    <ul class="pagination mb-0">
-                                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                                    </ul>
+                                    <ul class="pagination mb-0" id="pagination"></ul>
                                 </nav>
                             </div>
                         </div>
@@ -180,6 +162,8 @@
         </div>
 
         <?php include "temp/footer.php" ?>
-        
+
+        <script src="assets/js/payments.js"></script>
+    
     </body>
 </html>

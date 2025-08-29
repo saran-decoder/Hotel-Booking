@@ -54,7 +54,7 @@
                                     <path d="M12.5016 11.4586C14.8028 11.4586 16.6683 9.5931 16.6683 7.29191C16.6683 4.99072 14.8028 3.12524 12.5016 3.12524C10.2004 3.12524 8.33496 4.99072 8.33496 7.29191C8.33496 9.5931 10.2004 11.4586 12.5016 11.4586Z" stroke="#3B82F6" stroke-width="2.52218" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg> Profile Settings
                             </div>
-                            <div class="d-flex align-items-center mb-4">
+                            <div class="d-flex align-items-center">
                                 <div class="profile-pic">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
                                         <path d="M27.2411 30.6057V27.7773C27.2411 26.277 26.6451 24.8381 25.5842 23.7772C24.5233 22.7164 23.0845 22.1204 21.5842 22.1204H13.0988C11.5985 22.1204 10.1596 22.7164 9.09876 23.7772C8.03789 24.8381 7.44189 26.277 7.44189 27.7773V30.6057" stroke="white" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
@@ -62,43 +62,10 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="form-label text-dark m-0 ms-4">Admin User</div>
-                                    <div class="form-label text-sm text-gray-500 m-0 ms-4">admin@hotelmanager.com</div>
-                                    <!-- <button class="btn text-primary ms-2" style="height: fit-content;">Change profile picture</button> -->
+                                    <div class="form-label text-dark m-0 ms-4" id="phone">N/A</div>
+                                    <div class="form-label text-sm text-gray-500 m-0 ms-4" id="email">N/A</div>
                                 </div>
                             </div>
-                            
-                            <form id="profileForm">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label class="form-label">First Name</label>
-                                        <input type="text" class="form-control" required>
-                                        <div class="invalid-feedback">Please provide a first name</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Last Name</label>
-                                        <input type="text" class="form-control" required>
-                                        <div class="invalid-feedback">Please provide a last name</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" required>
-                                        <div class="invalid-feedback">Please provide a valid email</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" required>
-                                        <div class="invalid-feedback">Please provide a valid phone number</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="w-100 text-center">
-                                    <button type="submit" class="btn-primary mt-4">Save Changes</button>
-                                </div>
-                            </form>
                         </div>
 
                         <!-- User Management -->
@@ -110,9 +77,9 @@
                                         <path d="M14.666 2.86743C15.4523 3.07127 16.1486 3.53042 16.6457 4.17282C17.1428 4.81522 17.4125 5.6045 17.4125 6.41676C17.4125 7.22903 17.1428 8.01831 16.6457 8.66071C16.1486 9.30311 15.4523 9.76226 14.666 9.9661" stroke="#3B82F6" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M20.167 19.25V17.4166C20.1664 16.6042 19.896 15.815 19.3982 15.1729C18.9005 14.5308 18.2036 14.0722 17.417 13.8691" stroke="#3B82F6" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M8.25114 10.0833C10.2762 10.0833 11.9178 8.44171 11.9178 6.41667C11.9178 4.39162 10.2762 2.75 8.25114 2.75C6.22609 2.75 4.58447 4.39162 4.58447 6.41667C4.58447 8.44171 6.22609 10.0833 8.25114 10.0833Z" stroke="#3B82F6" stroke-width="2.12134" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg> User Management
+                                    </svg> Employee Management
                                 </div>
-                                <button class="btn text-primary">Add New User</button>
+                                <button class="btn text-primary">Add New Employee</button>
                             </div>
                             
                             <div class="table-responsive">
@@ -163,19 +130,19 @@
                             <form id="passwordForm">
                                 <div class="mb-4">
                                     <label class="form-label">Current Password</label>
-                                    <input type="password" class="form-control" placeholder="••••••••" required>
+                                    <input type="password" class="form-control" name="current_password" placeholder="••••••••">
                                     <div class="invalid-feedback">Please enter your current password</div>
                                 </div>
                                 
                                 <div class="mb-4">
                                     <label class="form-label">New Password</label>
-                                    <input type="password" class="form-control" placeholder="••••••••" required minlength="8">
+                                    <input type="password" class="form-control" name="new_password" placeholder="••••••••" minlength="8">
                                     <div class="invalid-feedback">Password must be at least 8 characters</div>
                                 </div>
                                 
                                 <div class="mb-4">
                                     <label class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" placeholder="••••••••" required>
+                                    <input type="password" class="form-control" name="confirm_password" placeholder="••••••••">
                                     <div class="invalid-feedback">Passwords do not match</div>
                                 </div>
                                 
@@ -246,112 +213,172 @@
 
         <script>
             // Form validation
-            document.addEventListener('DOMContentLoaded', function() {
-                // Profile form validation
-                const profileForm = document.getElementById('profileForm');
-                profileForm.addEventListener('submit', function(e) {
+            $(document).ready(function() {
+                // Live validation for password fields
+                $('#passwordForm input[type="password"]').on('input', function() {
+                    validateField($(this));
+                });
+                
+                // Password form validation and submission
+                $('#passwordForm').on('submit', function(e) {
                     e.preventDefault();
                     let isValid = true;
                     
-                    // Validate all required fields
-                    const inputs = profileForm.querySelectorAll('input[required]');
-                    inputs.forEach(input => {
-                        if (!input.value.trim()) {
-                            input.classList.add('is-invalid');
+                    // Validate all fields
+                    $('#passwordForm input[type="password"]').each(function() {
+                        if (!validateField($(this))) {
                             isValid = false;
-                        } else {
-                            input.classList.remove('is-invalid');
-                            
-                            // Additional validation for email
-                            if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
-                                input.classList.add('is-invalid');
-                                isValid = false;
+                        }
+                    });
+                    
+                    if (isValid) {
+                        // Get form data
+                        const oldPassword = $('input[name="current_password"]').val();
+                        const newPassword = $('input[name="new_password"]').val();
+                        const confirmPassword = $('input[name="confirm_password"]').val();
+                        
+                        // Disable submit button and show loading
+                        const submitBtn = $('#passwordForm button[type="submit"]');
+                        const originalText = submitBtn.text();
+                        submitBtn.prop('disabled', true).text('Updating...');
+                        
+                        // AJAX call to change password API
+                        $.ajax({
+                            url: '../api/admin/change',
+                            method: 'POST',
+                            data: {
+                                old: oldPassword,
+                                new: newPassword,
+                                conf: confirmPassword
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                submitBtn.prop('disabled', false).text(originalText);
+                                
+                                if (response.success) {
+                                    // Show success message
+                                    showToast('Success', response.message, 'success');
+                                    
+                                    // Reset form
+                                    $('#passwordForm')[0].reset();
+                                    
+                                    // Remove any validation classes
+                                    $('#passwordForm .form-control').removeClass('is-invalid is-valid');
+                                } else {
+                                    // Show error message
+                                    showToast('Error', response.message, 'error');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                submitBtn.prop('disabled', false).text(originalText);
+                                
+                                // Show error message from API response if available
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    showToast('Error', xhr.responseJSON.message, 'error');
+                                } else {
+                                    showToast('Error', 'An error occurred while updating password. Please try again.', 'error');
+                                }
+                                
+                                console.error('Password update error:', error);
                             }
-                        }
-                    });
-                    
-                    if (isValid) {
-                        alert('Profile updated successfully!');
-                        // Here you would typically submit the form via AJAX
+                        });
                     }
                 });
                 
-                // Password form validation
-                const passwordForm = document.getElementById('passwordForm');
-                passwordForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
+                // Validate individual field
+                function validateField(field) {
+                    const fieldName = field.attr('name');
+                    const value = field.val();
                     let isValid = true;
+                    let errorMessage = '';
                     
-                    const currentPass = passwordForm.querySelector('input[type="password"]');
-                    const newPass = passwordForm.querySelectorAll('input[type="password"]')[1];
-                    const confirmPass = passwordForm.querySelectorAll('input[type="password"]')[2];
+                    // Clear previous validation state
+                    field.removeClass('is-invalid is-valid');
+                    field.next('.invalid-feedback').remove();
                     
-                    // Validate current password
-                    if (!currentPass.value.trim()) {
-                        currentPass.classList.add('is-invalid');
-                        isValid = false;
+                    switch(fieldName) {
+                        case 'current_password':
+                            if (!value.trim()) {
+                                isValid = false;
+                                errorMessage = 'Please enter your current password';
+                            }
+                            break;
+                            
+                        case 'new_password':
+                            if (!value.trim()) {
+                                isValid = false;
+                                errorMessage = 'Please enter a new password';
+                            } else if (value.length < 8) {
+                                isValid = false;
+                                errorMessage = 'Password must be at least 8 characters';
+                            }
+                            break;
+                            
+                        case 'confirm_password':
+                            const newPassword = $('input[name="new_password"]').val();
+                            if (!value.trim()) {
+                                isValid = false;
+                                errorMessage = 'Please confirm your new password';
+                            } else if (value !== newPassword) {
+                                isValid = false;
+                                errorMessage = 'Passwords do not match';
+                            }
+                            break;
+                    }
+                    
+                    if (!isValid) {
+                        field.addClass('is-invalid');
+                        field.after(`<div class="invalid-feedback">${errorMessage}</div>`);
                     } else {
-                        currentPass.classList.remove('is-invalid');
+                        field.addClass('is-valid');
                     }
                     
-                    // Validate new password
-                    if (!newPass.value.trim() || newPass.value.length < 8) {
-                        newPass.classList.add('is-invalid');
-                        isValid = false;
-                    } else {
-                        newPass.classList.remove('is-invalid');
-                    }
-                    
-                    // Validate confirm password
-                    if (!confirmPass.value.trim() || confirmPass.value !== newPass.value) {
-                        confirmPass.classList.add('is-invalid');
-                        isValid = false;
-                    } else {
-                        confirmPass.classList.remove('is-invalid');
-                    }
-                    
-                    if (isValid) {
-                        alert('Password updated successfully!');
-                        // Here you would typically submit the form via AJAX
-                        passwordForm.reset();
-                    }
-                });
-                
-                // Add real-time validation
-                document.querySelectorAll('input').forEach(input => {
-                    input.addEventListener('input', function() {
-                        if (this.value.trim()) {
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                });
+                    return isValid;
+                }
                 
                 // Handle edit user buttons
-                document.querySelectorAll('.edit-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const row = this.closest('tr');
-                        const name = row.cells[0].textContent;
-                        alert(`Edit user: ${name}`);
-                    });
+                $('.edit-btn').on('click', function() {
+                    const row = $(this).closest('tr');
+                    const name = row.find('td:first').text();
+                    alert(`Edit user: ${name}`);
                 });
                 
                 // Handle disable user buttons
-                document.querySelectorAll('.disable-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const row = this.closest('tr');
-                        const name = row.cells[0].textContent;
-                        if (confirm(`Are you sure you want to disable ${name}?`)) {
-                            const statusBadge = row.querySelector('.status-badge');
-                            statusBadge.textContent = 'Inactive';
-                            statusBadge.classList.remove('status-active');
-                            statusBadge.classList.add('status-inactive');
-                            this.textContent = 'Enable';
-                            this.classList.remove('disable-btn');
-                            this.classList.add('edit-btn');
-                        }
-                    });
+                $('.disable-btn').on('click', function() {
+                    const row = $(this).closest('tr');
+                    const name = row.find('td:first').text();
+                    
+                    if (confirm(`Are you sure you want to disable ${name}?`)) {
+                        const statusBadge = row.find('.status-badge');
+                        statusBadge.text('Inactive');
+                        statusBadge.removeClass('status-active').addClass('status-inactive');
+                        
+                        $(this).text('Enable')
+                            .removeClass('disable-btn')
+                            .addClass('edit-btn');
+                        
+                        showToast('Success', `${name} has been disabled.`, 'success');
+                    }
                 });
             });
+
+            function loadAdmin() {
+                $.get("../api/admin/list", function (response) {
+                    if (response.success && response.data) {
+                        $("#email").html(response.data.email);
+                        $("#phone").html(response.data.phone);
+                    } else {
+                        $("#email").html('N/A');
+                        $("#phone").html('N/A');
+                    }
+                }, "json").fail(function(xhr, status, error) {
+                    console.error("Error loading admin:", error);
+                    $("#email").html('N/A');
+                    $("#phone").html('N/A');
+                });
+            }
+
+            loadAdmin();
         </script>
     </body>
 </html>

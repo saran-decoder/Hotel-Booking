@@ -2,11 +2,12 @@
 
 class Operations
 {
-    public static function getUserAccount() {
+    public static function getAdminAccount() {
         $conn = Database::getConnection();
-        $sql = "SELECT * FROM `admin` ORDER BY `uploaded_time` DESC";
+        $username = Session::get("username");
+        $sql = "SELECT `email`,`phone` FROM `admin` WHERE `email` = '$username'";
         $result = $conn->query($sql);
-        return iterator_to_array($result);
+        return $result->fetch_assoc();
     }
 
     public static function getAllHotels() {
@@ -278,6 +279,110 @@ class Operations
         $booking = $result->fetch_assoc();
         
         return $booking;
+    }
+
+    public static function getAllBookingLists() {
+        $conn = Database::getConnection();
+        $username = Session::get("username");
+
+        $sql = "SELECT 
+                    b.id AS booking_id,
+                    b.booking_ref,
+                    b.user_id AS guest_name,
+                    b.check_in_date,
+                    b.check_out_date,
+                    b.adults,
+                    b.children,
+                    b.total_price,
+                    b.status AS booking_status,
+                    b.payment_status,
+                    b.created_at AS booking_created_at,
+
+                    r.room_type,
+                    r.guests_allowed,
+                    r.price_per_night,
+
+                    h.name AS hotel_name,
+                    h.location_name,
+                    h.address,
+                    h.owner AS hotel_owner
+                FROM bookings b
+                INNER JOIN rooms r ON b.room_id = r.id
+                INNER JOIN hotels h ON b.hotel_id = h.id
+                WHERE h.owner = ? 
+                ORDER BY b.created_at DESC";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $bookings = $result->fetch_all(MYSQLI_ASSOC);
+        
+        // Process the bookings to set status based on payment status
+        foreach ($bookings as &$booking) {
+            if ($booking['payment_status'] == 0) {
+                $booking['booking_status'] = 'pending';
+            } elseif ($booking['payment_status'] == 1) {
+                $booking['booking_status'] = 'cancelled';
+            }
+        }
+        
+        return $bookings;
+    }
+
+    // In your Operations class
+    public static function getAllPayments() {
+        $conn = Database::getConnection();
+        $username = Session::get("username");
+
+        $sql = "SELECT 
+                    p.id AS payment_id,
+                    p.order_id,
+                    p.amount,
+                    p.status,
+                    p.created_at AS payment_date,
+                    
+                    b.booking_ref,
+                    b.user_id AS customer_email,
+                    b.total_price,
+                    
+                    h.name AS hotel_name,
+                    h.owner AS hotel_owner
+                FROM payments p
+                INNER JOIN bookings b ON p.booking_id = b.id
+                INNER JOIN hotels h ON b.hotel_id = h.id
+                WHERE h.owner = ? 
+                ORDER BY p.created_at DESC";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function getPaymentStats() {
+        $conn = Database::getConnection();
+        $username = Session::get("username");
+
+        $sql = "SELECT 
+                    SUM(CASE WHEN p.status = 'completed' THEN p.amount ELSE 0 END) as total_revenue,
+                    SUM(CASE WHEN p.status = 'pending' THEN p.amount ELSE 0 END) as pending_payments,
+                    COUNT(CASE WHEN p.status = 'refunded' THEN 1 END) as refunds_count,
+                    COUNT(p.id) as total_payments
+                FROM payments p
+                INNER JOIN bookings b ON p.booking_id = b.id
+                INNER JOIN hotels h ON b.hotel_id = h.id
+                WHERE h.owner = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->fetch_assoc();
     }
 
 }
