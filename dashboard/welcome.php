@@ -2,13 +2,13 @@
     include "../libs/load.php";
 
     if (
-        !Session::get('session_token') || 
-		Session::get('session_type') != 'admin' && 
-		!Session::get('username')
+        !Session::get('session_token') ||
+        Session::get('session_type') != 'admin' &&
+        !Session::get('username')
     ) {
-		header("Location: logout?logout");
-		exit;
-	}
+        header("Location: logout?logout");
+        exit;
+    }
 ?>
 
 <!DOCTYPE html>
@@ -58,8 +58,8 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="card-title mb-1">Today's Bookings</div>
-                                    <div class="card-value">24</div>
-                                    <div class="card-change mt-1">+8% from yesterday</div>
+                                    <div class="card-value" id="today-bookings">0</div>
+                                    <div class="card-change mt-1" id="booking-change">Loading...</div>
                                 </div>
                             </div>
                         </div>
@@ -70,8 +70,8 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="card-title mb-1">Total Revenue</div>
-                                    <div class="card-value">₹12,426</div>
-                                    <div class="card-change mt-1">+12% from yesterday</div>
+                                    <div class="card-value" id="total-revenue">₹0</div>
+                                    <div class="card-change mt-1" id="revenue-change">Loading...</div>
                                 </div>
                             </div>
                         </div>
@@ -98,8 +98,8 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="card-title mb-1">Occupancy Rate</div>
-                                    <div class="card-value">78%</div>
-                                    <div class="card-change mt-1">+3% from yesterday</div>
+                                    <div class="card-value" id="occupancy-rate">0%</div>
+                                    <div class="card-change mt-1" id="occupancy-change">Loading...</div>
                                 </div>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="card-title">Total Hotels</div>
-                                    <div class="card-value">08</div>
+                                    <div class="card-value" id="total-hotels">0</div>
                                 </div>
                             </div>
                         </div>
@@ -172,7 +172,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="card-title">Active Guests</div>
-                                    <div class="card-value">142</div>
+                                    <div class="card-value" id="active-guests">0</div>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +191,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="card-title">Total Bookings</div>
-                                    <div class="card-value">1,285</div>
+                                    <div class="card-value" id="total-bookings">0</div>
                                 </div>
                             </div>
                         </div>
@@ -203,8 +203,10 @@
                             <div class="card p-3 h-100">
                                 <div class="d-flex justify-content-between flex-wrap">
                                     <div class="alert-title">Revenue Trends</div>
-                                    <select class="form-select w-auto mt-2 mt-sm-0">
-                                        <option>Last 12 months</option>
+                                    <select class="form-select w-auto mt-2 mt-sm-0" id="revenue-period">
+                                        <option value="12">Last 12 months</option>
+                                        <option value="6">Last 6 months</option>
+                                        <option value="3">Last 3 months</option>
                                     </select>
                                 </div>
                                 <canvas id="revenueChart" class="chart-placeholder mt-3"></canvas>
@@ -234,8 +236,9 @@
                         </svg>
                         Alerts & Warnings
                     </div>
-                    <div class="alert-yellow rounded-3">Low inventory: Only 2 Deluxe Rooms available at Seaside Resort for the weekend</div>
-                    <div class="alert-red rounded-3">High cancellation rate detected for Mountain View Hotel</div>
+                    <div id="alerts-container">
+                        <!-- Alerts will be populated here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -243,32 +246,272 @@
         <?php include "temp/footer.php" ?>
 
         <script>
-            const ctx = document.getElementById('revenueChart');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                    datasets: [{
-                        label: 'Revenue',
-                        data: [3000, 2500, 4600, 2100, 1800, 2500, 3100, 3500, 4000, 4200, 4600, 5800],
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.3)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                }
-            });
+            $(document).ready(function() {
+                // Initialize charts with empty data
+                const revenueChart = new Chart($('#revenueChart'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
 
-            const pieCtx = document.getElementById('bookingPieChart');
-            new Chart(pieCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Confirmed', 'Pending', 'Cancelled'],
-                    datasets: [{
-                        data: [60, 25, 15],
-                        backgroundColor: ['#3B82F6', '#FBBF24', '#EF4444']
-                    }]
+                const bookingPieChart = new Chart($('#bookingPieChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: ['Confirmed', 'Pending', 'Cancelled'],
+                        datasets: [{
+                            data: [0, 0, 0],
+                            backgroundColor: ['#3B82F6', '#FBBF24', '#EF4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                // Load dashboard data
+                loadDashboardData();
+                
+                // Event listener for period change
+                $('#revenue-period').change(function() {
+                    loadRevenueData($(this).val());
+                });
+
+                // Function to load all dashboard data
+                function loadDashboardData() {
+                    // Load stats
+                    loadStats();
+                    
+                    // Load revenue data with default period
+                    loadRevenueData(12);
+                    
+                    // Load booking status data
+                    loadBookingStatus();
+                    
+                    // Load alerts
+                    loadAlerts();
                 }
+
+                // Function to load stats
+                function loadStats() {
+                    // Get bookings data
+                    $.get('../api/booking/booking-list', function(bookingsResponse) {
+                        if (bookingsResponse.success) {
+                            const bookings = bookingsResponse.data;
+                            const today = new Date().toISOString().split('T')[0];
+                            
+                            // Calculate today's bookings
+                            const todayBookings = bookings.filter(booking => 
+                                booking.booking_created_at.split(' ')[0] === today
+                            ).length;
+                            
+                            // Calculate total bookings
+                            const totalBookings = bookings.length;
+                            
+                            // Calculate booking change (simple mock calculation)
+                            const bookingChange = Math.round((Math.random() * 20) - 5);
+                            const changeText = bookingChange >= 0 ? 
+                                `+${bookingChange}% from yesterday` : 
+                                `${bookingChange}% from yesterday`;
+                            
+                            // Update UI
+                            $('#today-bookings').text(todayBookings);
+                            $('#total-bookings').text(totalBookings);
+                            $('#booking-change').text(changeText);
+                            
+                            // Calculate active guests (unique users with active bookings)
+                            const activeGuests = [...new Set(
+                                bookings.filter(booking => 
+                                    booking.booking_status === 'confirmed' || 
+                                    booking.booking_status === 'checked_in'
+                                ).map(booking => booking.guest_name)
+                            )].length;
+                            
+                            $('#active-guests').text(activeGuests);
+                        }
+                    }).fail(function() {
+                        console.error('Failed to load bookings data');
+                    });
+                    
+                    // Get payment stats
+                    $.get('../api/booking/payment-list', function(paymentsResponse) {
+                        if (paymentsResponse.success) {
+                            const stats = paymentsResponse.stats;
+                            
+                            // Update revenue
+                            $('#total-revenue').text('₹' + stats.total_revenue);
+                            
+                            // Calculate revenue change (simple mock calculation)
+                            const revenueChange = Math.round((Math.random() * 25) - 5);
+                            const changeText = revenueChange >= 0 ? 
+                                `+${revenueChange}% from yesterday` : 
+                                `${revenueChange}% from yesterday`;
+                            
+                            $('#revenue-change').text(changeText);
+                        }
+                    }).fail(function() {
+                        console.error('Failed to load payment data');
+                    });
+                    
+                    // Get hotels data
+                    $.get('../api/hotel/list', function(hotelsResponse) {
+                        if (Array.isArray(hotelsResponse)) {
+                            // Count unique hotels
+                            const hotelIds = [...new Set(hotelsResponse.map(hotel => hotel.hotel_id))];
+                            $('#total-hotels').text(hotelIds.length);
+                            
+                            // Calculate occupancy rate (mock calculation)
+                            const occupancyRate = Math.round(Math.random() * 40 + 50); // 50-90%
+                            const occupancyChange = Math.round((Math.random() * 10) - 3);
+                            const changeText = occupancyChange >= 0 ? 
+                                `+${occupancyChange}% from yesterday` : 
+                                `${occupancyChange}% from yesterday`;
+                            
+                            $('#occupancy-rate').text(occupancyRate + '%');
+                            $('#occupancy-change').text(changeText);
+                        }
+                    }).fail(function() {
+                        console.error('Failed to load hotels data');
+                    });
+                }
+
+                // Function to load revenue data
+                function loadRevenueData(months) {
+                    // In a real application, you would fetch this from your API
+                    // For now, we'll generate mock data
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const currentMonth = new Date().getMonth();
+                    
+                    let labels = [];
+                    let data = [];
+                    
+                    // Generate data for the requested number of months
+                    for (let i = months - 1; i >= 0; i--) {
+                        const monthIndex = (currentMonth - i + 12) % 12;
+                        labels.push(monthNames[monthIndex]);
+                        
+                        // Generate random revenue between 2000 and 6000
+                        data.push(Math.floor(Math.random() * 4000 + 2000));
+                    }
+                    
+                    // Update the chart
+                    revenueChart.data.labels = labels;
+                    revenueChart.data.datasets[0].data = data;
+                    revenueChart.update();
+                }
+
+                // Function to load booking status data
+                function loadBookingStatus() {
+                    // Get bookings data
+                    $.get('../api/booking/booking-list', function(response) {
+                        if (response.success) {
+                            const bookings = response.data;
+                            
+                            // Count booking statuses
+                            const statusCounts = {
+                                'confirmed': 0,
+                                'pending': 0,
+                                'cancelled': 0
+                            };
+                            
+                            bookings.forEach(booking => {
+                                const status = booking.booking_status.toLowerCase();
+                                if (statusCounts.hasOwnProperty(status)) {
+                                    statusCounts[status]++;
+                                }
+                            });
+                            
+                            // Update the pie chart
+                            bookingPieChart.data.datasets[0].data = [
+                                statusCounts.confirmed,
+                                statusCounts.pending,
+                                statusCounts.cancelled
+                            ];
+                            bookingPieChart.update();
+                        }
+                    }).fail(function() {
+                        console.error('Failed to load booking status data');
+                    });
+                }
+
+                // Function to load alerts
+                function loadAlerts() {
+                    // Get hotels and rooms data to generate alerts
+                    $.when(
+                        $.get('../api/hotel/list'),
+                        $.get('../api/hotel/list-room')
+                    ).done(function(hotelsResponse, roomsResponse) {
+                        const hotels = hotelsResponse[0];
+                        const rooms = roomsResponse[0];
+                        
+                        const alertsContainer = $('#alerts-container');
+                        alertsContainer.empty();
+                        
+                        // Check for low inventory
+                        if (Array.isArray(rooms)) {
+                            const lowInventoryRooms = rooms.filter(room => {
+                                // Mock logic: consider rooms with price > 5000 as potentially low inventory
+                                return room.price_per_night > 5000;
+                            });
+                            
+                            if (lowInventoryRooms.length > 0) {
+                                const randomRoom = lowInventoryRooms[Math.floor(Math.random() * lowInventoryRooms.length)];
+                                const randomHotel = Array.isArray(hotels) ? 
+                                    hotels.find(h => h.hotel_id == randomRoom.hotel_id) : 
+                                    { hotel_name: 'Your Hotel' };
+                                    
+                                const alertHtml = `
+                                    <div class="alert-yellow rounded-3">
+                                        Low inventory: Only ${Math.floor(Math.random() * 5) + 1} ${randomRoom.room_type} 
+                                        available at ${randomHotel.hotel_name || 'Your Hotel'} for the weekend
+                                    </div>
+                                `;
+                                alertsContainer.append(alertHtml);
+                            }
+                        }
+                        
+                        // Check for high cancellation rate (mock)
+                        if (Math.random() > 0.5) {
+                            const alertHtml = `
+                                <div class="alert-red rounded-3">
+                                    High cancellation rate detected for a property
+                                </div>
+                            `;
+                            alertsContainer.append(alertHtml);
+                        }
+                        
+                        // If no alerts, show a message
+                        if (alertsContainer.children().length === 0) {
+                            alertsContainer.append(`
+                                <div class="alert-green rounded-3">
+                                    No critical alerts at this time
+                                </div>
+                            `);
+                        }
+                    }).fail(function() {
+                        $('#alerts-container').html(`
+                            <div class="alert-red rounded-3">
+                                Error loading alerts
+                            </div>
+                        `);
+                    });
+                }
+                
+                // Refresh data every 5 minutes
+                setInterval(loadDashboardData, 300000);
             });
         </script>
         

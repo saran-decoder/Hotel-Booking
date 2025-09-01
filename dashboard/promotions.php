@@ -210,7 +210,6 @@
                                             <div class="text-muted">
                                                 <i class="fas fa-tags fa-2x mb-3"></i>
                                                 <p>No promotions found</p>
-                                                <a href="add-promotion.php" class="btn btn-primary mt-2">Create Your First Promotion</a>
                                             </div>
                                         </td>
                                     </tr>
