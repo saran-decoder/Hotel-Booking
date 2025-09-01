@@ -631,4 +631,76 @@ class Admin
         
         return true;
     }
+
+
+    public static function addPromotion($hotel, $name, $discount, $coupon, $start, $end, $status, $usageLimit, $description) {
+        $conn = Database::getConnection();
+        $user = Session::get('username');
+        try {
+            $stmt = $conn->prepare("INSERT INTO promotions 
+                (hotel_id, owner, promotion_name, discount, coupon_code, start_date, end_date, status, usage_limit, description, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+
+            $stmt->execute([
+                $hotel,
+                $user,
+                $name,
+                $discount,
+                $coupon,
+                $start,
+                $end,
+                $status,
+                $usageLimit,
+                $description
+            ]);
+
+            return ["success" => true, "message" => "Promotion added successfully"];
+        } catch (Exception $e) {
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
+
+    public static function updatePromotion($promotionId, $hotel, $name, $discount, $coupon, $start, $end, $status, $usageLimit, $description) {
+        $conn = Database::getConnection();
+
+        try {
+            $stmt = $conn->prepare("UPDATE promotions 
+                SET hotel_id = ?, promotion_name = ?, discount = ?, coupon_code = ?, 
+                    start_date = ?, end_date = ?, status = ?, usage_limit = ?, description = ?, updated_at = NOW()
+                WHERE id = ?");
+
+            $stmt->execute([
+                $hotel,
+                $name,
+                $discount,
+                $coupon,
+                $start,
+                $end,
+                $status,
+                $usageLimit,
+                $description,
+                $promotionId
+            ]);
+
+            return ["success" => true, "message" => "Promotion updated successfully"];
+        } catch (Exception $e) {
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
+
+    public static function deletePromotion($id)
+    {
+        $conn = Database::getConnection();
+        $promotionId = (int)$id;
+
+        // Step 1: Delete the promotion
+        $deleteQuery = "DELETE FROM promotions WHERE id = $promotionId";
+        $result = $conn->query($deleteQuery);
+
+        if ($result && $conn->affected_rows > 0) {
+            return true; // Successfully deleted
+        }
+
+        return false; // Not deleted or ID not found
+    }
 }

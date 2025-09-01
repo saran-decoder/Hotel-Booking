@@ -404,6 +404,48 @@ class Operations
         }
     }
 
+    public static function getPromotion($id = '')
+    {
+        $conn = Database::getConnection();
+
+        if ($id !== '') {
+            $stmt = $conn->prepare("SELECT * FROM `promotions` WHERE `id` = ?");
+            $stmt->bind_param("s", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = $conn->query("SELECT * FROM `promotions`");
+        }
+
+        $doctors = [];
+        while ($row = $result->fetch_assoc()) {
+            $doctors[] = $row;
+        }
+
+        return $doctors;
+    }
+
+    public static function getAllPromotionWithPagination($page = 1, $limit = 10) {
+        $conn = Database::getConnection();
+        $user = Session::get("username");
+        
+        $offset = ($page - 1) * $limit;
+        $sql = "SELECT * FROM `promotions` WHERE `owner` = '$user' LIMIT $limit OFFSET $offset";
+        $result = $conn->query($sql);
+        
+        return iterator_to_array($result);
+    }
+
+    public static function getPromotionCount() {
+        $conn = Database::getConnection();
+        $user = Session::get("username");
+        
+        $sql = "SELECT COUNT(*) as count FROM `promotions` WHERE `owner` = '$user'";
+        $result = $conn->query($sql);
+        $row = $result->fetch_assoc();
+        
+        return $row['count'];
+    }
 }
 
 ?>

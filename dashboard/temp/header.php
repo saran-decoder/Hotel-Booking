@@ -29,7 +29,7 @@
                 />
             </svg>
             <div class="d-none d-sm-block">
-                <div class="profile-name">Admin Name</div>
+                <div class="profile-name"><?= Session::get('username') ?></div>
                 <div class="profile-role">Administrator</div>
             </div>
         </div>
