@@ -52,7 +52,7 @@
                         <p class="text-center otp-subtitle text-muted">Enter the 6-digit code sent to your registered email.</p>
 
                         <form id="otpForm">
-                            <input type="hidden" id="username" value="<?= htmlspecialchars(Session::get('username')) ?>">
+                            <input type="hidden" id="username" value="<?= Session::get('username') ?>">
 
                             <div class="d-flex justify-content-center mb-4 flex-wrap">
                                 <?php for ($i=0; $i<6; $i++): ?>
@@ -132,7 +132,7 @@
                             Swal.close();
                             if(res.status){
                                 Swal.fire("Success","OTP verified!","success").then(()=>{
-                                    window.location.href="index";
+                                    window.location.href="welcome";
                                 });
                             } else {
                                 Swal.fire("Error","Invalid or expired OTP.","error");
@@ -140,9 +140,30 @@
                                 inputs.first().focus();
                             }
                         },
-                        error: function(){
+                        // In your AJAX error handler, add:
+                        error: function(xhr, status, errorThrown){
                             Swal.close();
-                            Swal.fire("Error","Server error. Please try again.","error");
+                            console.log("Raw response:", xhr.responseText); // Add this line
+                            
+                            let msg = "Something went wrong!";
+                            
+                            // Check if API returned JSON with a message
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                try {
+                                    let res = JSON.parse(xhr.responseText);
+                                    if (res.message) {
+                                        msg = res.message;
+                                    }
+                                } catch(e) {
+                                    msg = xhr.responseText;
+                                }
+                            } else {
+                                msg = errorThrown;
+                            }
+
+                            Swal.fire("Error", msg, "error");
                         }
                     });
                 });

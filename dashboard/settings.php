@@ -1,16 +1,10 @@
 <?php
     include "../libs/load.php";
 
-    if (!Session::get('email_verified') == 'verified') {
-        header("Location: 2fa");
-        exit;
-    }
-
     if (
         !Session::get('session_token') || 
 		Session::get('session_type') != 'admin' && 
-		!Session::get('username') || 
-		Session::get('email_verified') != 'verified'
+		!Session::get('username')
     ) {
 		header("Location: logout?logout");
 		exit;
@@ -197,7 +191,7 @@
                                 </div>
                             </form>
 
-                            <hr class="mt-5 mb-4">
+                            <!-- <hr class="mt-5 mb-4">
                             
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -208,7 +202,7 @@
                                 <div>
                                     <button class="btn btn-danger">Disable 2FA</button>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>

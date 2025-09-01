@@ -115,31 +115,23 @@ class Verification
     public static function verifyEmailCode($username, $code)
     {
         $conn = Database::getConnection();
-        
-        $code = $conn->real_escape_string(trim($code));
+
+        $code = trim($conn->real_escape_string($code));
         $email = $conn->real_escape_string($username);
-        
+
         $query = "SELECT `email_code`, `email_code_expires` FROM `verification` 
-                  WHERE `email` = '$email'";
-        
+                WHERE `email` = '$email'";
+
         $result = $conn->query($query);
-        
+
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            
-            if (!isset($row['email_code_expires'])) {
-                return "Invalid verification configuration.";
-            }
-            
-            $expiryTimestamp = strtotime($row['email_code_expires']);
-            if ($expiryTimestamp === false) {
-                return "Invalid or expired verification code.";
-            }
-            
-            if ($row['email_code'] === $code && $expiryTimestamp >= time()) {
-                // Update verification status
+
+            $dbCode = trim($row['email_code']);
+            $expiryTimestamp = $row['email_code_expires'];
+
+            if ($dbCode === $code && $expiryTimestamp >= time()) {
                 $update = $conn->query("UPDATE `verification` SET `email_verified` = 1, `verified_at` = NOW() WHERE `email` = '$email'");
-                
                 if ($update) {
                     Session::set('email_verified', 'verified');
                     return true;
@@ -147,13 +139,14 @@ class Verification
                     return "Failed to update verification status.";
                 }
             } else {
-                return "Invalid or expired verification code.";
+                return "Invalid or expired code.";
             }
         } else {
             return "Verification record not found.";
         }
     }
-    
+
+        
     public static function verifySMSCode($userId, $code)
     {
         $conn = Database::getConnection();

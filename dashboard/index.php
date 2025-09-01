@@ -5,8 +5,7 @@
     if (
         Session::get('session_token') &&
         Session::get('session_type')  == 'admin' &&
-        Session::get('username') &&
-        Session::get('email_verified') == 'verified'
+        Session::get('username')
     ) {
 		header("Location: welcome");
 		exit;
@@ -156,7 +155,7 @@
                         success: function (response) {
                             Swal.close(); // close the loader
                             if (response) {
-                                window.location.href = "2fa";
+                                window.location.href = "welcome";
                             } else {
                                 showError("Invalid login. Please check email/password.");
                             }

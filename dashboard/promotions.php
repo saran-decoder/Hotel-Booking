@@ -1,16 +1,10 @@
 <?php
     include "../libs/load.php";
 
-    if (!Session::get('email_verified') == 'verified') {
-        header("Location: 2fa");
-        exit;
-    }
-
     if (
         !Session::get('session_token') || 
 		Session::get('session_type') != 'admin' && 
-		!Session::get('username') || 
-		Session::get('email_verified') != 'verified'
+		!Session::get('username')
     ) {
 		header("Location: logout?logout");
 		exit;

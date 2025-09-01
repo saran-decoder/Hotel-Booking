@@ -7,21 +7,22 @@ ${basename(__FILE__, '.php')} = function () {
 
         $verified = Verification::verifyEmailCode($username, $code);
 
-        if ($verified) {
+        if ($verified === true) {
             $this->response($this->json([
                 'message' => 'OTP Verified Successfully',
                 'status'  => true
             ]), 200);
         } else {
             $this->response($this->json([
-                'message' => 'OTP Verification Failed or Expired',
-                'status'  => false
+                'message' => 'OTP Verification Failed: ' . $verified,
+                'status'  => false,
+                'debug'   => $verified
             ]), 401);
         }
 
     } else {
         $this->response($this->json([
-            'message' => 'Bad Request. Required fields: contact, otp'
+            'message' => 'Bad Request. Required fields: username, otp'
         ]), 400);
     }
 };

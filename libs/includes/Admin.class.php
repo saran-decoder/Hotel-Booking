@@ -31,7 +31,6 @@ class Admin
         return false; // user not found
     }
 
-
     // Constructor: load Admin object by email or ID
     public function __construct($identifier)
     {
