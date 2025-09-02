@@ -9,6 +9,8 @@
     # Redirect root to /public/ (only if not already in /public/)
     RewriteCond %{REQUEST_URI} !^/hotel-booking/public/ [NC]
     RewriteRule ^$ public/ [L]
+    # Rewrite /booking to public/booking.php
+    RewriteRule ^booking/?$ public/booking.php [L]
 
     # Remove .php extension (allow /file instead of /file.php)
     RewriteCond %{REQUEST_FILENAME} !-d
