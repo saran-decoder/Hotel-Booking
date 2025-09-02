@@ -368,10 +368,10 @@ class Operations
         $username = Session::get("username");
 
         $sql = "SELECT
-                    SUM(CASE WHEN p.status = 'completed' THEN p.amount ELSE 0 END) as total_revenue,
-                    SUM(CASE WHEN p.status = 'pending' THEN p.amount ELSE 0 END) as pending_payments,
-                    COUNT(CASE WHEN p.status = 'refunded' THEN 1 END) as refunds_count,
-                    COUNT(p.id) as total_payments
+                    SUM(CASE WHEN p.status = 'completed' THEN p.amount ELSE 0 END) AS total_revenue,
+                    SUM(CASE WHEN p.status = 'pending' THEN p.amount ELSE 0 END) AS pending_payments,
+                    SUM(CASE WHEN p.status = 'refunded' THEN 1 ELSE 0 END) AS refunds_count,
+                    COUNT(p.id) AS total_payments
                 FROM payments p
                 INNER JOIN bookings b ON p.booking_id = b.id
                 INNER JOIN hotels h ON b.hotel_id = h.id
@@ -387,9 +387,10 @@ class Operations
 
     public static function getAllEmployees() {
         $conn = Database::getConnection();
-        
+        $user = Session::get("username");
+
         try {
-            $stmt = $conn->prepare("SELECT * FROM workers ORDER BY created_at DESC");
+            $stmt = $conn->prepare("SELECT * FROM workers WHERE owner = '$user'");
             $stmt->execute();
             $result = $stmt->get_result();
             

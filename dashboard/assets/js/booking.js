@@ -1114,8 +1114,7 @@ $(document).ready(function() {
             .removeClass('btn-primary');
         $('#continueToConfirmationBtn').prop('disabled', true);
         
-        // Show step 1
-        showStep(1);
+        window.location.href = "booking";
         
         // Re-render calendar
         renderCalendar();

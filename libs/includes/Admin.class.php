@@ -103,6 +103,7 @@ class Admin
     // Employee management methods
     public static function addEmployee($name, $email, $role) {
         $conn = Database::getConnection();
+        $user = Session::get("username");
         
         // Validate input
         if (empty($name) || empty($email) || empty($role)) {
@@ -120,8 +121,8 @@ class Admin
         }
         
         try {
-            $stmt = $conn->prepare("INSERT INTO workers (name, email, role, status, created_at) VALUES (?, ?, ?, 'Active', NOW())");
-            $stmt->bind_param("sss", $name, $email, $role);
+            $stmt = $conn->prepare("INSERT INTO workers (name, email, role, status, owner, created_at) VALUES (?, ?, ?, 'Active', ?, NOW())");
+            $stmt->bind_param("ssss", $name, $email, $role, $user);
             
             if ($stmt->execute()) {
                 return ['success' => true, 'message' => 'Employee added successfully'];

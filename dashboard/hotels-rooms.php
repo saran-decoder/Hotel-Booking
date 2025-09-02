@@ -145,8 +145,8 @@
                         dataType: 'json',
                         success: function(response) {
                             if (response && response.length > 0) {
-                                populateHotelsTable(response);
-                                updatePagination(response);
+                                // First get all hotels, then fetch booking data for occupancy calculation
+                                fetchBookingData(response);
                             } else {
                                 showNoHotelsMessage();
                             }
@@ -158,7 +158,92 @@
                     });
                 }
 
-                // Delete doctor
+                // Fetch booking data to calculate occupancy
+                function fetchBookingData(hotels) {
+                    $.ajax({
+                        url: '../api/booking/booking-list',
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            // Check if response has the expected structure
+                            const bookings = response.success ? response.data : [];
+                            
+                            // Group hotels by ID
+                            const hotelMap = {};
+                            hotels.forEach(hotel => {
+                                if (!hotelMap[hotel.id]) {
+                                    hotelMap[hotel.id] = {
+                                        ...hotel,
+                                        rooms: []
+                                    };
+                                }
+                                hotelMap[hotel.id].rooms.push({
+                                    room_id: hotel.room_id,
+                                    room_type: hotel.room_type,
+                                    room_status: hotel.room_status
+                                });
+                            });
+
+                            // Calculate occupancy for each hotel
+                            Object.values(hotelMap).forEach(hotel => {
+                                hotel.occupancyRate = calculateOccupancyRate(hotel, bookings);
+                            });
+
+                            populateHotelsTable(Object.values(hotelMap));
+                            updatePagination(hotels);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching bookings:', error);
+                            // If booking API fails, show hotels without occupancy data
+                            const hotelMap = {};
+                            hotels.forEach(hotel => {
+                                if (!hotelMap[hotel.id]) {
+                                    hotelMap[hotel.id] = {
+                                        ...hotel,
+                                        rooms: [],
+                                        occupancyRate: 0
+                                    };
+                                }
+                                hotelMap[hotel.id].rooms.push({
+                                    room_id: hotel.room_id,
+                                    room_type: hotel.room_type,
+                                    room_status: hotel.room_status
+                                });
+                            });
+                            
+                            populateHotelsTable(Object.values(hotelMap));
+                            updatePagination(hotels);
+                        }
+                    });
+                }
+
+                // Calculate occupancy rate for a hotel based on current bookings
+                function calculateOccupancyRate(hotel, bookings) {
+                    if (!bookings || bookings.length === 0) return 0;
+                    
+                    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+                    let occupiedRooms = 0;
+                    
+                    // Count how many rooms in this hotel are currently booked
+                    hotel.rooms.forEach(room => {
+                        const isOccupied = bookings.some(booking => 
+                            booking.room_id === room.room_id && 
+                            booking.check_in_date <= today && 
+                            booking.check_out_date >= today &&
+                            (booking.booking_status === 'confirmed' || booking.booking_status === 'checked-in')
+                        );
+                        
+                        if (isOccupied) {
+                            occupiedRooms++;
+                        }
+                    });
+                    
+                    // Calculate percentage
+                    if (hotel.rooms.length === 0) return 0;
+                    return Math.round((occupiedRooms / hotel.rooms.length) * 100);
+                }
+
+                // Delete hotel
                 $(document).on("click", ".delete-btn", function () {
                     const id = $(this).data("id");
 
@@ -189,30 +274,14 @@
                     const tableBody = $('#hotelsTableBody');
                     tableBody.empty();
 
-                    // Group rooms by hotel ID
-                    const hotelMap = {};
-                    hotels.forEach(hotel => {
-                        if (!hotelMap[hotel.id]) {
-                            hotelMap[hotel.id] = {
-                                ...hotel,
-                                rooms: []
-                            };
-                        }
-                        hotelMap[hotel.id].rooms.push({
-                            room_id: hotel.room_id,
-                            room_type: hotel.room_type,
-                            room_status: hotel.room_status
-                        });
-                    });
-
                     // Loop hotels
-                    Object.values(hotelMap).forEach(hotel => {
+                    hotels.forEach(hotel => {
                         // Decide hotel status based on room statuses
                         let hotelStatus = "inactive";
                         if (hotel.rooms.length > 0) {
                             if (hotel.rooms.some(r => r.room_status === "maintenance")) {
                                 hotelStatus = "maintenance";
-                            } else if (hotel.rooms.every(r => r.room_status === "active")) {
+                            } else if (hotel.rooms.some(r => r.room_status === "active")) {
                                 hotelStatus = "active";
                             }
                         }
@@ -220,9 +289,9 @@
                         const row = `
                             <tr>
                                 <td>${hotel.hotel_name || 'N/A'}</td>
-                                <td><a href="${hotel.hotel_coordinates || '#'}">Find</a></td>
+                                <td><a href="${hotel.hotel_coordinates || '#'}" target="_blank">Find</a></td>
                                 <td>${hotel.rooms.length}</td>
-                                <td>${hotel.occupancy_rate || '0'}%</td>
+                                <td>${hotel.occupancyRate || 0}%</td>
                                 <td>${hotel.rating || 'N/A'}</td>
                                 <td>
                                     <span class="status-badge ${getStatusClass(hotelStatus)}">
@@ -275,12 +344,8 @@
 
                 // Update pagination information
                 function updatePagination(hotels) {
-                    // Group by hotel.id to count unique hotels
-                    const uniqueHotels = {};
-                    hotels.forEach(h => {
-                        uniqueHotels[h.id] = true;
-                    });
-                    const hotelCount = Object.keys(uniqueHotels).length;
+                    // Count unique hotels
+                    const hotelCount = hotels.length;
 
                     $('#showingText').text(`Showing ${hotelCount} of ${hotelCount} Hotels`);
 

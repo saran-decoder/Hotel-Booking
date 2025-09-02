@@ -20,6 +20,23 @@
 
         <?php include "temp/head.php" ?>
 
+        <style>
+            /* Fix Chart Height Explosion */
+            .chart-placeholder {
+                width: 100% !important;
+                height: 300px !important; /* keep chart at 300px */
+            }
+            
+            /* Percentage color styles */
+            .positive-change {
+                color: #10B981 !important; /* Green for positive values */
+            }
+            
+            .negative-change {
+                color: #EF4444 !important; /* Red for negative values */
+            }
+        </style>
+
     </head>
     <body>
         <div class="container-fluid">
@@ -209,14 +226,18 @@
                                         <option value="3">Last 3 months</option>
                                     </select>
                                 </div>
-                                <canvas id="revenueChart" class="chart-placeholder mt-3"></canvas>
+                                <div style="height: 300px;">
+                                    <canvas id="revenueChart" class="chart-placeholder mt-3"></canvas>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-12">
                             <div class="card p-3 h-100 text-center">
                                 <div class="alert-title">Booking Status</div>
                                 <div style="color: #6b7280; font-size: 14px;">Current distribution of bookings</div>
-                                <canvas id="bookingPieChart" class="chart-placeholder mt-3"></canvas>
+                                <div style="height: 300px;">
+                                    <canvas id="bookingPieChart" class="chart-placeholder mt-3"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -323,6 +344,7 @@
                             
                             // Calculate booking change (simple mock calculation)
                             const bookingChange = Math.round((Math.random() * 20) - 5);
+                            const changeClass = bookingChange >= 0 ? 'positive-change' : 'negative-change';
                             const changeText = bookingChange >= 0 ? 
                                 `+${bookingChange}% from yesterday` : 
                                 `${bookingChange}% from yesterday`;
@@ -330,7 +352,7 @@
                             // Update UI
                             $('#today-bookings').text(todayBookings);
                             $('#total-bookings').text(totalBookings);
-                            $('#booking-change').text(changeText);
+                            $('#booking-change').text(changeText).removeClass('positive-change negative-change').addClass(changeClass);
                             
                             // Calculate active guests (unique users with active bookings)
                             const activeGuests = [...new Set(
@@ -356,11 +378,12 @@
                             
                             // Calculate revenue change (simple mock calculation)
                             const revenueChange = Math.round((Math.random() * 25) - 5);
+                            const changeClass = revenueChange >= 0 ? 'positive-change' : 'negative-change';
                             const changeText = revenueChange >= 0 ? 
                                 `+${revenueChange}% from yesterday` : 
                                 `${revenueChange}% from yesterday`;
                             
-                            $('#revenue-change').text(changeText);
+                            $('#revenue-change').text(changeText).removeClass('positive-change negative-change').addClass(changeClass);
                         }
                     }).fail(function() {
                         console.error('Failed to load payment data');
@@ -376,12 +399,13 @@
                             // Calculate occupancy rate (mock calculation)
                             const occupancyRate = Math.round(Math.random() * 40 + 50); // 50-90%
                             const occupancyChange = Math.round((Math.random() * 10) - 3);
+                            const changeClass = occupancyChange >= 0 ? 'positive-change' : 'negative-change';
                             const changeText = occupancyChange >= 0 ? 
                                 `+${occupancyChange}% from yesterday` : 
                                 `${occupancyChange}% from yesterday`;
                             
                             $('#occupancy-rate').text(occupancyRate + '%');
-                            $('#occupancy-change').text(changeText);
+                            $('#occupancy-change').text(changeText).removeClass('positive-change negative-change').addClass(changeClass);
                         }
                     }).fail(function() {
                         console.error('Failed to load hotels data');
@@ -390,8 +414,26 @@
 
                 // Function to load revenue data
                 function loadRevenueData(months) {
-                    // In a real application, you would fetch this from your API
-                    // For now, we'll generate mock data
+                    // Fetch revenue data from API
+                    $.get('../api/booking/revenue-data?months=' + months, function(response) {
+                        if (response.success) {
+                            // Update the chart with real data
+                            revenueChart.data.labels = response.data.labels;
+                            revenueChart.data.datasets[0].data = response.data.values;
+                            revenueChart.update();
+                        } else {
+                            // Fallback to mock data if API fails
+                            console.error('Failed to load revenue data, using mock data');
+                            generateMockRevenueData(months);
+                        }
+                    }).fail(function() {
+                        console.error('API call failed, using mock revenue data');
+                        generateMockRevenueData(months);
+                    });
+                }
+                
+                // Fallback function for mock revenue data
+                function generateMockRevenueData(months) {
                     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                     const currentMonth = new Date().getMonth();
                     
@@ -401,7 +443,7 @@
                     // Generate data for the requested number of months
                     for (let i = months - 1; i >= 0; i--) {
                         const monthIndex = (currentMonth - i + 12) % 12;
-                        labels.push(monthNames[monthIndex]);
+                        labels.push(monthNames[monthIndex] + ' ' + new Date().getFullYear());
                         
                         // Generate random revenue between 2000 and 6000
                         data.push(Math.floor(Math.random() * 4000 + 2000));
@@ -431,6 +473,8 @@
                                 const status = booking.booking_status.toLowerCase();
                                 if (statusCounts.hasOwnProperty(status)) {
                                     statusCounts[status]++;
+                                } else if (status === 'checked_in' || status === 'completed') {
+                                    statusCounts.confirmed++;
                                 }
                             });
                             
@@ -474,7 +518,7 @@
                                     { hotel_name: 'Your Hotel' };
                                     
                                 const alertHtml = `
-                                    <div class="alert-yellow rounded-3">
+                                    <div class="alert-yellow rounded-3 p-3 mb-3">
                                         Low inventory: Only ${Math.floor(Math.random() * 5) + 1} ${randomRoom.room_type} 
                                         available at ${randomHotel.hotel_name || 'Your Hotel'} for the weekend
                                     </div>
@@ -486,7 +530,7 @@
                         // Check for high cancellation rate (mock)
                         if (Math.random() > 0.5) {
                             const alertHtml = `
-                                <div class="alert-red rounded-3">
+                                <div class="alert-red rounded-3 p-3 mb-3">
                                     High cancellation rate detected for a property
                                 </div>
                             `;
@@ -496,14 +540,14 @@
                         // If no alerts, show a message
                         if (alertsContainer.children().length === 0) {
                             alertsContainer.append(`
-                                <div class="alert-green rounded-3">
+                                <div class="alert-green rounded-3 p-3">
                                     No critical alerts at this time
                                 </div>
                             `);
                         }
                     }).fail(function() {
                         $('#alerts-container').html(`
-                            <div class="alert-red rounded-3">
+                            <div class="alert-red rounded-3 p-3">
                                 Error loading alerts
                             </div>
                         `);
