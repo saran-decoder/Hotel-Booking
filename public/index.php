@@ -1,3 +1,19 @@
+<?php
+
+    include "../libs/load.php";
+
+    if (
+        Session::get('session_token') &&
+        Session::get('session_type')  == 'user' &&
+        Session::get('username') &&
+        !Session::get('sms_verified') == 'verified'
+    ) {
+		header("Location: 2fa");
+		exit;
+	}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>

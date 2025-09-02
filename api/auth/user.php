@@ -1,24 +1,26 @@
 <?php
 
 ${basename(__FILE__, '.php')} = function () {
-    if ($this->paramsExists(['contact'])) {
-        $phone = $this->_request['contact'];
-        $token = UserSession::authenticatePatient($phone);
-        if($token) {
+    if ($this->paramsExists(['user', 'password'])) {
+        $user = $this->_request['user'];
+        $pass = $this->_request['password'];
+
+        $token = UserSession::authenticateUser($user, $pass);
+        if ($token) {
             $this->response($this->json([
-                'message'=>'Authenticated',
-                'token' => $token
+                'message' => 'Authenticated',
+                'token'   => $token
             ]), 200);
         } else {
             $this->response($this->json([
-                'message'=>'Unauthorized',
-                'token' => $token
+                'message' => 'Unauthorized - invalid phone or password',
+                'status' => $token
             ]), 401);
         }
 
     } else {
         $this->response($this->json([
-            'message'=>"bad request"
+            'message' => "Bad Request"
         ]), 400);
     }
 };

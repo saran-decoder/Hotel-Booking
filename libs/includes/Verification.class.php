@@ -67,51 +67,6 @@ class Verification
             return false;
         }
     }
-    
-    public static function sendSMSVerification($phone, $userId)
-    {
-        $conn = Database::getConnection();
-        
-        // Generate 6-digit code
-        $smsCode = sprintf("%06d", random_int(0, 999999));
-        
-        // Set expiry time (5 minutes from now)
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+5 minutes'));
-        
-        // Store in database
-        $query = "INSERT INTO `verification` (`user_id`, `phone`, `sms_code`, `sms_code_expires`, `created_at`) 
-                  VALUES ('$userId', '$phone', '$smsCode', '$expiresAt', NOW())
-                  ON DUPLICATE KEY UPDATE 
-                  `sms_code` = '$smsCode', 
-                  `sms_code_expires` = '$expiresAt',
-                  `sms_verified` = 0";
-        
-        if ($conn->query($query)) {
-            // Compose the SMS message
-            $message = "Your TNBooking verification code is: $smsCode. This code will expire in 5 minutes.";
-            
-            // Build the API URL (using your existing SMS gateway)
-            $smsUrl = "https://port1.bmindz.com/pushapi/sendbulkmsg?" . http_build_query([
-                'username'   => 'zeduvpy',
-                'dest'       => $phone,
-                'apikey'     => '4QxHXhEEDfbFKVtZjtsYCPp4ioB0gDcN',
-                'signature'  => 'TNBOOK',
-                'msgtype'    => 'PM',
-                'msgtxt'     => $message,
-                'entityid'   => '1201160360592377078',
-                'templateid' => '1207167361765622697'
-            ]);
-            
-            // Send the SMS
-            $response = file_get_contents($smsUrl);
-            
-            return strpos($response, 'Message accepted') !== false;
-        } else {
-            error_log("Database error: " . $conn->error);
-            return false;
-        }
-    }
-    
     public static function verifyEmailCode($username, $code)
     {
         $conn = Database::getConnection();
@@ -146,44 +101,102 @@ class Verification
         }
     }
 
+    public static function sendSMSVerification($phone, $userId)
+    {
+        $conn = Database::getConnection();
         
+        // Generate 6-digit code
+        $smsCode = sprintf("%06d", random_int(0, 999999));
+        
+        date_default_timezone_set('Asia/Kolkata'); // ensure correct timezone
+        // Set expiry time (10 minutes from now)
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+        
+        // Store in database
+        $query = "INSERT INTO `verification` (`user_id`, `phone`, `sms_code`, `sms_code_expires`, `created_at`) 
+                  VALUES ('$userId', '$phone', '$smsCode', '$expiresAt', NOW())
+                  ON DUPLICATE KEY UPDATE 
+                  `sms_code` = '$smsCode', 
+                  `sms_code_expires` = '$expiresAt',
+                  `sms_verified` = 0";
+        
+        if ($conn->query($query)) {
+            // Compose the SMS message
+            $message = "Your TNBooking verification code is: $smsCode. This code will expire in 5 minutes.";
+            
+            // Build the API URL (using your existing SMS gateway)
+            $smsUrl = "https://port1.bmindz.com/pushapi/sendbulkmsg?" . http_build_query([
+                'username'   => 'zeduvpy',
+                'dest'       => $phone,
+                'apikey'     => '4QxHXhEEDfbFKVtZjtsYCPp4ioB0gDcN',
+                'signature'  => 'TNBOOK',
+                'msgtype'    => 'PM',
+                'msgtxt'     => $message,
+                'entityid'   => '1201160360592377078',
+                'templateid' => '1207167361765622697'
+            ]);
+            
+            // Send the SMS
+            file_get_contents($smsUrl);
+            
+            return true;
+        } else {
+            error_log("Database error: " . $conn->error);
+            return false;
+        }
+    }
     public static function verifySMSCode($userId, $code)
     {
         $conn = Database::getConnection();
         
-        $code = $conn->real_escape_string(trim($code));
+        $code   = $conn->real_escape_string(trim($code));
         $userId = $conn->real_escape_string($userId);
-        
-        $query = "SELECT `sms_code`, `sms_code_expires` FROM `verification` 
-                  WHERE `user_id` = '$userId'";
-        
+
+        // Always set timezone before working with dates
+        date_default_timezone_set('Asia/Kolkata');
+
+        $query = "SELECT `sms_code`, `sms_code_expires` 
+                FROM `verification` 
+                WHERE `user_id` = '$userId' 
+                ORDER BY `id` DESC 
+                LIMIT 1";
+
         $result = $conn->query($query);
-        
+
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            
-            if (!isset($row['sms_code_expires'])) {
+
+            if (empty($row['sms_code']) || empty($row['sms_code_expires'])) {
                 return "Invalid verification configuration.";
             }
-            
+
             $expiryTimestamp = strtotime($row['sms_code_expires']);
             if ($expiryTimestamp === false) {
-                return "Invalid or expired verification code.";
+                return "Invalid expiry timestamp in database.";
             }
-            
-            if ($row['sms_code'] == $code && $expiryTimestamp >= time()) {
-                // Update verification status
-                $update = $conn->query("UPDATE `verification` SET `sms_verified` = 1, `verified_at` = NOW() WHERE `user_id` = '$userId'");
-                
-                if ($update) {
-                    Session::set('sms_verified', true);
-                    return true;
-                } else {
-                    return "Failed to update verification status.";
-                }
+
+            if (time() > $expiryTimestamp) {
+                return "OTP expired. Please request a new one.";
+            }
+
+            if ($row['sms_code'] !== $code) {
+                return "Invalid OTP entered.";
+            }
+
+            // ✅ If we reached here, OTP is valid
+            $update = $conn->query("
+                UPDATE `verification` 
+                SET `sms_verified` = 1, `verified_at` = NOW() 
+                WHERE `user_id` = '$userId'
+            ");
+
+            if ($update) {
+                Session::set('sms_verified', 'verified');
+                return true;
             } else {
-                return "Invalid or expired verification code.";
+                return "Failed to update verification status.";
             }
+
         } else {
             return "Verification record not found.";
         }

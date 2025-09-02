@@ -59,70 +59,39 @@ class UserSession
                 Session::set('session_token', $token);
                 Session::set('session_type', 'admin');
                 Session::set('username', $identifier);
-                Verification::sendEmailVerification($identifier, $admin->id);
                 return $token;
             }
         }
         return false;
     }
 
-    // public static function authenticateUser($phone)
-    // {
-    //     $username = Patient::login($phone);
-    //     if ($username) {
-    //         $user = new Patient($username);
-    //         $conn = Database::getConnection();
-    //         $ip = $_SERVER['REMOTE_ADDR'];
-    //         $agent = $_SERVER['HTTP_USER_AGENT'];
+    public static function authenticateUser($user, $pass)
+    {
+        $phone = $user;
+        $username = User::login($user, $pass);
+        if ($username) {
+            $user = new User($username);
+            $conn = Database::getConnection();
+            $ip = $_SERVER['REMOTE_ADDR'];
+            $agent = $_SERVER['HTTP_USER_AGENT'];
 
-    //         $token = md5(random_int(0, 9999999) . $ip . $agent . time());
-    //         $sql = "INSERT INTO `session` (`uid`, `token`, `login_time`, `ip`, `user_agent`, `active`, `type`)
-    //                 VALUES ('$user->id', '$token', now(), '$ip', '$agent', '1', 'patient')";
-    //         if ($conn->query($sql)) {
-    //             // Set session
-    //             Session::set('session_token', $token);
-    //             Session::set('session_type', 'patient');
-    //             Session::set('username', $username);
-    //             Session::set('contact', $phone);
+            $token = md5(random_int(0, 9999999) . $ip . $agent . time());
+            $sql = "INSERT INTO `session` (`uid`, `token`, `login_time`, `ip`, `user_agent`, `active`, `type`)
+                    VALUES ('$user->id', '$token', now(), '$ip', '$agent', '1', 'user')";
+            if ($conn->query($sql)) {
+                // Set session
+                Session::set('session_token', $token);
+                Session::set('session_type', 'user');
+                Session::set('username', $username);
+                Session::set('contact', $phone);
+                Session::set('user_id', $user->id);
+                Verification::sendSMSVerification($phone, $user->id);
+                return $token;
+            }
+        }
 
-    //             // Generate same digits pairs OTP (4-digit for example)
-    //             $pairs = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
-
-    //             shuffle($pairs);
-    //             $otp = $pairs[0] . $pairs[1];
-
-    //             // Set expiry time (5 minutes from now)
-    //             $expires_at = date('Y-m-d H:i:s', strtotime('+5 minutes'));
-
-    //             // Insert OTP into DB
-    //             $insertOtp = "INSERT INTO `patient_otp` (`phone`, `otp`, `created_at`, `expires_at`)
-    //                         VALUES ('$phone', '$otp', NOW(), '$expires_at')";
-    //             $conn->query($insertOtp);
-
-    //             // Compose the SMS message
-    //             $message = "The one time password for your account is $otp. Please use the password to verify the account. Thanks! - XLoan India ZEDUAPP";
-
-    //             // Build the API URL
-    //             $sms_url = "https://port1.bmindz.com/pushapi/sendbulkmsg?" . http_build_query([
-    //                 'username'   => 'zeduvpy',
-    //                 'dest'       => $phone,
-    //                 'apikey'     => '4QxHXhEEDfbFKVtZjtsYCPp4ioB0gDcN',
-    //                 'signature'  => 'ZEDUAP',
-    //                 'msgtype'    => 'PM',
-    //                 'msgtxt'     => $message,
-    //                 'entityid'   => '1201160360592377078',
-    //                 'templateid' => '1207167361765622697'
-    //             ]);
-
-    //             // Send the SMS using file_get_contents (or use cURL)
-    //             file_get_contents($sms_url);
-
-    //             return true;
-    //         }
-    //     }
-
-    //     return false;
-    // }
+        return false;
+    }
 
     public static function authorize($token)
     {
@@ -183,15 +152,11 @@ class UserSession
 
         if ($this->data['type'] === 'admin') {
             return new Admin($this->uid);
+        } elseif ($this->data['type'] === 'user') {
+            return new User($this->uid);
         } else {
             throw new Exception("Invalid user type in session.");
         }
-
-        // elseif ($this->data['type'] === 'doctor') {
-        //     return new Doctor($this->uid);
-        // } elseif ($this->data['type'] === 'patient') {
-        //     return new Patient($this->uid);
-        // } 
     }
 
     /**

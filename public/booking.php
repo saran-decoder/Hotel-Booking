@@ -1,3 +1,19 @@
+<?php
+
+    include "../libs/load.php";
+
+    if (
+        Session::get('session_token') &&
+        Session::get('session_type')  == 'user' &&
+        Session::get('username') &&
+        !Session::get('sms_verified') == 'verified'
+    ) {
+		header("Location: 2fa");
+		exit;
+	}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -50,19 +66,7 @@
                     <label class="form-label">Destination</label>
                     <div class="input-group">
                         <i class="fas fa-map-marker-alt position-absolute align-self-center ms-3"></i>
-                        <select class="form-select" id="destinationSelect">
-                            <option value="" selected disabled>Select destination</option>
-                            <option value="Chennai">Chennai</option>
-                            <option value="Coimbatore">Coimbatore</option>
-                            <option value="Madurai">Madurai</option>
-                            <option value="Ooty">Ooty</option>
-                            <option value="Kodaikanal">Kodaikanal</option>
-                            <option value="Rameswaram">Rameswaram</option>
-                            <option value="Mahabalipuram">Mahabalipuram</option>
-                            <option value="Kanyakumari">Kanyakumari</option>
-                            <option value="Trichy">Trichy</option>
-                            <option value="Pondicherry">Pondicherry</option>
-                        </select>
+                        <select class="form-select" id="destinationSelect"></select>
                     </div>
                 </div>
 
@@ -508,6 +512,43 @@
         <?php include "temp/footer.php" ?>
 
         <script src="public/assets/js/booking.js"></script>
+
+        <script>
+            // Fetch hotels from API
+            function fetchHotels() {
+                $.ajax({
+                    url: 'public/../api/hotel/list',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response && response.length > 0) {
+                            hotels = processHotelData(response);
+                            populateDestinationSelect(hotels);
+                            renderHotels();
+                        } else {
+                            showNoHotelsMessage();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching hotels:', error);
+                        showErrorMessage();
+                    }
+                });
+            }
+
+            // Populate destination select dropdown
+            function populateDestinationSelect(hotels) {
+                $('#destinationSelect').empty();
+                $('#destinationSelect').append('<option value="" selected disabled>Select destination</option>');
+                
+                // Get unique locations
+                const uniqueLocations = [...new Set(hotels.map(hotel => hotel.location))];
+                
+                uniqueLocations.forEach(location => {
+                    $('#destinationSelect').append(`<option value="${location}">${location}</option>`);
+                });
+            }
+        </script>
         
     </body>
 </html>
