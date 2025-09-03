@@ -143,8 +143,8 @@
                                         <path d="M17.5 20.417H17.5153" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                                         <path d="M23.3335 14.583H23.3488" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                                         <path d="M23.3335 20.417H23.3488" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M11.6665 14.583H11.6818" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M11.6665 20.417H11.6818" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M11.6665 14.583H11.6818" stroke="#6366F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M11.6665 20.417H11.6818" stroke="#6366F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </div>
                                 <div class="card-body">
@@ -354,14 +354,8 @@
                             $('#total-bookings').text(totalBookings);
                             $('#booking-change').text(changeText).removeClass('positive-change negative-change').addClass(changeClass);
                             
-                            // Calculate active guests (unique users with active bookings)
-                            const activeGuests = [...new Set(
-                                bookings.filter(booking => 
-                                    booking.booking_status === 'confirmed' || 
-                                    booking.booking_status === 'checked_in'
-                                ).map(booking => booking.guest_name)
-                            )].length;
-                            
+                            // Calculate active guests (guests with active bookings today)
+                            const activeGuests = calculateActiveGuests(bookings);
                             $('#active-guests').text(activeGuests);
                         }
                     }).fail(function() {
@@ -410,6 +404,32 @@
                     }).fail(function() {
                         console.error('Failed to load hotels data');
                     });
+                }
+
+                // Function to calculate active guests (with bookings that include today)
+                function calculateActiveGuests(bookings) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Set to start of day
+                    
+                    const activeGuestIds = new Set();
+                    
+                    bookings.forEach(booking => {
+                        // Skip cancelled bookings
+                        if (booking.booking_status.toLowerCase() === 'cancelled') {
+                            return;
+                        }
+                        
+                        // Parse check-in and check-out dates
+                        const checkInDate = new Date(booking.check_in_date);
+                        const checkOutDate = new Date(booking.check_out_date);
+                        
+                        // Check if today is between check-in and check-out dates (inclusive)
+                        if (today >= checkInDate && today <= checkOutDate) {
+                            activeGuestIds.add(booking.guest_id);
+                        }
+                    });
+                    
+                    return activeGuestIds.size;
                 }
 
                 // Function to load revenue data

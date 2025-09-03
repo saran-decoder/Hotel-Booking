@@ -74,7 +74,7 @@
                                     <thead>
                                         <tr>
                                             <th>Booking ID</th>
-                                            <th>Guest Name</th>
+                                            <th>Guest ID</th>
                                             <th>Hotel Name</th>
                                             <th>Check-in Date</th>
                                             <th>Check-out Date</th>
