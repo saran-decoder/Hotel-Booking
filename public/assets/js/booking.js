@@ -1,10 +1,10 @@
 $(document).ready(function() {
-    // Initialize variables
+    // ---- Variables ----
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to beginning of day
+    today.setHours(0, 0, 0, 0);
 
     let currentDate = new Date();
-    currentDate.setDate(1); // Set to first day of current month
+    currentDate.setDate(1);
     let checkInDate = null;
     let checkOutDate = null;
     let adultsCount = 1;
@@ -12,186 +12,234 @@ $(document).ready(function() {
     let destination = "";
     let selectedHotel = null;
     let selectedRoom = null;
-    let roomPrice = 0;
     let nights = 0;
+    let hotels = [];
+    let rooms = [];
 
-    // Sample hotel data with images
-    const hotels = [
-        {
-            id: 1,
-            name: "Grand Plaza Hotel",
-            rating: 5,
-            reviews: 324,
-            location: "Downtown, New York",
-            price: 199,
-            image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "parking", "ac", "restaurant", "fitness"]
-        },
-        {
-            id: 2,
-            name: "Sunset Bay Resort",
-            rating: 5,
-            reviews: 186,
-            location: "Beachfront, Miami",
-            price: 299,
-            image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "pool", "parking", "ac", "restaurant"]
-        },
-        {
-            id: 3,
-            name: "City Comfort Inn",
-            rating: 4,
-            reviews: 452,
-            location: "Midtown, Chicago",
-            price: 129,
-            image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "parking", "ac"]
-        },
-        {
-            id: 4,
-            name: "Mountain View Lodge",
-            rating: 5,
-            reviews: 128,
-            location: "Aspen, Colorado",
-            price: 349,
-            image: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-            amenities: ["wifi", "parking", "ac", "restaurant"]
-        },
-        {
-            id: 5,
-            name: "Harbor View Hotel",
-            rating: 5,
-            reviews: 215,
-            location: "Fisherman's Wharf, San Francisco",
-            price: 229,
-            image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
-            amenities: ["wifi", "parking", "ac", "fitness"]
-        },
-        {
-            id: 6,
-            name: "Riverside Boutique",
-            rating: 5,
-            reviews: 163,
-            location: "Riverwalk, San Antonio",
-            price: 179,
-            image: "https://images.unsplash.com/photo-1568084680786-a84f91d1153c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
-            amenities: ["wifi", "ac", "restaurant"]
-        }
-    ];
+    // ---- API Fetch: Hotels ----
+    function fetchHotels() {
+        $.ajax({
+            url: 'public/../api/hotel/total-hotels',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (Array.isArray(response) && response.length > 0) {
+                    hotels = processHotelData(response);
+                    populateDestinationSelect(hotels);
+                    renderHotels();
+                } else {
+                    showNoHotelsMessage();
+                }
+            },
+            error: function(xhr, status, error) {
+                showErrorMessage();
+            }
+        });
+    }
 
-    // Initialize calendar
+    // ---- Hotel Data Processing ----
+    function processHotelData(apiData) {
+        return apiData.map(function(hotel) {
+            let amenities = [];
+            try {
+                if (typeof hotel.hotel_amenities === 'string') {
+                    amenities = JSON.parse(hotel.hotel_amenities);
+                } else if (Array.isArray(hotel.hotel_amenities)) {
+                    amenities = hotel.hotel_amenities;
+                } else {
+                    amenities = [];
+                }
+            } catch (e) {
+                amenities = hotel.hotel_amenities ? hotel.hotel_amenities.split(',') : [];
+            }
+
+            let hotelImages = [];
+            try {
+                if (hotel.hotel_images) {
+                    hotelImages = typeof hotel.hotel_images === 'string'
+                        ? JSON.parse(hotel.hotel_images)
+                        : hotel.hotel_images;
+                    hotelImages = hotelImages.length ? hotelImages.map(function(img) {return 'public/../' + img;}) : ['https://via.placeholder.com/500x300?text=No+Image'];
+                } else {
+                    hotelImages = ['https://via.placeholder.com/500x300?text=No+Image'];
+                }
+            } catch (e) {
+                hotelImages = ['https://via.placeholder.com/500x300?text=No+Image'];
+            }
+
+            return {
+                id: hotel.id,
+                name: hotel.hotel_name,
+                rating: 4,
+                reviews: Math.floor(Math.random() * 100) + 50,
+                location: hotel.hotel_location_name,
+                price: parseFloat(hotel.price_per_night) || 1000,
+                image: hotelImages,
+                images: hotelImages,
+                amenities: amenities,
+                description: hotel.hotel_description,
+                address: hotel.hotel_address,
+                coordinates: hotel.hotel_coordinates
+            };
+        });
+    }
+
+    // ---- Populate Destination Select ----
+    function populateDestinationSelect(hotels) {
+        $('#destinationSelect').empty().append('<option value="" selected disabled>Select destination</option>');
+        const uniqueLocations = [...new Set(hotels.map(function(hotel){return hotel.location;}))];
+        uniqueLocations.forEach(function(location){
+            $('#destinationSelect').append(`<option value="${location}">${location}</option>`);
+        });
+    }
+
+    // ---- Message handling ----
+    function showNoHotelsMessage() {
+        $('#hotelList').html('<div class="col-12 text-center py-5"><h5>No hotels available at the moment</h5><p>Please try again later</p></div>');
+    }
+    function showErrorMessage() {
+        $('#hotelList').html('<div class="col-12 text-center py-5"><h5>Error loading hotels</h5><p>Please refresh the page</p></div>');
+    }
+    function showNoRoomsMessage() {
+        $('#roomSelectionContainer').html('<div class="col-12 text-center py-5"><h5>No rooms available for this hotel</h5><p>Please select another hotel</p></div>');
+    }
+    function showRoomErrorMessage() {
+        $('#roomSelectionContainer').html('<div class="col-12 text-center py-5"><h5>Error loading rooms</h5><p>Please try again</p></div>');
+    }
+
+    // ---- API Fetch: Rooms ----
+    function fetchRooms(hotelId) {
+        $.ajax({
+            url: `public/../api/hotel/info?id=${hotelId}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (Array.isArray(response) && response.length > 0) {
+                    rooms = processRoomData(response);
+                    renderRoomSelection();
+                } else {
+                    showNoRoomsMessage();
+                }
+            },
+            error: function(xhr, status, error) {
+                showRoomErrorMessage();
+            }
+        });
+    }
+
+    // ---- Room Data Processing ----
+    function processRoomData(apiData) {
+        return apiData.map(function(room) {
+            let amenities = [];
+            try {
+                if (typeof room.room_amenities === 'string') {
+                    amenities = JSON.parse(room.room_amenities);
+                } else if (Array.isArray(room.room_amenities)) {
+                    amenities = room.room_amenities;
+                } else {
+                    amenities = [];
+                }
+            } catch (e) {
+                amenities = room.room_amenities ? room.room_amenities.split(',') : [];
+            }
+
+            let roomImages = [];
+            try {
+                if (room.room_images) {
+                    roomImages = typeof room.room_images === 'string'
+                        ? JSON.parse(room.room_images)
+                        : room.room_images;
+                    roomImages = roomImages.map(function(img){return img;});
+                } else {
+                    roomImages = ['public/../' + (room.image || 'uploads/rooms/placeholder.jpg')];
+                }
+            } catch (e) {
+                roomImages = ['public/../' + (room.image || 'uploads/rooms/placeholder.jpg')];
+            }
+
+            return {
+                id: room.room_id,
+                hotelId: room.hotel_id,
+                type: room.room_type,
+                name: room.room_type.charAt(0).toUpperCase() + room.room_type.slice(1) + ' Room',
+                price: parseFloat(room.price_per_night) || 1000,
+                description: room.room_description,
+                amenities: amenities,
+                image: roomImages,
+                room_images: roomImages,
+                guestsAllowed: room.guests_allowed || 2
+            };
+        });
+    }
+
+    // ---- Calendar ----
     function renderCalendar() {
         $('#calendarDates').empty();
-
-        // Set month and year display
         $('#currentMonth').text(currentDate.toLocaleString("default", { month: "long", year: "numeric" }));
 
-        // Get first day of month and total days in month
         const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
         const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
 
-        // Add empty cells for days before the first day of the month
-        for (let i = 0; i < firstDay; i++) {
-            $('#calendarDates').append($('<div>').addClass(''));
-        }
-
-        // Add cells for each day of the month
+        for (let i = 0; i < firstDay; i++) $('#calendarDates').append($('<div>'));
         for (let day = 1; day <= daysInMonth; day++) {
             const dateCell = $('<div>').addClass('calendar-day').text(day);
             const cellDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-            
-            // Disable past dates
             if (cellDate < today) {
                 dateCell.addClass('disabled');
             } else {
-                // Check if this is today
-                if (cellDate.getTime() === today.getTime()) {
-                    dateCell.addClass('today');
-                }
-
-                // Check if this date is selected
-                if (checkInDate && cellDate.getTime() === checkInDate.getTime()) {
-                    dateCell.addClass('selected');
-                } else if (checkOutDate && cellDate.getTime() === checkOutDate.getTime()) {
-                    dateCell.addClass('selected');
-                } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
-                    dateCell.css('backgroundColor', '#e6f0ff');
-                }
-
-                dateCell.on('click', () => selectDate(day));
+                if (cellDate.getTime() === today.getTime()) dateCell.addClass('today');
+                if (checkInDate && cellDate.getTime() === checkInDate.getTime()) dateCell.addClass('selected');
+                else if (checkOutDate && cellDate.getTime() === checkOutDate.getTime()) dateCell.addClass('selected');
+                else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) dateCell.css('backgroundColor', '#e6f0ff');
+                dateCell.on('click', function(){ selectDate(day); });
             }
-
             $('#calendarDates').append(dateCell);
         }
     }
 
-    // Handle date selection
     function selectDate(day) {
         const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        
-        // Don't allow selection of past dates
-        if (selectedDate < today) {
-            return;
-        }
-
+        if (selectedDate < today) return;
         if (!checkInDate || (checkInDate && checkOutDate)) {
-            // Start new selection
             checkInDate = selectedDate;
             checkOutDate = null;
             $('#checkInDate').text(formatDate(checkInDate));
             $('#checkOutDate').text("Select date");
         } else if (selectedDate > checkInDate) {
-            // Complete the range
             checkOutDate = selectedDate;
             $('#checkOutDate').text(formatDate(checkOutDate));
-        } else {
-            // Select earlier date as check-in (but not before today)
-            if (selectedDate >= today) {
-                checkInDate = selectedDate;
-                checkOutDate = null;
-                $('#checkInDate').text(formatDate(checkInDate));
-                $('#checkOutDate').text("Select date");
-            }
+        } else if (selectedDate >= today) {
+            checkInDate = selectedDate;
+            checkOutDate = null;
+            $('#checkInDate').text(formatDate(checkInDate));
+            $('#checkOutDate').text("Select date");
         }
-
-        // Enable continue button if all required fields are filled
         updateContinueButton();
         renderCalendar();
     }
-
-    // Format date as "Month Day, Year"
     function formatDate(date) {
         return date.toLocaleString("default", { month: "short", day: "numeric", year: "numeric" });
     }
-
-    // Format date as YYYY-MM-DD
     function formatDateYMD(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     }
 
-    // Update guest display
+    // ---- Guest Display ----
     function updateGuestDisplay() {
         let displayText = `${adultsCount} Adult${adultsCount !== 1 ? "s" : ""}`;
-        if (childrenCount > 0) {
-            displayText += `, ${childrenCount} Child${childrenCount !== 1 ? "ren" : ""}`;
-        }
+        if (childrenCount > 0) displayText += `, ${childrenCount} Child${childrenCount !== 1 ? "ren" : ""}`;
         $('#guestDisplay').text(displayText);
         updateContinueButton();
     }
 
-    // Update booking details display
+    // ---- Booking Details Display ----
     function updateBookingDetailsDisplay() {
         if (checkInDate && checkOutDate) {
-            const checkInStr = formatDateYMD(checkInDate);
-            const checkOutStr = formatDateYMD(checkOutDate);
-            $('#bookingDetailsDisplay').text(`${checkInStr} - ${checkOutStr} • ${adultsCount} Adults, ${childrenCount} Children`);
+            $('#bookingDetailsDisplay').text(`${formatDateYMD(checkInDate)} - ${formatDateYMD(checkOutDate)} • ${adultsCount} Adults, ${childrenCount} Children`);
         }
     }
 
-    // Update continue button state
+    // ---- Continue Button State ----
     function updateContinueButton() {
         if (checkInDate && checkOutDate && $('#destinationSelect').val()) {
             $('#continueBtn').removeClass("btn-disabled").addClass("btn-primary").prop('disabled', false);
@@ -200,287 +248,276 @@ $(document).ready(function() {
         }
     }
 
-    // Update step progress
+    // ---- Step Progress ----
     function updateStepProgress(activeStep) {
-        $(".progress-step .step").each(function(index) {
-            if (index + 1 === activeStep) {
-                $(this).addClass("active");
-            } else {
-                $(this).removeClass("active");
-            }
+        $(".progress-step .step").each(function(index){
+            $(this).toggleClass("active", index + 1 === activeStep);
         });
     }
-
-    // Show specific step
     function showStep(stepNumber) {
-        // Hide all steps
         $('.step-content').removeClass('active');
-        
-        // Show the selected step
         $(`#step${stepNumber}`).addClass('active');
-        
-        // Update progress indicator
         updateStepProgress(stepNumber);
     }
 
-    // Filter hotels based on selected filters
+    // ---- Hotel Filtering ----
     function filterHotels() {
         const maxPrice = parseInt($('#priceRange').val());
-        const selectedRatings = [];
-        const selectedAmenities = [];
-        
-        // Get selected star ratings
-        $('.star-rating-checkbox:checked').each(function() {
-            selectedRatings.push(parseInt($(this).attr('id').replace('rating', '')));
-        });
-        
-        // Get selected amenities
-        $('.amenities-checkbox:checked').each(function() {
-            selectedAmenities.push($(this).attr('id'));
-        });
-        
-        return hotels.filter(hotel => {
-            // Filter by price
+        const selectedRatings = $('.star-rating-checkbox:checked').map(function(){return parseInt(this.id.replace('rating', ''));}).get();
+        const selectedAmenities = $('.amenities-checkbox:checked').map(function(){return this.id;}).get();
+        return hotels.filter(function(hotel) {
+            if (destination && hotel.location !== destination) return false;
             if (hotel.price > maxPrice) return false;
-            
-            // Filter by star rating
-            if (selectedRatings.length > 0 && !selectedRatings.includes(hotel.rating)) return false;
-            
-            // Filter by amenities
-            if (selectedAmenities.length > 0) {
-                const hasAllAmenities = selectedAmenities.every(amenity => 
-                    hotel.amenities.includes(amenity)
-                );
-                if (!hasAllAmenities) return false;
-            }
-            
+            if (selectedRatings.length && !selectedRatings.includes(hotel.rating)) return false;
+            if (selectedAmenities.length && !selectedAmenities.every(function(amenity){return hotel.amenities.includes(amenity);})) return false;
             return true;
         });
     }
 
-    // Render hotel cards
+    // ---- Render Hotels ----
     function renderHotels() {
         const filteredHotels = filterHotels();
         $('#hotelList').empty();
-        
+        $('#hotelMap').empty();
         if (filteredHotels.length === 0) {
             $('#hotelList').html('<div class="col-12 text-center py-5"><h5>No hotels match your filters</h5><p>Try adjusting your filters</p></div>');
             return;
         }
-        
-        filteredHotels.forEach(hotel => {
+        filteredHotels.forEach(function(hotel){
             const isSelected = selectedHotel && selectedHotel.id === hotel.id;
-            
-            // Generate star rating
             let stars = '';
-            for (let i = 0; i < 5; i++) {
-                stars += i < hotel.rating ? '★' : '☆';
-            }
-            
-            // Generate amenities badges
+            for (let i = 0; i < 5; i++)
+                stars += i < hotel.rating ? '<i class="fas fa-star text-warning"></i>' : '<i class="far fa-star text-warning"></i>';
             let amenitiesHTML = '';
-            hotel.amenities.forEach(amenity => {
+            (hotel.amenities || []).forEach(function(amenity){
                 amenitiesHTML += `<span class="amenity-badge">${amenity}</span>`;
             });
-            
             const hotelCard = $(`
-                <div class="card hotel-card" data-hotel-id="${hotel.id}" ${isSelected ? 'style="border: 2px solid #0d6efd;"' : ''}>
-                    <img src="${hotel.image}" class="hotel-img" alt="${hotel.name}">
+                <div class="card hotel-card mb-4" data-hotel-id="${hotel.id}" ${isSelected ? 'style="border: 2px solid #0d6efd;"' : ''}>
+                    <div id="hotelCarousel-${hotel.id}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            ${hotel.images.map(function(_, index){
+                                return `<button type="button" data-bs-target="#hotelCarousel-${hotel.id}" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" aria-label="Slide ${index+1}"></button>`;
+                            }).join('')}
+                        </div>
+                        <div class="carousel-inner">
+                            ${hotel.images.map(function(image, index){
+                                return `<div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                    <img src="${image}" class="d-block w-100 hotel-img" alt="${hotel.name} - Image ${index+1}">
+                                </div>`;
+                            }).join('')}
+                        </div>
+                        ${hotel.images.length > 1 ?
+                            `<button class="carousel-control-prev d-none" type="button" data-bs-target="#hotelCarousel-${hotel.id}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next d-none" type="button" data-bs-target="#hotelCarousel-${hotel.id}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>` : ''
+                        }
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">${hotel.name}</h5>
-                        <div class="mb-2">
+                        <div class="mb-2 d-none">
                             <span class="text-warning">${stars}</span>
                             <span class="text-muted ms-2">${hotel.reviews} reviews</span>
                         </div>
-                        <p class="card-text text-muted">
-                            <i class="fas fa-map-marker-alt me-2"></i>${hotel.location}
-                        </p>
-                        <div class="hotel-amenities">
-                            ${amenitiesHTML}
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
+                        <p class="card-text text-muted"><i class="fa fa-map-marker-alt me-2"></i>${hotel.location}</p>
+                        <div class="hotel-amenities mb-3">${amenitiesHTML}</div>
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="text-primary mb-0">₹${hotel.price}<small class="text-muted"> /night</small></h4>
                             </div>
-                            <button class="btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} select-hotel-btn">
-                                ${isSelected ? 'Selected' : 'Select'}
+                            <button class="btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} select-hotel-btn" data-hotel-id="${hotel.id}">
+                                ${isSelected ? '<i class="fas fa-check me-1"></i> Selected' : 'Select'}
                             </button>
                         </div>
                     </div>
                 </div>
             `);
-            
+            $('#hotelMap').append(`<a href="${hotel.coordinates}" target="_blank" class="fs-5">Click here</a>`);
+
             $('#hotelList').append(hotelCard);
         });
-
-        // Add event listeners to select hotel buttons
+        
+        // Use event delegation for dynamically created hotel selection buttons
         $('.select-hotel-btn').on('click', function() {
-            const hotelId = parseInt($(this).closest('.hotel-card').data('hotel-id'));
-            selectedHotel = hotels.find(hotel => hotel.id === hotelId);
-            
+            const hotelId = $(this).closest('.hotel-card').data('hotel-id'); // keep as string
+            selectedHotel = hotels.find(hotel => hotel.id == hotelId); // use == for safe match
+
+            if (!selectedHotel) {
+                console.error("Hotel not found for ID:", hotelId, hotels);
+                return;
+            }
+
             // Update all hotel cards and buttons
             $('.hotel-card').css('border', '1px solid #dee2e6')
                 .find('.select-hotel-btn')
                 .removeClass('btn-primary')
                 .addClass('btn-outline-primary')
-                .text('Select');
-            
-            // Update the selected card and button
+                .html('Select');
+
+            // Highlight selected hotel
             $(this).closest('.hotel-card').css('border', '2px solid #0d6efd');
             $(this).removeClass('btn-outline-primary')
                 .addClass('btn-primary')
-                .text('Selected');
-            
-            // Enable continue to rooms button
-            $('#continueToRoomsBtn').prop('disabled', false)
+                .html('<i class="fas fa-check me-1"></i> Selected');
+
+            // Enable continue button
+            $('#continueToRoomsBtn')
+                .prop('disabled', false)
                 .removeClass('btn-disabled')
                 .addClass('btn-primary');
         });
     }
 
-    // Calculate number of nights
+    // ---- Nights Calculation ----
     function calculateNights() {
         if (checkInDate && checkOutDate) {
-            const diffTime = Math.abs(checkOutDate - checkInDate);
-            nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            nights = Math.ceil(Math.abs(checkOutDate - checkInDate)/ (1000 * 60 * 60 * 24));
             return nights;
         }
         return 0;
     }
 
-    // Update booking summary
+    // ---- Booking Summary ----
     function updateBookingSummary() {
         if (checkInDate && checkOutDate) {
             $('#bookingDatesSummary').text(
                 `${formatDate(checkInDate)} - ${formatDate(checkOutDate)} (${calculateNights()} nights)`
             );
         }
-        
         $('#bookingGuestsSummary').text(
             `${adultsCount} Adult${adultsCount !== 1 ? 's' : ''}${childrenCount > 0 ? `, ${childrenCount} Child${childrenCount !== 1 ? 'ren' : ''}` : ''}`
         );
-        
         if (selectedRoom) {
-            $('#selectedRoomType').text(
-                selectedRoom === 'deluxe' ? 'Deluxe King Room' : 
-                selectedRoom === 'executive' ? 'Executive Suite' : 'Twin Room'
-            );
-            
-            $('#selectedRoomPrice').text(`₹${roomPrice} / night`);
+            $('#selectedRoomType').text(selectedRoom.name);
+            $('#selectedRoomPrice').text(`₹${selectedRoom.price} / night`);
             $('#selectedRoomDisplay').show();
-            
-            const subtotal = roomPrice * nights;
+            const subtotal = selectedRoom.price * nights;
             $('#roomSubtotal').text(`₹${subtotal}`);
             $('#bookingTotal').text(`₹${subtotal + 99}`);
-            
             $('#continueToConfirmationBtn').prop('disabled', false);
         }
     }
 
-    // Render room selection
-    function renderRoomSelection() {
-        if (!selectedHotel) return;
-        
-        $('#roomSelectionContainer').empty();
-        
-        // Sample room types
-        const rooms = [
-            {
-                type: 'deluxe',
-                name: 'Deluxe King Room',
-                price: 199,
-                description: 'Spacious room with a king-size bed, work desk, and city views. Perfect for couples or business travelers.',
-                amenities: ['Free WiFi', 'Air Conditioning', 'TV', 'Mini Bar', 'Safe'],
-                image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
+    // ---- Room Availability ----
+    function checkRoomAvailability(roomId, checkIn, checkOut) {
+        return $.ajax({
+            url: 'public/../api/booking/check_availability',
+            type: 'POST',
+            data: {
+                room_id: roomId,
+                check_in: formatDateYMD(checkIn),
+                check_out: formatDateYMD(checkOut)
             },
-            {
-                type: 'executive',
-                name: 'Executive Suite',
-                price: 299,
-                description: 'Luxurious suite with separate living area, premium amenities, and access to the executive lounge.',
-                amenities: ['Free WiFi', 'Air Conditioning', 'TV', 'Mini Bar', 'Safe', 'Lounge Access', 'Complimentary Breakfast'],
-                image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-            },
-            {
-                type: 'twin',
-                name: 'Twin Room',
-                price: 179,
-                description: 'Comfortable room with two single beds, ideal for friends or family traveling together.',
-                amenities: ['Free WiFi', 'Air Conditioning', 'TV', 'Safe'],
-                image: 'https://images.unsplash.com/photo-1566669437687-7040a6926753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80'
-            }
-        ];
-        
-        rooms.forEach(room => {
-            // Generate amenities list
-            let amenitiesHTML = room.amenities.map(amenity => `
-                <div class="d-flex align-items-center mb-2">
-                    <i class="fas fa-check-circle amenity-icon"></i>
-                    <span>${amenity}</span>
-                </div>
-            `).join('');
-            
-            const roomCard = $(`
-                <div class="room-card" data-room-type="${room.type}">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="${room.image}" class="img-fluid rounded" alt="${room.name}">
-                        </div>
-                        <div class="col-md-5">
-                            <h4 class="room-type">${room.name}</h4>
-                            <p>${room.description}</p>
-                            <div class="amenities-container">
-                                ${amenitiesHTML}
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-end d-flex flex-column justify-content-between align-items-end">
-                            <div class="mb-3">
-                                <span class="room-price">₹${room.price}</span>
-                                <span class="text-muted">/night</span>
-                            </div>
-                            <button class="btn btn-outline-primary select-room-btn" data-room="${room.type}">Select Room</button>
-                        </div>
-                    </div>
-                </div>
-            `);
-            
-            $('#roomSelectionContainer').append(roomCard);
-        });
-        
-        // Add event listeners to room selection buttons
-        $('.select-room-btn').on('click', function() {
-            // Remove selected class from all rooms
-            $('.room-card').removeClass('selected');
-            
-            // Add selected class to clicked room
-            $(this).closest('.room-card').addClass('selected');
-            
-            // Update button text
-            $('.select-room-btn').text('Select Room')
-                .removeClass('btn-primary')
-                .addClass('btn-outline-primary');
-            
-            $(this).text('Selected')
-                .removeClass('btn-outline-primary')
-                .addClass('btn-primary');
-            
-            // Set selected room
-            selectedRoom = $(this).data('room');
-            roomPrice = $(this).data('room') === 'deluxe' ? 199 : 
-                    $(this).data('room') === 'executive' ? 299 : 179;
-            
-            // Update booking summary
-            updateBookingSummary();
+            dataType: 'json'
+        }).then(function(response) {
+            return response.available;
+        }).catch(function(){
+            return true;
         });
     }
 
-    // Render hotel reviews
+    // ---- Render Room Selection ----
+    function renderRoomSelection() {
+        if (!selectedHotel) return;
+        $('#roomSelectionContainer').empty();
+        if (!rooms.length) {
+            showNoRoomsMessage();
+            return;
+        }
+        $('#roomSelectionContainer').html('<div class="col-12 text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Checking room availability...</p></div>');
+        const promises = rooms.map(function(room){
+            return checkRoomAvailability(room.id, checkInDate, checkOutDate).then(function(isAvailable){
+                return {room: room, isAvailable: isAvailable};
+            }).catch(function(){
+                return {room: room, isAvailable: true, checkFailed: true};
+            });
+        });
+        Promise.all(promises).then(function(results){
+            $('#roomSelectionContainer').empty();
+            results.forEach(function(obj){ renderRoomCard(obj.room, obj.isAvailable, obj.checkFailed); });
+        });
+    }
+
+    // ---- Render Individual Room Card ----
+    function renderRoomCard(room, isAvailable, checkFailed) {
+        let carouselItems = '', carouselIndicators = '';
+        let roomImages = Array.isArray(room.room_images) ? room.room_images : [room.image];
+        roomImages.forEach(function(image, idx){
+            const imageUrl = image.startsWith('http') ? image : `public/../${image}`;
+            const active = idx === 0 ? 'active' : '';
+            carouselItems += `<div class="carousel-item ${active}"><img src="${imageUrl}" class="d-block w-100" alt="Room Image ${idx+1}"></div>`;
+            carouselIndicators += `<button type="button" data-bs-target="#roomCarousel-${room.id}" data-bs-slide-to="${idx}" class="${active}" aria-label="Slide ${idx+1}"></button>`;
+        });
+        let amenitiesHTML = (room.amenities || []).map(function(amenity){
+            return `<div class="d-flex align-items-center mb-2"><i class="fas fa-check-circle text-success me-2"></i><span>${amenity.replace(/_/g, ' ')}</span></div>`;
+        }).join('');
+        const isSelected = selectedRoom && selectedRoom.id === room.id;
+        const roomCard = $(`
+            <div class="card room-card mb-4 ${isSelected ? 'border-primary' : ''} ${!isAvailable ? 'opacity-50' : ''}" data-room-id="${room.id}" data-available="${isAvailable}">
+                ${!isAvailable ? `<div class="position-absolute top-0 start-0 w-100 bg-warning text-dark p-2 text-center z-1 rounded"><i class="fas fa-exclamation-triangle me-2"></i>Not available for selected dates</div>` : ''}
+                ${checkFailed ? `<div class="position-absolute top-0 start-0 w-100 bg-info text-white p-2 text-center z-1 rounded"><i class="fas fa-info-circle me-2"></i>Availability could not be verified</div>` : ''}
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div id="roomCarousel-${room.id}" class="carousel slide room-carousel" data-bs-ride="carousel">
+                            <div class="carousel-indicators">${carouselIndicators}</div>
+                            <div class="carousel-inner rounded">${carouselItems}</div>
+                            ${roomImages.length > 1 ?
+                                `<button class="carousel-control-prev" style="display: none; width: max-content; margin-left: 1.6rem;" type="button" data-bs-target="#roomCarousel-${room.id}" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" style="display: none; width: max-content; margin-right: 1.6rem;" type="button" data-bs-target="#roomCarousel-${room.id}" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>` : ''
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card-body">
+                            <h4 class="card-title">${room.name}</h4>
+                            <p class="card-text">${room.description}</p>
+                            <div class="amenities-container">${amenitiesHTML}</div>
+                            <p class="card-text mt-2"><small class="text-muted">Up to ${room.guestsAllowed} guests</small></p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-body h-100 d-flex flex-column justify-content-between">
+                            <div class="text-end mb-3">
+                                <span class="h4 text-primary">₹${room.price}</span>
+                                <span class="text-muted">/night</span>
+                            </div>
+                            <button class="btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} ${!isAvailable ? 'disabled' : ''} select-room-btn w-100" data-room-id="${room.id}" ${!isAvailable ? 'disabled' : ''}>
+                                ${!isAvailable ? 'Not Available' : (isSelected ? '<i class="fas fa-check me-1"></i> Selected' : 'Select Room')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+        $('#roomSelectionContainer').append(roomCard);
+        if (isAvailable) {
+            roomCard.find('.select-room-btn').on('click', function() {
+                const roomId = parseInt($(this).data('room-id'));
+                selectedRoom = rooms.find(function(room){return room.id === roomId;});
+                $('.room-card').removeClass('border-primary');
+                $('.select-room-btn').removeClass('btn-primary').addClass('btn-outline-primary').html('Select Room');
+                $(this).closest('.room-card').addClass('border-primary');
+                $(this).removeClass('btn-outline-primary').addClass('btn-primary').html('<i class="fas fa-check me-1"></i> Selected');
+                updateBookingSummary();
+            });
+        }
+    }
+
+    // ---- Reviews ----
     function renderHotelReviews() {
         if (!selectedHotel) return;
-        
         $('#hotelReviewsContainer').empty();
-        
-        // Sample reviews
         const reviews = [
             {
                 author: 'John D.',
@@ -493,231 +530,265 @@ $(document).ready(function() {
                 date: '2025-04-22',
                 rating: 4,
                 comment: 'Very comfortable stay. The staff was friendly and helpful. The only minor issue was the slow WiFi in our room.'
-            },
-            {
-                author: 'Michael T.',
-                date: '2025-03-10',
-                rating: 5,
-                comment: 'One of the best hotels I\'ve stayed at. The executive lounge was fantastic and the views from our room were breathtaking.'
             }
         ];
-        
-        reviews.forEach(review => {
-            // Generate star rating
+        reviews.forEach(function(review){
             let stars = '';
-            for (let i = 0; i < 5; i++) {
-                stars += i < review.rating ? '★' : '☆';
-            }
-            
+            for (let i = 0; i < 5; i++)
+                stars += i < review.rating ? '<i class="fas fa-star text-warning"></i>' : '<i class="far fa-star text-warning"></i>';
             const reviewCard = $(`
-                <div class="review-card">
-                    <div class="d-flex justify-content-between">
-                        <div class="review-author">${review.author}</div>
-                        <div class="text-warning">${stars}</div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">${review.author}</h5>
+                            <div>${stars}</div>
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">${review.date}</h6>
+                        <p class="card-text">${review.comment}</p>
                     </div>
-                    <div class="review-date">${review.date}</div>
-                    <p class="mt-2">${review.comment}</p>
                 </div>
             `);
-            
             $('#hotelReviewsContainer').append(reviewCard);
         });
     }
 
-    // Render hotel amenities
+    // ---- Amenities ----
     function renderHotelAmenities() {
         if (!selectedHotel) return;
-        
         $('#hotelAmenitiesDisplay').empty();
-        
-        const amenities = [
-            { icon: 'wifi', name: 'Free WiFi' },
-            { icon: 'swimming-pool', name: 'Swimming Pool' },
-            { icon: 'parking', name: 'Free Parking' },
-            { icon: 'utensils', name: 'Restaurant' },
-            { icon: 'dumbbell', name: 'Fitness Center' },
-            { icon: 'concierge-bell', name: '24-Hour Front Desk' },
-            { icon: 'cocktail', name: 'Bar/Lounge' },
-            { icon: 'bus', name: 'Airport Shuttle' }
-        ];
-        
-        amenities.forEach(amenity => {
+        const amenities = selectedHotel.amenities || [];
+        if (!amenities.length) {
+            $('#hotelAmenitiesDisplay').html('<p>No amenities listed</p>');
+            return;
+        }
+        amenities.forEach(function(amenity){
+            const amenityName = amenity.replace(/_/g, ' ');
+            const iconClass = getAmenityIcon(amenity);
             const col = $(`
                 <div class="col-md-6 mb-3">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-${amenity.icon} me-3"></i>
-                        <span>${amenity.name}</span>
+                        <i class="${iconClass} me-3 text-primary"></i>
+                        <span>${amenityName}</span>
                     </div>
                 </div>
             `);
-            
             $('#hotelAmenitiesDisplay').append(col);
         });
     }
+    function getAmenityIcon(amenity) {
+        const iconMap = {
+            'wifi': 'fas fa-wifi',
+            'parking': 'fas fa-parking',
+            'pool': 'fas fa-swimming-pool',
+            'ac': 'fas fa-snowflake',
+            'restaurant': 'fas fa-utensils',
+            'fitness': 'fas fa-dumbbell',
+            'air_conditioning': 'fas fa-snowflake',
+            'swimming_pool': 'fas fa-swimming-pool',
+            'fitness_center': 'fas fa-dumbbell',
+            'bar': 'fas fa-glass-martini-alt'
+        };
+        return iconMap[amenity] || 'fas fa-check-circle';
+    }
 
-    // Update confirmation details
+    // ---- Image Slider ----
+    function renderHotelImageSlider() {
+        if (!selectedHotel || !selectedHotel.images) return;
+        $('#hotelImageSlider').empty();
+        const images = selectedHotel.images;
+        const indicators = images.map(function(_, idx){
+            return `<button type="button" data-bs-target="#hotelDetailsCarousel" data-bs-slide-to="${idx}" class="${idx===0?'active':''}" aria-label="Slide ${idx+1}"></button>`;
+        }).join('');
+        const carouselItems = images.map(function(image, idx){
+            return `<div class="carousel-item ${idx===0?'active':''}">
+                <img src="${image}" class="d-block w-100 hotel-detail-img" alt="${selectedHotel.name} - Image ${idx+1}">
+            </div>`;
+        }).join('');
+        const navigationControls = images.length > 1 ?
+            `<button class="carousel-control-prev d-none ms-5" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev" style="background: none;">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next d-none me-5" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next" style="background: none;">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>` : '';
+        const carouselHTML = `
+            <div id="hotelDetailsCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-indicators">${indicators}</div>
+                <div class="carousel-inner rounded">${carouselItems}</div>
+                ${navigationControls}
+            </div>
+        `;
+        $('#hotelImageSlider').html(carouselHTML);
+    }
+
+    // ---- Confirmation Details ----
     function updateConfirmationDetails() {
         $('#confirmationHotelName').text(selectedHotel.name);
-        $('#confirmationDates').text(
-            `${formatDate(checkInDate)} - ${formatDate(checkOutDate)} (${calculateNights()} nights)`
-        );
-        $('#confirmationRoomType').text(
-            selectedRoom === 'deluxe' ? 'Deluxe King Room' : 
-            selectedRoom === 'executive' ? 'Executive Suite' : 'Twin Room'
-        );
+        $('#confirmationDates').text(`${formatDate(checkInDate)} - ${formatDate(checkOutDate)} (${calculateNights()} nights)`);
+        $('#confirmationRoomType').text(selectedRoom.name);
         $('#confirmationGuests').text(
             `${adultsCount} Adult${adultsCount !== 1 ? 's' : ''}${childrenCount > 0 ? `, ${childrenCount} Child${childrenCount !== 1 ? 'ren' : ''}` : ''}`
         );
-        
-        const subtotal = roomPrice * nights;
+        const subtotal = selectedRoom.price * nights;
         $('#confirmationTotal').text(`₹${subtotal + 99}`);
     }
 
-    // Event listeners
-    $('#prevMonth').on('click', () => {
+    // ---- Submit Booking ----
+    function submitBooking(callback) {
+        const formData = {
+            hotel_id: selectedHotel.id,
+            room_id: selectedRoom.id,
+            check_in: formatDateYMD(checkInDate),
+            check_out: formatDateYMD(checkOutDate),
+            adults: adultsCount,
+            children: childrenCount,
+            total_price: calculateTotalAmount()
+        };
+        $.ajax({
+            url: 'public/../api/booking/add',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response && response.success) {
+                    callback(response.booking_id || response.booking_ref);
+                } else {
+                    showToast('Error', response.message || 'Booking failed', 'error');
+                    callback(null);
+                }
+            },
+            error: function(xhr, status, error) {
+                showToast('Error', 'Network error. Please try again.', 'error');
+                callback(null);
+            }
+        });
+    }
+
+    // ---- Payment Calculation ----
+    function calculateTotalAmount() {
+        if (!selectedRoom) return 0;
+        const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+        const numberOfNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        if (numberOfNights <= 0) return 0;
+        const roomPrice = selectedRoom.price || 0;
+        return (roomPrice * numberOfNights) + 99;
+    }
+
+    // ---- Event Listeners ----
+    $('#prevMonth').on('click', function(){
         currentDate.setMonth(currentDate.getMonth() - 1);
         renderCalendar();
     });
-
-    $('#nextMonth').on('click', () => {
+    $('#nextMonth').on('click', function(){
         currentDate.setMonth(currentDate.getMonth() + 1);
         renderCalendar();
     });
-
-    $('#guestSelector').on('click', function(e) {
+    $('#guestSelector').on('click', function(e){
         e.stopPropagation();
         $('#guestDropdown').toggle();
     });
-
-    $('#decreaseAdults').on('click', function(e) {
+    $('#decreaseAdults').on('click', function(e){
         e.stopPropagation();
         if (adultsCount > 1) {
             adultsCount--;
             $('#adultCount').text(adultsCount);
+            updateGuestDisplay();
         }
     });
-
-    $('#increaseAdults').on('click', function(e) {
+    $('#increaseAdults').on('click', function(e){
         e.stopPropagation();
         adultsCount++;
         $('#adultCount').text(adultsCount);
+        updateGuestDisplay();
     });
-
-    $('#decreaseChildren').on('click', function(e) {
+    $('#decreaseChildren').on('click', function(e){
         e.stopPropagation();
         if (childrenCount > 0) {
             childrenCount--;
             $('#childCount').text(childrenCount);
+            updateGuestDisplay();
         }
     });
-
-    $('#increaseChildren').on('click', function(e) {
+    $('#increaseChildren').on('click', function(e){
         e.stopPropagation();
         childrenCount++;
         $('#childCount').text(childrenCount);
+        updateGuestDisplay();
     });
-
-    $('#applyGuests').on('click', function(e) {
+    $('#applyGuests').on('click', function(e){
         e.stopPropagation();
         updateGuestDisplay();
         $('#guestDropdown').hide();
     });
-
-    // Destination select change handler
-    $('#destinationSelect').on('change', function() {
+    $('#destinationSelect').on('change', function(){
+        destination = $(this).val();
         updateContinueButton();
-    });
-
-    // Continue button click handler (Step 1 -> Step 2)
-    $('#continueBtn').on('click', function(e) {
-        e.preventDefault();
-        
-        // Validate all required fields
-        if (!$('#destinationSelect').val()) {
-            alert("Please select a destination");
-            return;
-        }
-        
-        if (!checkInDate || !checkOutDate) {
-            alert("Please select both check-in and check-out dates");
-            return;
-        }
-        
-        // Save destination
-        destination = $('#destinationSelect').val();
-        $('#destinationDisplay').text(destination);
-        
-        // Update booking details display
-        updateBookingDetailsDisplay();
-        
-        // Show step 2
-        showStep(2);
-        
-        // Render hotels
         renderHotels();
     });
-
-    // Back to dates button (Step 2 -> Step 1)
-    $('#backToDatesBtn').on('click', function(e) {
+    $('#continueBtn').on('click', function(e){
+        e.preventDefault();
+        if (!$('#destinationSelect').val()) {
+            showToast('Error', "Please select a destination", 'error');
+            return;
+        }
+        if (!checkInDate || !checkOutDate) {
+            showToast('Error', "Please select both check-in and check-out dates", 'error');
+            return;
+        }
+        destination = $('#destinationSelect').val();
+        $('#destinationDisplay').text(destination);
+        updateBookingDetailsDisplay();
+        showStep(2);
+        renderHotels();
+    });
+    $('#backToDatesBtn').on('click', function(e){
         e.preventDefault();
         showStep(1);
     });
-
-    // Continue to rooms button (Step 2 -> Step 3)
-    $('#continueToRoomsBtn').on('click', function(e) {
+    $('#continueToRoomsBtn').on('click', function(e){
         e.preventDefault();
-        
-        if (!selectedHotel) {
-            alert("Please select a hotel first");
-            return;
-        }
-        
-        // Update hotel details display
+        // if (!selectedHotel) {
+        //     showToast('Error', "Please select a hotel first", 'error');
+        //     return;
+        // }
+        fetchRooms(selectedHotel.id);
         $('#hotelNameDisplay').text(selectedHotel.name);
         $('#hotelLocationDisplay').text(selectedHotel.location);
-        $('#hotelDescriptionDisplay').text(
-            `Experience luxury and comfort at ${selectedHotel.name}. Our ${selectedHotel.rating}-star hotel offers exceptional service and world-class amenities.`
-        );
-        
-        // Render room selection and other hotel details
-        renderRoomSelection();
+        $('#hotelDescriptionDisplay').text(selectedHotel.description || `Experience luxury and comfort at ${selectedHotel.name}.`);
+        renderHotelImageSlider();
         renderHotelAmenities();
         renderHotelReviews();
-        
-        // Show step 3
         showStep(3);
-        
-        // Update booking summary
         updateBookingSummary();
     });
-
-    // Back to hotels button (Step 3 -> Step 2)
-    $('#backToHotelsBtn').on('click', function(e) {
+    $('#backToHotelsBtn').on('click', function(e){
         e.preventDefault();
         showStep(2);
     });
-
-    // Continue to confirmation button (Step 3 -> Step 4)
-    $('#continueToConfirmationBtn').on('click', function(e) {
+    $('#continueToConfirmationBtn').on('click', function(e){
         e.preventDefault();
-        
         if (!selectedRoom) {
-            alert("Please select a room first");
+            showToast('Error', "Please select a room first", 'error');
             return;
         }
-        
-        // Update confirmation details
         updateConfirmationDetails();
-        
-        // Show step 4
-        showStep(4);
+        const totalAmount = calculateTotalAmount();
+        if (totalAmount > 0) {
+            submitBooking(function(bookingRef){
+                if (bookingRef) {
+                    initializeRazorpayPayment(totalAmount, bookingRef);
+                } else {
+                    showToast('Error', 'Failed to create booking. Please try again.', 'error');
+                }
+            });
+        } else {
+            showToast('Error', "Invalid booking amount", 'error');
+        }
     });
-
-    // Back to home button (Step 4 -> Step 1)
-    $('#backToHomeBtn').on('click', function(e) {
+    $('#backToHomeBtn').on('click', function(e){
         e.preventDefault();
-        
-        // Reset all selections
         checkInDate = null;
         checkOutDate = null;
         adultsCount = 1;
@@ -725,63 +796,151 @@ $(document).ready(function() {
         destination = "";
         selectedHotel = null;
         selectedRoom = null;
-        roomPrice = 0;
         nights = 0;
-        
-        // Reset UI elements
+        rooms = [];
         $('#checkInDate').text("Select date");
         $('#checkOutDate').text("Select date");
-        $('#guestDisplay').text("1 Adults, 0 Children");
+        $('#guestDisplay').text("1 Adult, 0 Children");
         $('#adultCount').text("1");
         $('#childCount').text("0");
         $('#destinationSelect').val("");
         $('#selectedRoomDisplay').hide();
-        $('#continueToRoomsBtn').prop('disabled', true)
-            .addClass('btn-disabled')
-            .removeClass('btn-primary');
+        $('#continueToRoomsBtn').prop('disabled', true).addClass('btn-disabled').removeClass('btn-primary');
         $('#continueToConfirmationBtn').prop('disabled', true);
-        
-        // Show step 1
-        showStep(1);
-        
-        // Re-render calendar
+        window.location.href = "booking";
         renderCalendar();
     });
-
-    // Price range slider live update
-    $('#priceRange').on('input', function() {
+    $('#priceRange').on('input', function(){
         $('#priceRangeValue').text($(this).val());
-        renderHotels(); // Live filtering
-    });
-
-    // Star rating and amenities filter changes
-    $('.star-rating-checkbox, .amenities-checkbox').on('change', function() {
-        renderHotels(); // Live filtering
-    });
-
-    // Reset filters button
-    $('#resetFilters').on('click', function() {
-        // Reset all checkboxes
-        $('.star-rating-checkbox, .amenities-checkbox').prop('checked', false);
-        
-        // Reset price range
-        $('#priceRange').val(750);
-        $('#priceRangeValue').text('750');
-        
-        // Re-render hotels
         renderHotels();
     });
-
-    // Close guest dropdown when clicking outside
-    $(document).on('click', function(e) {
+    $('.star-rating-checkbox, .amenities-checkbox').on('change', function(){
+        renderHotels();
+    });
+    $('#resetFilters').on('click', function(){
+        $('.star-rating-checkbox, .amenities-checkbox').prop('checked', false);
+        $('#priceRange').val(5000);
+        $('#priceRangeValue').text('5000');
+        renderHotels();
+    });
+    $(document).on('click', function(e){
         if (!$(e.target).closest('#guestSelector, #guestDropdown').length) {
             $('#guestDropdown').hide();
         }
     });
 
-    // Initialize
+    // ---- Razorpay Payment ----
+    function initializeRazorpayPayment(amount, bookingRef) {
+        if (amount < 1) {
+            showToast('Error', 'Invalid payment amount', 'error');
+            return;
+        }
+        $.ajax({
+            url: "public/../api/booking/razorpay",
+            method: "POST",
+            data: { 
+                amount: amount,
+                currency: "INR",
+                booking_id: bookingRef
+            },
+            success: function(response) {
+                if(response.status === "success") {
+                    var options = {
+                        "key": response.key,
+                        "amount": response.amount,
+                        "currency": response.currency,
+                        "name": "TNBooking.in",
+                        "description": "Booking Payment for " + bookingRef,
+                        "order_id": response.order_id,
+                        "handler": function (paymentResponse){
+                            verifyPayment(paymentResponse, amount, bookingRef);
+                        },
+                        "prefill": {
+                            "name": "Self",
+                            "email": "Self"
+                        },
+                        "theme": { "color": "#3399cc" },
+                        "modal": {
+                            "ondismiss": function() {
+                                showToast('Info', 'Payment cancelled', 'info');
+                            }
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    showToast('Error', response.message || 'Payment initialization failed', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                showToast('Error', 'Payment initialization failed. Please try again.', 'error');
+            }
+        });
+    }
+    function verifyPayment(paymentResponse, amount, bookingRef) {
+        $.post("public/../api/booking/verify", {
+            razorpay_payment_id: paymentResponse.razorpay_payment_id,
+            razorpay_order_id: paymentResponse.razorpay_order_id,
+            razorpay_signature: paymentResponse.razorpay_signature,
+            amount: amount,
+            booking_id: bookingRef
+        }, function(response) {
+            if (response.status === 'success') {
+                showToast('Success', 'Payment successful! Booking confirmed.', 'success');
+                $('#confirmationBookingRef').text(bookingRef);
+                updateConfirmationDetails();
+                showStep(4);
+            } else {
+                showToast('Error', 'Payment verification failed: ' + (response.message || 'Unknown error'), 'error');
+            }
+        }).fail(function(xhr){
+            try {
+                const response = JSON.parse(xhr.responseText);
+                showToast('Error', 'Payment verification failed: ' + (response.message || 'Network error'), 'error');
+            } catch (e) {
+                showToast('Error', 'Payment verification failed. Please contact support.', 'error');
+            }
+        });
+    }
+
+    // ---- Toast Notification ----
+    function showToast(title, message, type) {
+        $('.toast-container').remove();
+        if ($('.toast-container').length === 0) {
+            $('body').append('<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;"></div>');
+        }
+        const toastId = 'toast-' + Date.now();
+        const toastHtml = `
+            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            </div>
+        `;
+        $('.toast-container').append(toastHtml);
+        const toastElement = $('#' + toastId);
+        if (type === 'success') {
+            toastElement.find('.toast-header').addClass('bg-success text-white');
+        } else if (type === 'error') {
+            toastElement.find('.toast-header').addClass('bg-danger text-white');
+        } else if (type === 'warning') {
+            toastElement.find('.toast-header').addClass('bg-warning text-dark');
+        } else {
+            toastElement.find('.toast-header').addClass('bg-info text-white');
+        }
+        const toast = new bootstrap.Toast(toastElement, {autohide: true, delay: 5000});
+        toast.show();
+        toastElement.on('hidden.bs.toast', function () {
+            $(this).remove();
+        });
+    }
+
+    // ---- Initialization ----
     renderCalendar();
     updateGuestDisplay();
     updateContinueButton();
     showStep(1);
+    fetchHotels();
 });
