@@ -6,6 +6,7 @@
         Session::get('session_token') &&
         Session::get('session_type')  == 'user' &&
         Session::get('username') &&
+        Session::get('contact') &&
         Session::get('sms_verified') == 'verified'
     ) {
         header("Location: " . $_SERVER["REQUEST_URI"] . "../");
@@ -14,9 +15,10 @@
         !Session::get('session_token') &&
         !Session::get('session_type')  == 'user' &&
         !Session::get('username') &&
+        !Session::get('contact') &&
         !Session::get('sms_verified') == 'verified'
     ) {
-        header("Location: " . $_SERVER["REQUEST_URI"] . "../");
+        header("Location: " . $_SERVER["REQUEST_URI"] . "/../index");
 		exit;
     }
 
@@ -208,9 +210,9 @@
                                 Swal.fire("Error","Failed to resend OTP.","error");
                             }
                         },
-                        error: function(){
+                        error: function(xhr, status, error){
                             Swal.close();
-                            Swal.fire("Error","Something went wrong.","error");
+                            Swal.fire("Error", xhr.message || "Something went wrong.","error");
                         }
                     });
                 });

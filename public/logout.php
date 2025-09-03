@@ -7,16 +7,16 @@
             $Session = new UserSession(Session::get("session_token"));
             if ($Session->removeSession()) {
                 Session::destroy();
-                header("Location: " . $_SERVER["REQUEST_URI"] . "../");
+                header("Location: index/../");
                 exit;
             } else {
                 Session::destroy();
-                header("Location: " . $_SERVER["REQUEST_URI"] . "../");
+                header("Location: index/../");
                 exit;
             }
         }
     }
     Session::destroy();
-    header("Location: " . $_SERVER["REQUEST_URI"] . "../");
+    header("Location: index/../");
     exit;
 ?>

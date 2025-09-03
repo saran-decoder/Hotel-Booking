@@ -109,36 +109,43 @@ class Verification
         $smsCode = sprintf("%06d", random_int(0, 999999));
         
         date_default_timezone_set('Asia/Kolkata'); // ensure correct timezone
+
+        // Generate same digits pairs OTP (6-digit for example)
+        $pairs = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
+
+        shuffle($pairs);
+        $otp = $pairs[0] . $pairs[1] . $pairs[2];
+
         // Set expiry time (10 minutes from now)
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-        
+        $expires_at = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
         // Store in database
         $query = "INSERT INTO `verification` (`user_id`, `phone`, `sms_code`, `sms_code_expires`, `created_at`) 
-                  VALUES ('$userId', '$phone', '$smsCode', '$expiresAt', NOW())
-                  ON DUPLICATE KEY UPDATE 
-                  `sms_code` = '$smsCode', 
-                  `sms_code_expires` = '$expiresAt',
-                  `sms_verified` = 0";
-        
+                VALUES ('$userId', '$phone', '$otp', '$expires_at', NOW())
+                ON DUPLICATE KEY UPDATE 
+                `sms_code` = '$otp', 
+                `sms_code_expires` = '$expires_at',
+                `sms_verified` = 0";
+                
         if ($conn->query($query)) {
             // Compose the SMS message
-            $message = "Your TNBooking verification code is: $smsCode. This code will expire in 5 minutes.";
-            
-            // Build the API URL (using your existing SMS gateway)
-            $smsUrl = "https://port1.bmindz.com/pushapi/sendbulkmsg?" . http_build_query([
+            $message = "The one time password for your account is $otp. Please use the password to verify the account. Thanks! - XLoan India ZEDUAPP";
+
+            // Build the API URL
+            $sms_url = "https://port1.bmindz.com/pushapi/sendbulkmsg?" . http_build_query([
                 'username'   => 'zeduvpy',
                 'dest'       => $phone,
                 'apikey'     => '4QxHXhEEDfbFKVtZjtsYCPp4ioB0gDcN',
-                'signature'  => 'TNBOOK',
+                'signature'  => 'ZEDUAP',
                 'msgtype'    => 'PM',
                 'msgtxt'     => $message,
                 'entityid'   => '1201160360592377078',
                 'templateid' => '1207167361765622697'
             ]);
-            
-            // Send the SMS
-            file_get_contents($smsUrl);
-            
+
+            // Send the SMS using file_get_contents (or use cURL)
+            file_get_contents($sms_url);
+
             return true;
         } else {
             error_log("Database error: " . $conn->error);
