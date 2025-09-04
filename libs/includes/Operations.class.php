@@ -90,8 +90,50 @@ class Operations
                 LEFT JOIN rooms r ON h.id = r.hotel_id";
 
         $result = $conn->query($sql);
-
-        return $result->fetch_all(MYSQLI_ASSOC);
+        
+        // Process the flat result into a hierarchical structure
+        $hotels = [];
+        while ($row = $result->fetch_assoc()) {
+            $hotelId = $row['id'];
+            
+            // If this hotel hasn't been added yet, add it
+            if (!isset($hotels[$hotelId])) {
+                $hotels[$hotelId] = [
+                    'hotel_id' => $row['id'],
+                    'hotel_owner' => $row['hotel_owner'],
+                    'hotel_name' => $row['hotel_name'],
+                    'hotel_location_name' => $row['hotel_location_name'],
+                    'hotel_coordinates' => $row['hotel_coordinates'],
+                    'hotel_address' => $row['hotel_address'],
+                    'hotel_description' => $row['hotel_description'],
+                    'hotel_amenities' => $row['hotel_amenities'],
+                    'hotel_images' => $row['hotel_images'],
+                    'hotel_created_at' => $row['hotel_created_at'],
+                    'hotel_updated_at' => $row['hotel_updated_at'],
+                    'rooms' => []  // Initialize empty rooms array
+                ];
+            }
+            
+            // Add room if it exists (LEFT JOIN might return NULL room values)
+            if ($row['room_id']) {
+                $hotels[$hotelId]['rooms'][] = [
+                    'room_id' => $row['room_id'],
+                    'room_hotel_id' => $row['room_hotel_id'],
+                    'room_type' => $row['room_type'],
+                    'guests_allowed' => $row['guests_allowed'],
+                    'room_description' => $row['room_description'],
+                    'price_per_night' => $row['price_per_night'],
+                    'room_amenities' => $row['room_amenities'],
+                    'room_images' => $row['room_images'],
+                    'room_status' => $row['room_status'],
+                    'room_created_at' => $row['room_created_at'],
+                    'room_updated_at' => $row['room_updated_at']
+                ];
+            }
+        }
+        
+        // Convert associative array to indexed array
+        return array_values($hotels);
     }
 
     public static function getHotelRooms($hotelId = null)
@@ -168,9 +210,50 @@ class Operations
         
         $stmt->execute();
         $result = $stmt->get_result();
-
-        // Convert to array
-        return $result->fetch_all(MYSQLI_ASSOC);
+        
+        // Process the flat result into a hierarchical structure
+        $hotels = [];
+        while ($row = $result->fetch_assoc()) {
+            $hotelId = $row['hotel_id'];
+            
+            // If this hotel hasn't been added yet, add it
+            if (!isset($hotels[$hotelId])) {
+                $hotels[$hotelId] = [
+                    'hotel_id' => $row['hotel_id'],
+                    'hotel_owner' => $row['hotel_owner'],
+                    'hotel_name' => $row['hotel_name'],
+                    'hotel_location_name' => $row['hotel_location_name'],
+                    'hotel_coordinates' => $row['hotel_coordinates'],
+                    'hotel_address' => $row['hotel_address'],
+                    'hotel_description' => $row['hotel_description'],
+                    'hotel_amenities' => $row['hotel_amenities'],
+                    'hotel_images' => $row['hotel_images'],
+                    'hotel_created_at' => $row['hotel_created_at'],
+                    'hotel_updated_at' => $row['hotel_updated_at'],
+                    'rooms' => []  // Initialize empty rooms array
+                ];
+            }
+            
+            // Add room if it exists (LEFT JOIN might return NULL room values)
+            if ($row['room_id']) {
+                $hotels[$hotelId]['rooms'][] = [
+                    'room_id' => $row['room_id'],
+                    'room_hotel_id' => $row['room_hotel_id'],
+                    'room_type' => $row['room_type'],
+                    'guests_allowed' => $row['guests_allowed'],
+                    'room_description' => $row['room_description'],
+                    'price_per_night' => $row['price_per_night'],
+                    'room_amenities' => $row['room_amenities'],
+                    'room_images' => $row['room_images'],
+                    'room_status' => $row['room_status'],
+                    'room_created_at' => $row['room_created_at'],
+                    'room_updated_at' => $row['room_updated_at']
+                ];
+            }
+        }
+        
+        // Convert associative array to indexed array
+        return array_values($hotels);
     }
     public static function getHotelDetails($hotelId)
     {
@@ -209,8 +292,47 @@ class Operations
         $stmt->bind_param("is", $hotelId, $username);
         $stmt->execute();
         $result = $stmt->get_result();
-
-        return $result->fetch_all(MYSQLI_ASSOC);
+        
+        // Process the flat result into a hierarchical structure
+        $hotel = null;
+        while ($row = $result->fetch_assoc()) {
+            // If hotel data hasn't been set yet, set it
+            if ($hotel === null) {
+                $hotel = [
+                    'hotel_id' => $row['hotel_id'],
+                    'hotel_owner' => $row['hotel_owner'],
+                    'hotel_name' => $row['hotel_name'],
+                    'hotel_location_name' => $row['hotel_location_name'],
+                    'hotel_coordinates' => $row['hotel_coordinates'],
+                    'hotel_address' => $row['hotel_address'],
+                    'hotel_description' => $row['hotel_description'],
+                    'hotel_amenities' => $row['hotel_amenities'],
+                    'hotel_images' => $row['hotel_images'],
+                    'hotel_created_at' => $row['hotel_created_at'],
+                    'hotel_updated_at' => $row['hotel_updated_at'],
+                    'rooms' => []  // Initialize empty rooms array
+                ];
+            }
+            
+            // Add room if it exists (LEFT JOIN might return NULL room values)
+            if ($row['room_id']) {
+                $hotel['rooms'][] = [
+                    'room_id' => $row['room_id'],
+                    'room_hotel_id' => $row['room_hotel_id'],
+                    'room_type' => $row['room_type'],
+                    'guests_allowed' => $row['guests_allowed'],
+                    'room_description' => $row['room_description'],
+                    'price_per_night' => $row['price_per_night'],
+                    'room_amenities' => $row['room_amenities'],
+                    'room_images' => $row['room_images'],
+                    'room_status' => $row['room_status'],
+                    'room_created_at' => $row['room_created_at'],
+                    'room_updated_at' => $row['room_updated_at']
+                ];
+            }
+        }
+        
+        return $hotel;
     }
 
     public static function getHotel($id = '')

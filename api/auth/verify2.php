@@ -2,30 +2,39 @@
 
 ${basename(__FILE__, '.php')} = function () {
     if ($this->paramsExists(['contact', 'otp'])) {
-        $conn = Database::getConnection();
         $phone = $this->_request['contact'];
-        $qry = $conn->query("SELECT `id` FROM `users` WHERE `phone` = '$phone'")->fetch_array();
-        $userId = $qry["id"];
-        $code     = $this->_request['otp'];
+        $otp = $this->_request['otp'];
+        
+        // Check if user exists
+        $conn = Database::getConnection();
+        $result = $conn->query("SELECT `id` FROM `users` WHERE `phone` = '$phone'");
+        
+        if ($result && $result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $userId = $user["id"];
+            $verified = Verification::verifySMSCode($phone, $otp, $userId);
+        } else {
+            // New user verification
+            $verified = Verification::verifySMSCode($phone, $otp, 0);
+        }
 
-        $verified = Verification::verifySMSCode($userId, $code);
-
-        if ($verified === true) {
+        if ($verified) {
             $this->response($this->json([
-                'message' => 'OTP Verified Successfully',
-                'status'  => true
+                'status' => true,
+                'message' => 'OTP verified successfully',
+                'user_exists' => isset($user["id"])
             ]), 200);
         } else {
             $this->response($this->json([
-                'message' => 'OTP Verification Failed: ' . $verified,
-                'status'  => false,
-                'debug'   => $verified
+                'status' => false,
+                'message' => 'Invalid or expired OTP'
             ]), 401);
         }
 
     } else {
         $this->response($this->json([
-            'message' => 'Bad Request. Required fields: username, otp'
+            'message' => 'Bad request. Contact and OTP required.',
+            'status' => false
         ]), 400);
     }
 };

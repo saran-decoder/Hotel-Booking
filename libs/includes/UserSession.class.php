@@ -65,29 +65,34 @@ class UserSession
         return false;
     }
 
-    public static function authenticateUser($user, $pass)
+    public static function authenticateUser($phone)
     {
-        $phone = $user;
-        $username = User::login($user, $pass);
-        if ($username) {
-            $user = new User($username);
-            $conn = Database::getConnection();
-            $ip = $_SERVER['REMOTE_ADDR'];
-            $agent = $_SERVER['HTTP_USER_AGENT'];
+        // First try to login
+        $username = User::login($phone);
+        
+        // If user doesn't exist, create a temporary username
+        if (!$username) {
+            $username = "user_" . substr($phone, -4) . "_" . time();
+        }
+        
+        $user = new User($username);
+        $conn = Database::getConnection();
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $agent = $_SERVER['HTTP_USER_AGENT'];
 
-            $token = md5(random_int(0, 9999999) . $ip . $agent . time());
-            $sql = "INSERT INTO `session` (`uid`, `token`, `login_time`, `ip`, `user_agent`, `active`, `type`)
-                    VALUES ('$user->id', '$token', now(), '$ip', '$agent', '1', 'user')";
-            if ($conn->query($sql)) {
-                // Set session
-                Session::set('session_token', $token);
-                Session::set('session_type', 'user');
-                Session::set('username', $username);
-                Session::set('contact', $phone);
-                Session::set('user_id', $user->id);
-                Verification::sendSMSVerification($phone, $user->id);
-                return $token;
-            }
+        $token = md5(random_int(0, 9999999) . $ip . $agent . time());
+        $sql = "INSERT INTO `session` (`uid`, `token`, `login_time`, `ip`, `user_agent`, `active`, `type`)
+                VALUES ('$user->id', '$token', now(), '$ip', '$agent', '1', 'user')";
+        
+        if ($conn->query($sql)) {
+            // Set session
+            Session::set('session_token', $token);
+            Session::set('session_type', 'user');
+            Session::set('username', $username);
+            Session::set('contact', $phone);
+            Session::set('user_id', $user->id);
+            
+            return $token;
         }
 
         return false;

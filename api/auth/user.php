@@ -1,11 +1,10 @@
 <?php
 
 ${basename(__FILE__, '.php')} = function () {
-    if ($this->paramsExists(['user', 'password'])) {
-        $user = $this->_request['user'];
-        $pass = $this->_request['password'];
+    if ($this->paramsExists(['phone'])) {
+        $phone = $this->_request['phone'];
 
-        $token = UserSession::authenticateUser($user, $pass);
+        $token = UserSession::authenticateUser($phone);
         if ($token) {
             $this->response($this->json([
                 'message' => 'Authenticated',

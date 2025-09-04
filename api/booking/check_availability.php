@@ -1,13 +1,6 @@
 <?php
 
 ${basename(__FILE__, '.php')} = function () {
-    if ($this->get_request_method() != "POST") {
-        $this->response($this->json([
-            'message' => 'Method Not Allowed'
-        ]), 405);
-        return;
-    }
-
     if ($this->paramsExists(['room_id', 'check_in', 'check_out'])) {
         $room_id = $this->_request['room_id'];
         $check_in = $this->_request['check_in'];
@@ -25,7 +18,8 @@ ${basename(__FILE__, '.php')} = function () {
     } else {
         $this->response($this->json([
             'success' => false,
-            'message' => "Bad Request - Missing required parameters"
+            'message' => "Bad Request - Missing required parameters",
+            'error' => $availability . ' / ' . $room_id . ' / ' . $check_in . ' / ' . $check_out
         ]), 400);
     }
 };

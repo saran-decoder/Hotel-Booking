@@ -41,7 +41,6 @@
                     </a>
                 <?php } else { ?>
                     <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
-                    <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#authModal" onclick="showTab('register')">Register</button>
                 <?php } ?>
             </div>
         </div>
