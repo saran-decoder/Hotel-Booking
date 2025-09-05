@@ -225,7 +225,7 @@ class Admin
         }
     }
 
-    public static function addHotel($owner, $name, $location, $coordinates, $address, $description, $amenities, $images)
+    public static function addHotel($owner, $name, $location, $coordinates, $address, $description, $price, $amenities, $images)
     {
         $conn = Database::getConnection();
         
@@ -236,10 +236,10 @@ class Admin
 
             // Insert hotel with all data in one table
             $stmt = $conn->prepare("INSERT INTO hotels 
-                (owner, name, location_name, coordinates, address, description, amenities, images) 
+                (owner, name, location_name, coordinates, address, description, price, amenities, images) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-            $stmt->bind_param("ssssssss", $owner, $name, $location, $coordinates, $address, $description, $amenitiesJson, $imagesJson);
+            $stmt->bind_param("sssssssss", $owner, $name, $location, $coordinates, $address, $description, $price, $amenitiesJson, $imagesJson);
 
             if (!$stmt->execute()) {
                 throw new Exception("Failed to insert hotel: " . $stmt->error);
@@ -255,7 +255,7 @@ class Admin
             return false;
         }
     }
-    public static function updateHotel($id, $name, $location, $coordinates, $address, $description, $amenities, $newImages = [], $imagesToDelete = [])
+    public static function updateHotel($id, $name, $location, $coordinates, $address, $description, $price, $amenities, $newImages = [], $imagesToDelete = [])
     {
         $conn = Database::getConnection();
         
@@ -310,8 +310,8 @@ class Admin
             $amenitiesJson = json_encode($amenities, JSON_UNESCAPED_SLASHES);
             
             // Update hotel
-            $stmt = $conn->prepare("UPDATE hotels SET name = ?, location_name = ?, coordinates = ?, address = ?, description = ?, amenities = ?, images = ? WHERE id = ?");
-            $stmt->bind_param("sssssssi", $name, $location, $coordinates, $address, $description, $amenitiesJson, $imagesJson, $id);
+            $stmt = $conn->prepare("UPDATE hotels SET name = ?, location_name = ?, coordinates = ?, address = ?, description = ?, price = ?, amenities = ?, images = ? WHERE id = ?");
+            $stmt->bind_param("ssssssssi", $name, $location, $coordinates, $address, $description, $price, $amenitiesJson, $imagesJson, $id);
             
             if (!$stmt->execute()) {
                 throw new Exception("Failed to update hotel: " . $stmt->error);

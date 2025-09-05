@@ -836,7 +836,7 @@ $(document).ready(function () {
         let unavailableMessage = 'Not available for selected dates';
         if (!isAvailable && availabilityResult.response && availabilityResult.response.details && availabilityResult.response.details.length > 0) {
             const detail = availabilityResult.response.details[0];
-            unavailableMessage = `Booked until ${detail.check_out} by ${detail.booked_by}`;
+            unavailableMessage = `Booked until ${detail.check_out}`;
         }
 
         const card = $(`

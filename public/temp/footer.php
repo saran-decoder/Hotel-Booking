@@ -73,7 +73,7 @@
                 <form id="mobileForm" autocomplete="off">
                     <div class="mb-3">
                         <label for="loginPhone" class="form-label">Mobile Number</label>
-                        <input type="text" class="form-control" id="loginPhone" required pattern="[0-9]{10}" />
+                        <input type="tel" class="form-control" id="loginPhone" required pattern="[0-9]{10}" maxlength="10">
                         <div class="invalid-feedback">Please enter a valid 10-digit mobile number.</div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Send OTP</button>

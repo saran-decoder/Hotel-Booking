@@ -93,35 +93,56 @@ class Verification
                 $dbCode = trim($row['email_code']);
                 $expiryTimestamp = strtotime($row['email_code_expires']);
 
-                if ($dbCode === $code && time() <= $expiryTimestamp) {
-                    $update = $conn->query("UPDATE `verification` SET `email_verified` = 1, `verified_at` = NOW() WHERE `email` = '$email' AND `user_id` = '$userId'");
-                    if ($update) {
-                        Session::set('email_verified', 'verified');
-                        return true;
-                    } else {
-                        return "Failed to update verification status.";
-                    }
+                // Validate expiry time
+                if ($expiryTimestamp === false) {
+                    return "Invalid expiry timestamp in database.";
+                }
+
+                if (time() > $expiryTimestamp) {
+                    return "Verification code expired. Please request a new one.";
+                }
+
+                if ($dbCode !== $code) {
+                    return "Invalid verification code.";
+                }
+
+                $update = $conn->query("UPDATE `verification` SET `email_verified` = 1, `verified_at` = NOW() WHERE `email` = '$email' AND `user_id` = '$userId'");
+                if ($update) {
+                    Session::set('email_verified', 'verified');
+                    return true;
                 } else {
-                    return "Invalid or expired code.";
+                    return "Failed to update verification status.";
                 }
             } else {
                 return "Verification record not found.";
             }
         } else {
             // New user - check session
-            if (isset($_SESSION['temp_email_otp_' . $email]) && 
-                $_SESSION['temp_email_otp_' . $email] == $code &&
-                time() <= $_SESSION['temp_email_otp_expires_' . $email]) {
+            $sessionOtpKey = 'temp_email_otp_' . $email;
+            $sessionExpiresKey = 'temp_email_otp_expires_' . $email;
+
+            if (isset($_SESSION[$sessionOtpKey]) && 
+                isset($_SESSION[$sessionExpiresKey]) &&
+                $_SESSION[$sessionOtpKey] == $code) {
                 
-                // Clear the temp OTP after verification
-                unset($_SESSION['temp_email_otp_' . $email]);
+                // Check if code is expired
+                if (time() > $_SESSION[$sessionExpiresKey]) {
+                    // Clear expired code
+                    unset($_SESSION[$sessionOtpKey]);
+                    unset($_SESSION['temp_email_otp_time_' . $email]);
+                    unset($_SESSION[$sessionExpiresKey]);
+                    return "Verification code expired. Please request a new one.";
+                }
+
+                // Clear the temp code after verification
+                unset($_SESSION[$sessionOtpKey]);
                 unset($_SESSION['temp_email_otp_time_' . $email]);
-                unset($_SESSION['temp_email_otp_expires_' . $email]);
+                unset($_SESSION[$sessionExpiresKey]);
                 
                 Session::set('email_verified', 'verified');
                 return true;
             } else {
-                return "Invalid or expired code.";
+                return "Invalid or expired verification code.";
             }
         }
     }
@@ -186,10 +207,10 @@ class Verification
         $phone = $conn->real_escape_string($phone);
 
         if ($userId > 0) {
-            // Existing user - check database
+            // Existing user - check database with proper validation
             $query = "SELECT `sms_code`, `sms_code_expires` 
                     FROM `verification` 
-                    WHERE `user_id` = '$userId' 
+                    WHERE `phone` = '$phone' AND `user_id` = '$userId'
                     ORDER BY `id` DESC 
                     LIMIT 1";
 
@@ -198,19 +219,23 @@ class Verification
             if ($result && $result->num_rows > 0) {
                 $row = $result->fetch_assoc();
 
+                // Validate that we have proper data
                 if (empty($row['sms_code']) || empty($row['sms_code_expires'])) {
                     return "Invalid verification configuration.";
                 }
 
+                // Validate expiry time
                 $expiryTimestamp = strtotime($row['sms_code_expires']);
                 if ($expiryTimestamp === false) {
                     return "Invalid expiry timestamp in database.";
                 }
 
+                // Check if OTP is expired
                 if (time() > $expiryTimestamp) {
                     return "OTP expired. Please request a new one.";
                 }
 
+                // Strict comparison of OTP codes
                 if ($row['sms_code'] !== $code) {
                     return "Invalid OTP entered.";
                 }
@@ -219,7 +244,7 @@ class Verification
                 $update = $conn->query("
                     UPDATE `verification` 
                     SET `sms_verified` = 1, `verified_at` = NOW() 
-                    WHERE `user_id` = '$userId'
+                    WHERE `phone` = '$phone' AND `user_id` = '$userId'
                 ");
 
                 if ($update) {
@@ -232,15 +257,28 @@ class Verification
                 return "Verification record not found.";
             }
         } else {
-            // New user - check session
-            if (isset($_SESSION['temp_sms_otp_' . $phone]) && 
-                $_SESSION['temp_sms_otp_' . $phone] == $code &&
-                time() <= $_SESSION['temp_sms_otp_expires_' . $phone]) {
+            // New user - check session with proper validation
+            $sessionOtpKey = 'temp_sms_otp_' . $phone;
+            $sessionTimeKey = 'temp_sms_otp_time_' . $phone;
+            $sessionExpiresKey = 'temp_sms_otp_expires_' . $phone;
+
+            if (isset($_SESSION[$sessionOtpKey]) && 
+                isset($_SESSION[$sessionExpiresKey]) &&
+                $_SESSION[$sessionOtpKey] == $code) {
                 
-                // Clear the temp OTP after verification
-                unset($_SESSION['temp_sms_otp_' . $phone]);
-                unset($_SESSION['temp_sms_otp_time_' . $phone]);
-                unset($_SESSION['temp_sms_otp_expires_' . $phone]);
+                // Check if OTP is expired
+                if (time() > $_SESSION[$sessionExpiresKey]) {
+                    // Clear expired OTP
+                    unset($_SESSION[$sessionOtpKey]);
+                    unset($_SESSION[$sessionTimeKey]);
+                    unset($_SESSION[$sessionExpiresKey]);
+                    return "OTP expired. Please request a new one.";
+                }
+
+                // Clear the temp OTP after successful verification
+                unset($_SESSION[$sessionOtpKey]);
+                unset($_SESSION[$sessionTimeKey]);
+                unset($_SESSION[$sessionExpiresKey]);
                 
                 Session::set('sms_verified', 'verified');
                 return true;

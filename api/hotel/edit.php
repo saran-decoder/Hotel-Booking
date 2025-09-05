@@ -18,6 +18,7 @@ ${basename(__FILE__, '.php')} = function () {
     try {
         $hotelId          = trim($this->_request['hotelId'] ?? '');
         $hotelName        = trim($this->_request['hotelName'] ?? '');
+        $price            = trim($this->_request['minimumPrice'] ?? '');
         $locationName     = trim($this->_request['locationName'] ?? '');
         $mapCoordinates   = trim($this->_request['mapCoordinates'] ?? '');
         $fullAddress      = trim($this->_request['fullAddress'] ?? '');
@@ -62,7 +63,8 @@ ${basename(__FILE__, '.php')} = function () {
         // Call the update function
         $success = Admin::updateHotel(
             $hotelId, 
-            $hotelName, 
+            $hotelName,
+            $price,
             $locationName, 
             $mapCoordinates, 
             $fullAddress, 

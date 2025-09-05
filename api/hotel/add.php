@@ -19,6 +19,7 @@ ${basename(__FILE__, '.php')} = function () {
     try {
         // Collect data
         $hotelName        = trim($this->_request['hotelName'] ?? '');
+        $price            = trim($this->_request['minimumPrice'] ?? '');
         $locationName     = trim($this->_request['locationName'] ?? '');
         $mapCoordinates   = trim($this->_request['mapCoordinates'] ?? '');
         $fullAddress      = trim($this->_request['fullAddress'] ?? '');
@@ -60,6 +61,7 @@ ${basename(__FILE__, '.php')} = function () {
         $hotelId = Admin::addHotel(
             $owner,
             $hotelName,
+            $price,
             $locationName,
             $mapCoordinates,
             $fullAddress,

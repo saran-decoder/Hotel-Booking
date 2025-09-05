@@ -110,10 +110,15 @@
                         <form id="hotelForm" novalidate>
                             <!-- Hotel Details -->
                             <div class="row mb-3">
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <label class="form-label">Hotel Name <span class="text-danger">*</span></label>
                                     <input type="text" id="hotelName" name="hotelName" class="form-control" required />
                                     <div class="invalid-feedback">Please provide a hotel name.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Minimum Price <span class="text-danger">*</span></label>
+                                    <input type="number" id="minimumPrice" name="minimumPrice" class="form-control" required />
+                                    <div class="invalid-feedback">Please provide a Minimum Price.</div>
                                 </div>
                             </div>
 
@@ -450,7 +455,7 @@
                     let isValid = true;
                     
                     // Check required fields
-                    $('#hotelName, #locationName, #mapCoordinates, #fullAddress, #hotelDescription').each(function() {
+                    $('#hotelName, #minimumPrice, #locationName, #mapCoordinates, #fullAddress, #hotelDescription').each(function() {
                         if (!$(this).val().trim()) {
                             $(this).addClass('is-invalid');
                             isValid = false;
@@ -514,6 +519,7 @@
                     // Collect form data
                     const formData = new FormData();
                     formData.append('hotelName', $('#hotelName').val().trim());
+                    formData.append('minimumPrice', $('#minimumPrice').val().trim());
                     formData.append('locationName', $('#locationName').val().trim());
                     formData.append('mapCoordinates', $('#mapCoordinates').val().trim());
                     formData.append('fullAddress', $('#fullAddress').val().trim());

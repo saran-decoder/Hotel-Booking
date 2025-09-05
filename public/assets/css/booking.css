@@ -331,3 +331,172 @@
     height: 40px !important;
     padding: 8px !important;
 }
+
+.typeahead-result {
+    background: rgb(255, 255, 255);
+    padding: 0.5rem;
+    position: absolute;
+    top: 3.5rem;
+    width: -webkit-fill-available;
+    text-align: start;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    padding-left: 1rem;
+    left: 0;
+}
+.typeahead-result:hover {
+    background: #ffffffc7 !important;
+}
+
+.btn-updating {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.room-card.updating {
+    opacity: 0.7;
+    position: relative;
+}
+
+.room-card.updating::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-change-container {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.date-change-container .form-label {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.date-change-container .form-control {
+    font-size: 0.85rem;
+}
+
+/* Progress Step Wizard */
+.progress-step-wizard {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem 0;
+    padding: 0 3rem;
+}
+
+.step-wizard-item {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: 1;
+}
+
+.step-wizard-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.step-wizard-item.active .step-wizard-circle {
+    border-color: #0d6efd;
+    background: #0d6efd;
+    color: white;
+}
+
+.step-wizard-item.completed .step-wizard-circle {
+    border-color: #198754;
+    background: #198754;
+    color: white;
+}
+
+.step-wizard-item.completed .step-wizard-circle::after {
+    content: '✓';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.step-wizard-item.completed .step-number {
+    display: none;
+}
+
+.step-number {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.step-wizard-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.step-wizard-item.active .step-wizard-label {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.step-wizard-item.completed .step-wizard-label {
+    color: #198754;
+}
+
+/* Progress bar background */
+.progress-bar-background {
+    position: absolute;
+    top: 25px;
+    left: 3rem;
+    right: 3rem;
+    height: 4px;
+    background: #dee2e6;
+    z-index: 1;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: #198754;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .progress-step-wizard {
+        padding: 0 1rem;
+    }
+    
+    .step-wizard-circle {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .step-wizard-label {
+        font-size: 0.8rem;
+    }
+    
+    .progress-bar-background {
+        left: 1rem;
+        right: 1rem;
+        top: 20px;
+    }
+}

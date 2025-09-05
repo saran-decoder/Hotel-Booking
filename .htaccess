@@ -12,7 +12,7 @@
     # Rewrite /booking to public/booking.php
     RewriteRule ^booking/?$ public/booking.php [L]
     RewriteRule ^sg/?$ public/sg.php [L]
-    RewriteRule ^2fa/?$ public/2fa.php [L]
+    RewriteRule ^profile/?$ public/profile.php [L]
     RewriteRule ^logout/?$ public/logout.php [L]
 
     # Remove .php extension (allow /file instead of /file.php)

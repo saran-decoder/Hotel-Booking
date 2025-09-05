@@ -5,29 +5,55 @@ ${basename(__FILE__, '.php')} = function () {
         $phone = $this->_request['contact'];
         $otp = $this->_request['otp'];
         
+        // Validate input
+        if (!preg_match('/^[0-9]{10}$/', $phone)) {
+            $this->response($this->json([
+                'status' => false,
+                'message' => 'Invalid phone number format'
+            ]), 400);
+            return;
+        }
+
+        if (!preg_match('/^[0-9]{6}$/', $otp)) {
+            $this->response($this->json([
+                'status' => false,
+                'message' => 'Invalid OTP format'
+            ]), 400);
+            return;
+        }
+        
         // Check if user exists
         $conn = Database::getConnection();
-        $result = $conn->query("SELECT `id` FROM `users` WHERE `phone` = '$phone'");
+        $stmt = $conn->prepare("SELECT `id` FROM `users` WHERE `phone` = ?");
+        $stmt->bind_param("s", $phone);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $userId = 0;
+        $userExists = false;
         
         if ($result && $result->num_rows > 0) {
             $user = $result->fetch_assoc();
             $userId = $user["id"];
-            $verified = Verification::verifySMSCode($phone, $otp, $userId);
-        } else {
-            // New user verification
-            $verified = Verification::verifySMSCode($phone, $otp, 0);
+            $userExists = true;
         }
-
-        if ($verified) {
+        
+        $verified = Verification::verifySMSCode($phone, $otp, $userId);
+        
+        // Check if verification was successful
+        if ($verified === true) {
             $this->response($this->json([
                 'status' => true,
                 'message' => 'OTP verified successfully',
-                'user_exists' => isset($user["id"])
+                'user_exists' => $userExists
             ]), 200);
         } else {
+            // Log failed attempt for security monitoring
+            error_log("Failed OTP attempt for phone: $phone, OTP: $otp");
+            
             $this->response($this->json([
                 'status' => false,
-                'message' => 'Invalid or expired OTP'
+                'message' => $verified // Return the specific error message
             ]), 401);
         }
 
